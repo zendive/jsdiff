@@ -57,3 +57,8 @@ typings/
 # dotenv environment variables file
 .env
 
+# ide
+.idea
+
+# os
+.DS_Store
