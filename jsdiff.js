@@ -509,7 +509,11 @@ function factory (root, jsondiffpatch, formatter) {
     /**
      * show popup window
      */
-    module.show = function (objLeft, objRight) {
+    module.show = function (objLeft, objRight, options) {
+        options = Object.assign({
+            /** window title */
+            title: null
+        }, options);
         var delta = jsondiffpatch.diff(objLeft, objRight);
         var deltaHtml = formatter.html.format(delta, objLeft);
 
@@ -537,20 +541,25 @@ function factory (root, jsondiffpatch, formatter) {
             }
         }
 
-        var thumbs = [];
-        if (objLeft && typeof(objLeft) === 'object') {
-            // take maximum 4 object keys to construct a distinguishable title
-            var keys = Object.keys(objLeft);
-            for (var n = 0, N = Math.min(4, keys.length); n < N; n++) {
-                thumbs.push(keys[n]);
+        var title = options.title;
+        if (!title) {
+            var thumbs = [];
+            if (objLeft && typeof(objLeft) === 'object') {
+                // take maximum 4 object keys to construct a distinguishable title
+                var keys = Object.keys(objLeft);
+                for (var n = 0, N = Math.min(4, keys.length); n < N; n++) {
+                    thumbs.push(keys[n]);
+                }
             }
+            title = thumbs.join('|');
         }
+        title += (title? ' - ' : '') + (new Date()).toLocaleTimeString();
 
         // popup body
         var body = [
             '<html><head>',
             '<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>',
-            '<title>', thumbs.join('|'), ' - ', (new Date()).toLocaleTimeString(), '</title>',
+            '<title>', title, '</title>',
             '<style type="text/css">',
                 '.toolbar{position:fixed;top:0;right:0;z-index:',Date.now(),';}',
                 '\n',formatterCss,
