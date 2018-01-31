@@ -17,6 +17,10 @@ define(['path/to/jsdiff'], function (jsdiff) {
 
 Could be useful while comparing complex objects with big amount of data.
 
+TODO
+====
+ [-] DevTools chrome extension
+
 Based on 
 ====
 [jsondiffpatch](https://github.com/benjamine/jsondiffpatch) by benjamine
