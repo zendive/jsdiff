@@ -1,0 +1,24 @@
+{
+  "name": "JSDiff Devtool",
+  "version": "0.1",
+  "manifest_version": 2,
+  "minimum_chrome_version": "64.0",
+  "devtools_page": "src/jsdiff-devtools.html",
+  "icons": {
+    "16": "src/img/panel-icon16.png"
+  },
+  "background": {
+    "persistent": false,
+    "scripts": [
+      "src/js/jsdiff-background.js"
+    ]
+  },
+  "content_security_policy": "script-src 'self'; object-src 'self'",
+  "permissions": [
+    "http://*/*",
+    "https://*/*",
+    "file:///*",
+    "activeTab",
+    "tabs"
+  ]
+}
