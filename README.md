@@ -6,6 +6,7 @@ the help of dedicated commands invoked via console.
 
 Example
 ===
+```javascript
 console.diff(left, right);
 console.diffLeft(left);
 console.diffRight(right);
