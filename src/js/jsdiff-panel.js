@@ -1,9 +1,7 @@
 require.config({
     waitSeconds: 30,
     paths: {
-        vue: '/src/js/lib/vue.runtime',
-        jsondiffpatch: '/src/js/lib/jsondiffpatch-full.min',
-        formatter: '/src/js/lib/jsondiffpatch-formatters.min'
+        api: '/src/js/api/api'
     },
     shim: {}
 });

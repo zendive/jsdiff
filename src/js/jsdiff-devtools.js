@@ -9,17 +9,6 @@ chrome.devtools.panels.create(
         panel.onSearch.addListener(sendMessage('jsdiff-panel-search'));
         panel.onShown.addListener(sendMessage('jsdiff-panel-shown'));
         panel.onHidden.addListener(sendMessage('jsdiff-panel-hidden'));
-
-        panel.createStatusBarButton(
-                '/src/img/panel-icon16.png',
-                'Button tooltip - Inject',
-                false /*disabled*/
-            )
-            .onClicked.addListener((cb) => {
-                injectScripts();
-                cb && cb();
-                sendMessage('jsdiff-panel-reinject')();
-            });
     }
 );
 
@@ -34,6 +23,12 @@ if (chrome.devtools.inspectedWindow.tabId !== null) {
 
     injectScripts();
 }
+
+chrome.runtime.onMessage.addListener((req, sender, sendResponse) => {
+    if (req === 'jsdiff-panel-reinject') {
+        injectScripts();
+    }
+});
 
 // Inject console api and messaging proxy
 // us shown at: https://developer.chrome.com/extensions/devtools#content-script-to-devtools

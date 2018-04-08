@@ -28,7 +28,7 @@ chrome.runtime.onMessage.addListener((req, sender, sendResponse) => {
         // from content-script jsdiff-proxy.js
         const tabId = sender.tab.id;
         if (tabId in connections) {
-            // relay to jsdiff-devtools.js
+            // relay to jsdiff-panel.js
             connections[tabId].postMessage(req);
             console.log('jsdiff-background message relay', req);
         }
