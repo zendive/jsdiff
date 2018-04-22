@@ -10,8 +10,15 @@ Example
 console.diff(left, right);
 console.diffLeft(left);
 console.diffRight(right);
+console.diffPush(next);
 ```
 ![screenshot](./doc/screenshot.png)
+
+Usage basics
+===
+Left side for old state, right side for new.
+To track changes of the same object in timed manner you can push it with `diffPush` command, 
+that will shift objects from right to left, showing differences with previous push state. 
 
 Based on 
 ===

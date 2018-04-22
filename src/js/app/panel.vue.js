@@ -130,7 +130,7 @@ define(['api'], function (api) {
                 console.log('$_onRuntimeMessage', req);
 
                 if (req.source === 'jsdiff-devtools-extension-api') {
-                    this.$_onDiffRequest(req.payload.left, req.payload.right);
+                    this.$_onDiffRequest(req.payload);
                 }
             },
 
@@ -147,12 +147,18 @@ define(['api'], function (api) {
                 return false;
             },
 
-            $_onDiffRequest(left, right) {
-                if (left) {
-                    this.compare.left = left;
+            $_onDiffRequest({left, right, push}) {
+                if (push) {
+                    this.compare.left = this.compare.right;
+                    this.compare.right = push;
                 }
-                if (right) {
-                    this.compare.right = right;
+                else {
+                    if (left) {
+                        this.compare.left = left;
+                    }
+                    if (right) {
+                        this.compare.right = right;
+                    }
                 }
 
                 this.$_restartLastUpdated();
