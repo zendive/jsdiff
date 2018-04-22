@@ -46,8 +46,6 @@ function injectScripts () {
 }
 
 function jsdiff_devtools_extension_api () {
-    'use strict';
-
     if (console.diff) {return;/*nothing to do*/}
     const source = 'jsdiff-devtools-extension-api';
     const w = window;
@@ -55,7 +53,8 @@ function jsdiff_devtools_extension_api () {
     Object.assign(console, {
         diff(left, right) {w.postMessage({payload: {left, right}, source}, '*');},
         diffLeft(left) {w.postMessage({payload: {left}, source}, '*');},
-        diffRight(right) {w.postMessage({payload: {right}, source}, '*');}
+        diffRight(right) {w.postMessage({payload: {right}, source}, '*');},
+        diffPush(push) {w.postMessage({payload: {push}, source}, '*');}
     });
 
     console.log(
@@ -67,7 +66,7 @@ function jsdiff_devtools_extension_api () {
             border: 1px solid #bbb;
             border-radius: 4px;
         `,
-        `console.diff(left, right); console.diffLeft(left); console.diffRight(right);`
+        `console.diff(left, right); console.diffLeft(left); console.diffRight(right); console.diffPush(next);`
     );
 }
 
