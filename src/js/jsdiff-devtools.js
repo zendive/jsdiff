@@ -57,7 +57,12 @@ function jsdiff_devtools_extension_api() {
 
   Object.assign(console, {
     diff(left, right) {
-      w.postMessage({payload: {left, right}, source}, '*');
+      if (right === undefined) {
+        w.postMessage({payload: {push: left}, source}, '*');
+      }
+      else {
+        w.postMessage({payload: {left, right}, source}, '*');
+      }
     },
     diffLeft(left) {
       w.postMessage({payload: {left}, source}, '*');

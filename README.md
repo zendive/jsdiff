@@ -10,7 +10,7 @@ Example
 console.diff(left, right);
 console.diffLeft(left);
 console.diffRight(right);
-console.diffPush(next);
+console.diffPush(next); // private case of console.diff with single argument
 ```
 ![screenshot](./doc/screenshot.png)
 
