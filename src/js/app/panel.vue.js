@@ -11,13 +11,23 @@ define(['api'], function(api) {
           ce('div', {class: ['-toolbox']}, [
             ce('button', {
               class: ['btn'],
+              attrs: {title: 'Inject console.diff API to current tab'},
               on: {click: this.onReinject}
             }, 'Inject API'),
             (this.hasBothSides ?
                     ce('button', {
                       class: ['btn'],
+                      attrs: {title: 'Hide/Show unchanged properties'},
                       on: {click: this.onToggleUnchanged}
                     }, 'Toggle Unchanged')
+                    : null
+            ),
+            (this.hasBothSides ?
+                    ce('button', {
+                      class: ['btn'],
+                      attrs: {title: 'Copy delta as json string'},
+                      on: {click: this.onCopyDelta}
+                    }, 'Copy')
                     : null
             )
           ]),
@@ -117,6 +127,16 @@ define(['api'], function(api) {
 
       onReinject() {
         chrome.runtime.sendMessage('jsdiff-panel-reinject');
+      },
+
+      onCopyDelta() {
+        const delta = api.jsondiffpatch.diff(this.compare.left, this.compare.right);
+        const sDelta = JSON.stringify(delta);
+        document.oncopy = function(e) {
+          e.clipboardData.setData('text', sDelta);
+          e.preventDefault();
+        };
+        document.execCommand('copy', false, null);
       },
 
       $_restartLastUpdated() {
