@@ -131,7 +131,7 @@ define(['api'], function(api) {
 
       onCopyDelta() {
         const delta = api.jsondiffpatch.diff(this.compare.left, this.compare.right);
-        const sDelta = JSON.stringify(delta);
+        const sDelta = JSON.stringify(delta, null, 2);
         document.oncopy = function(e) {
           e.clipboardData.setData('text', sDelta);
           e.preventDefault();
