@@ -3,7 +3,7 @@
 // Create panel
 chrome.devtools.panels.create(
     'JSDiff',
-    '/src/img/panel-icon16.png',
+    '/src/img/panel-icon128.png',
     '/src/jsdiff-panel.html',
     (panel) => {
       panel.onSearch.addListener(sendMessage('jsdiff-panel-search'));

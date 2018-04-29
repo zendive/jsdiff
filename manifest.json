@@ -1,11 +1,11 @@
 {
   "name": "JSDiff Devtool",
-  "version": "0.1",
+  "version": "1.0",
   "manifest_version": 2,
   "minimum_chrome_version": "64.0",
   "devtools_page": "src/jsdiff-devtools.html",
   "icons": {
-    "16": "src/img/panel-icon16.png"
+    "128": "src/img/panel-icon128.png"
   },
   "background": {
     "persistent": false,
@@ -18,8 +18,6 @@
     "http://*/*",
     "https://*/*",
     "file:///*",
-    "activeTab",
-    "tabs",
     "clipboardWrite"
   ]
 }

@@ -57,11 +57,10 @@ define(['api'], function(api) {
                       'console.diff({a:1,b:1}, {a:1,b:2});'
                     ]),
                     ce('div', {class: ['-links']}, [
-                      'This extension based on ',
-                      ce('a', {attrs: {href: this.git.diffApi, target: '_blank'}}, 'jsondiffpatch'),
-                      ' and available at ',
-                      ce('a', {attrs: {href: this.git.self, target: '_blank'}}, 'github'),
-                      '.'
+                      'Based on ',
+                      ce('a', {attrs: {href: this.git.diffApi, target: '_blank'}}, 'benjamine/jsondiffpatch'),
+                      ', available at ',
+                      ce('a', {attrs: {href: this.git.self, target: '_blank'}}, 'zendive/jsdiff')
                     ])
                   ])
                 ])

@@ -12,7 +12,7 @@ console.diffLeft(left);
 console.diffRight(right);
 console.diffPush(next); // private case of console.diff with single argument
 ```
-![screenshot](./doc/screenshot.png)
+![screenshot](./doc/screenshot-01.png)
 
 Usage basics
 ===
