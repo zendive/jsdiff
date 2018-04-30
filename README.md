@@ -1,8 +1,10 @@
-jsdiff
+![jsdiff](./src/img/panel-icon64.png)
 ---
 Chrome devtools extension
 intended to display result of in-memory object comparisons with
 the help of dedicated commands invoked via console.
+
+[find at chrome web-store](https://chrome.google.com/webstore/detail/jsdiff-devtool/iefeamoljhdcpigpnpggeiiabpnpgonb)
 
 Example
 ===
@@ -22,4 +24,5 @@ that will shift objects from right to left, showing differences with previous pu
 
 Based on 
 ===
-[jsondiffpatch](https://github.com/benjamine/jsondiffpatch) by benjamine
+- [jsondiffpatch](https://github.com/benjamine/jsondiffpatch) by Benjamín Eidelman
+- [vuejs](https://github.com/vuejs) by Evan You
