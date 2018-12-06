@@ -1,15 +1,14 @@
 define([
-  '/src/js/api/vue.runtime.min.js',
-  '/src/js/api/jsondiffpatch-full.min.js',
-  '/src/js/api/jsondiffpatch-formatters.min.js',
-  '/src/js/api/moment.min.js'
+  'js/api/vue.runtime.min',
+  'js/api/jsondiffpatch.umd',
+  'js/api/moment.min'
 ], function(
     Vue, jsondiffpatch, formatter, moment
 ) {
   return {
     Vue,
     jsondiffpatch,
-    formatter,
+    formatters: jsondiffpatch.formatters,
     moment
   };
 });

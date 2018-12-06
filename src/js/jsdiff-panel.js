@@ -1,13 +1,14 @@
 require.config({
   waitSeconds: 30,
+  baseUrl: '/src',
   paths: {
-    api: '/src/js/api/api'
+    api: 'js/api/api'
   },
   shim: {}
 });
 
 require([
-  '/src/js/app/panel.vue.js'
+  'js/app/panel.vue'
 ], function(App) {
   'use strict';
   const app = new App({el: '#app'});

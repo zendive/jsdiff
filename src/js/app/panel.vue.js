@@ -54,7 +54,7 @@ define(['api'], function(api) {
                 : ce('section', {class: ['-empty']}, [
                   ce('div', {class: ['-center']}, [
                     ce('code', {}, [
-                      'console.diff({a:1,b:1}, {a:1,b:2});'
+                      'console.diff({a:1,b:1,c:3}, {a:1,b:2,d:3});'
                     ]),
                     ce('div', {class: ['-links']}, [
                       'Based on ',
@@ -106,7 +106,7 @@ define(['api'], function(api) {
       deltaHtml() {
         try {
           this.$_adjustArrows();
-          return api.formatter.html.format(
+          return api.formatters.html.format(
               api.jsondiffpatch.diff(this.compare.left, this.compare.right),
               this.compare.left
           );
@@ -120,7 +120,7 @@ define(['api'], function(api) {
     methods: {
       onToggleUnchanged(e) {
         this.showUnchanged = !this.showUnchanged;
-        api.formatter.html.showUnchanged(this.showUnchanged, this.$refs.delta);
+        api.formatters.html.showUnchanged(this.showUnchanged, this.$refs.delta);
         this.$_adjustArrows();
       },
 
