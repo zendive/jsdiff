@@ -1,7 +1,7 @@
 {
-  "name": "JSDiff Devtool",
-  "description": "Add console.diff() to your devtools...",
-  "version": "1.0",
+  "name": "console.diff() Devtool",
+  "description": "Compare complex in-memory objects with console.diff command. For example: console.diff({a:1,b:1}, {a:1,b:2,c:3});",
+  "version": "1.1",
   "manifest_version": 2,
   "minimum_chrome_version": "64.0",
   "devtools_page": "src/jsdiff-devtools.html",

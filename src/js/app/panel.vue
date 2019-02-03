@@ -1,72 +1,8 @@
-define(['api'], function(api) {
-  'use strict';
-  // language=Vue
-  return api.Vue.extend({
-    name: 'app',
+<script>
+  const api = require('../api');
 
-    render(ce) {
-      return ce('section', {attrs: {id: 'app'}}, [
-        ce('section', {class: ['-header']}, [
-          ce('div', {class: ['-title']}, 'JSDiff'),
-          ce('div', {class: ['-toolbox']}, [
-            ce('button', {
-              class: ['btn'],
-              attrs: {title: 'Inject console.diff API to current tab'},
-              on: {click: this.onReinject}
-            }, 'Inject API'),
-            (this.hasBothSides ?
-                    ce('button', {
-                      class: ['btn'],
-                      attrs: {title: 'Hide/Show unchanged properties'},
-                      on: {click: this.onToggleUnchanged}
-                    }, 'Toggle Unchanged')
-                    : null
-            ),
-            (this.hasBothSides ?
-                    ce('button', {
-                      class: ['btn'],
-                      attrs: {title: 'Copy delta as json string'},
-                      on: {click: this.onCopyDelta}
-                    }, 'Copy')
-                    : null
-            )
-          ]),
-          (this.hasBothSides ?
-                  ce('div', {class: ['-last-updated']}, [
-                    ce('span', 'Last updated: '),
-                    ce('span', {class: ['-value']}, this.lastUpdated)
-                  ])
-                  : null
-          )
-        ]),
-
-        (this.hasBothSides ?
-                (this.exactMatch ?
-                        ce('section', {class: ['-match']}, [
-                          ce('code', {class: ['-center']}, ['match'])
-                        ])
-                        : ce('section', {
-                          ref: 'delta',
-                          class: ['-delta'],
-                          domProps: {innerHTML: this.deltaHtml}
-                        })
-                )
-                : ce('section', {class: ['-empty']}, [
-                  ce('div', {class: ['-center']}, [
-                    ce('code', {}, [
-                      'console.diff({a:1,b:1,c:3}, {a:1,b:2,d:3});'
-                    ]),
-                    ce('div', {class: ['-links']}, [
-                      'Based on ',
-                      ce('a', {attrs: {href: this.git.diffApi, target: '_blank'}}, 'benjamine/jsondiffpatch'),
-                      ', available at ',
-                      ce('a', {attrs: {href: this.git.self, target: '_blank'}}, 'zendive/jsdiff')
-                    ])
-                  ])
-                ])
-        )
-      ]);
-    },
+  export default api.Vue.extend({
+    name: 'jsdiff-panel',
 
     data() {
       return {
@@ -233,4 +169,71 @@ define(['api'], function(api) {
     }
 
   });
-});
+</script>
+
+<template>
+    <section id="app">
+        <section class="-header">
+            <div class="-title">JSDiff</div>
+
+            <div class="-toolbox">
+                <button
+                    class="btn"
+                    title="Inject console.diff API to current tab"
+                    @click="onReinject"
+                >Inject API</button>
+
+                <button
+                    v-if="hasBothSides"
+                    class="btn"
+                    title="Hide/Show unchanged properties"
+                    @click="onToggleUnchanged"
+                >Toggle Unchanged</button>
+
+                <button
+                    v-if="hasBothSides"
+                    class="btn"
+                    title="Copy delta as json string"
+                    @click="onCopyDelta"
+                >Copy</button>
+
+            </div>
+
+            <div v-if="hasBothSides"
+                class="-last-updated">
+                <span>Last updated</span>
+                <span class="-value" v-text="lastUpdated"/>
+            </div>
+        </section>
+
+        <section
+            v-if="hasBothSides && exactMatch"
+            class="-match">
+            <code
+                ref="delta"
+                class="-center"
+            >match</code>
+        </section>
+        <section v-else-if="hasBothSides && !exactMatch">
+            <code
+                ref="delta"
+                class="-delta"
+                v-html="deltaHtml"
+            />
+        </section>
+        <section v-if="!hasBothSides"
+            class="-empty">
+            <div class="-center">
+                <code>console.diff({a:1,b:1,c:3}, {a:1,b:2,d:3});</code>
+                <div class="-links">
+                    <a :href="git.diffApi" target="_blank">benjamine/jsondiffpatch</a>
+                    <a :href="git.self" target="_blank">zendive/jsdiff</a>
+                </div>
+            </div>
+        </section>
+
+    </section>
+</template>
+
+<style scoped>
+</style>

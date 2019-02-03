@@ -16,46 +16,49 @@ body {
   margin: 0 auto;
   text-align: center; }
 
-section#app section.-header {
-  border-bottom: 1px solid #bbb;
-  box-shadow: 1px 2px 5px #bbb;
-  display: flex;
-  align-items: center;
-  height: 26px; }
-  section#app section.-header .-title {
-    margin-left: 10px;
-    font-size: 22px;
-    font-weight: 700;
-    background: -webkit-linear-gradient(green, red);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent; }
-  section#app section.-header .-toolbox {
-    margin-left: 10px; }
-    section#app section.-header .-toolbox .btn {
-      margin-right: 2px; }
-  section#app section.-header .-last-updated {
-    margin-left: 10px;
-    color: #bbbbbb; }
-    section#app section.-header .-last-updated .-value {
-      font-weight: bold; }
-section#app section.-match {
-  display: flex;
-  align-items: center;
-  height: 100%; }
-  section#app section.-match .-center {
-    font-size: 26px;
-    color: #bbb; }
-section#app section.-empty {
-  display: flex;
-  align-items: center;
-  height: 100%; }
-  section#app section.-empty .-links {
-    margin-top: 16px;
-    font-size: 11px; }
-  section#app section.-empty .-center {
-    font-size: 26px;
-    color: #bbb; }
-section#app section.-delta {
-  padding-top: 10px; }
+section#app {
+  height: 100vh; }
+  section#app section.-header {
+    border-bottom: 1px solid #bbb;
+    box-shadow: 1px 2px 5px #bbb;
+    display: flex;
+    align-items: center;
+    height: 26px; }
+    section#app section.-header .-title {
+      margin-left: 10px;
+      font-size: 22px;
+      font-weight: 700;
+      background: linear-gradient(green, red);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent; }
+    section#app section.-header .-toolbox {
+      margin-left: 10px; }
+      section#app section.-header .-toolbox .btn {
+        margin-right: 2px; }
+    section#app section.-header .-last-updated {
+      margin-left: 10px;
+      color: #bbbbbb; }
+      section#app section.-header .-last-updated .-value {
+        font-weight: bold; }
+  section#app section.-match {
+    display: flex;
+    align-items: center;
+    height: 100%; }
+    section#app section.-match .-center {
+      font-size: 26px;
+      color: #bbb; }
+  section#app section.-empty {
+    display: flex;
+    height: calc(100vh - 26px);
+    justify-content: center;
+    align-items: center; }
+    section#app section.-empty .-links {
+      margin-top: 16px;
+      font-size: 11px; }
+    section#app section.-empty .-center {
+      font-size: 26px;
+      color: #bbb; }
+  section#app section.-delta {
+    padding-top: 10px; }
 
 /*# sourceMappingURL=style.css.map */
