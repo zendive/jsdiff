@@ -94,16 +94,7 @@
       },
 
       $_hasData(o) {
-        if (o) {
-          const t = typeof(o);
-          if (t === 'object') {
-            return Object.keys(o).length > 0;
-          }
-          else if (t === 'string') {
-            return true;
-          }
-        }
-        return false;
+        return (undefined !== o && null !== o);
       },
 
       $_onDiffRequest({left, right, push}) {
@@ -173,7 +164,7 @@
   });
 </script>
 
-<template>
+<template lang="Vue">
     <section id="app">
         <section class="-header">
             <div class="-title">JSDiff</div>
