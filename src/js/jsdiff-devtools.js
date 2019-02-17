@@ -6,9 +6,9 @@ chrome.devtools.panels.create(
     '/src/img/panel-icon128.png',
     '/src/jsdiff-panel.html',
     (panel) => {
-      panel.onSearch.addListener(sendMessage('jsdiff-panel-search'));
-      panel.onShown.addListener(sendMessage('jsdiff-panel-shown'));
-      panel.onHidden.addListener(sendMessage('jsdiff-panel-hidden'));
+      //panel.onSearch.addListener(sendMessage('jsdiff-panel-search'));
+      //panel.onShown.addListener(sendMessage('jsdiff-panel-shown'));
+      //panel.onHidden.addListener(sendMessage('jsdiff-panel-hidden'));
     }
 );
 

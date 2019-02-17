@@ -22,7 +22,17 @@
     },
 
     mounted() {
-      this.$on('on-runtime-message', this.$_onRuntimeMessage);
+      chrome.runtime.onMessage.addListener((req, sender, sendResponse) => {
+        console.log('$_onRuntimeMessage', req);
+
+        if (req.source === 'jsdiff-devtools-extension-api') {
+          this.$_onDiffRequest(req.payload);
+        }
+      });
+
+      chrome.runtime.sendMessage({type: 'jsdiff-devtools-panel-shown'}, (req) => {
+        this.$_onDiffRequest(req.payload);
+      });
       window.vm = this;
     },
 
@@ -81,14 +91,6 @@
         this.timer = setInterval(() => {
           this.now = Date.now();
         }, 5e3);
-      },
-
-      $_onRuntimeMessage(req, sender, sendResponse) {
-        console.log('$_onRuntimeMessage', req);
-
-        if (req.source === 'jsdiff-devtools-extension-api') {
-          this.$_onDiffRequest(req.payload);
-        }
       },
 
       $_hasData(o) {

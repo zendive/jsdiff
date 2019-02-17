@@ -1,43 +1,64 @@
-const connections = {};
+console.log('jsdiff-background loaded');
 
-chrome.runtime.onConnect.addListener((port/*devToolsConnection*/) => {
-  console.log('jsdiff-background connected with', port.name);
+const connections = new Map();
+let lastApiReq = null;
+
+chrome.runtime.onConnect.addListener((port) => {
+  console.log('jsdiff-background connected with, port:', port);
 
   const devToolsListener = (message, sender, sendResponse) => {
     if (message.name === 'init') {
-      connections[message.tabId] = port;
-      console.log('jsdiff-background initialized', port.name, message);
+      const connection = new Connection(port);
+      connections.set(message.tabId, connection);
+      console.log('jsdiff-background initialized, message:', message);
     }
   };
+
   port.onMessage.addListener(devToolsListener);
-  port.onDisconnect.addListener(() => {
+  port.onDisconnect.addListener((port) => {
     port.onMessage.removeListener(devToolsListener);
 
-    const tabs = Object.keys(connections);
-    for (let i = 0, I = tabs.length; i < I; i++) {
-      if (connections[tabs[i]] === port) {
-        delete connections[tabs[i]];
-        break;
+    for (let [tabId, con] of connections) {
+      if (port === con.port) {
+        con.onDisconnect();
+        connections.delete(tabId);
+        break
       }
     }
   });
 });
 
 chrome.runtime.onMessage.addListener((req, sender, sendResponse) => {
-  if (sender.tab) {
-    // from content-script jsdiff-proxy.js
-    const tabId = sender.tab.id;
-    if (tabId in connections) {
-      // relay to jsdiff-panel.js
-      connections[tabId].postMessage(req);
-      console.log('jsdiff-background message relay', req);
-    }
+  const tabId = sender.tab && sender.tab.id;
+
+  if ('jsdiff-devtools-extension-api' === req.source && connections.has(tabId)) {
+    lastApiReq = req;
+    connections.get(tabId).onApiMessage(req);
   }
-  else {
-    // from elsewhere
+  else if ('jsdiff-devtools-panel-shown' === req.type) {
+    // message from one of devtool panels
+    sendResponse(lastApiReq);
   }
 
-  return !!'magic';
+  return '!!magic';
 });
 
-console.log('jsdiff-background loaded');
+class Connection {
+  constructor(port) {
+    this.port = port;
+  }
+
+  /**
+   * from content-script jsdiff-proxy.js
+   * relay to jsdiff-panel.js
+   */
+  onApiMessage(req) {
+    console.log('jsdiff-background message relay', req);
+    this.port.postMessage(req);
+  }
+
+  onDisconnect() {
+    this.req = null;
+  }
+
+}
