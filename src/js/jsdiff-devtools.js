@@ -14,7 +14,7 @@ chrome.devtools.panels.create(
 
 // Create a connection to the background page
 if (chrome.devtools.inspectedWindow.tabId !== null) {
-  // tabId may be null if user opened devtools-of-devtools etc.
+  // tabId may be null if user opened the devtools of the devtools
   const backgroundPageConnection = chrome.runtime.connect({name: 'jsdiff-devtools'});
   backgroundPageConnection.postMessage({
     name: 'init',
@@ -24,8 +24,9 @@ if (chrome.devtools.inspectedWindow.tabId !== null) {
   injectScripts();
 }
 
-chrome.runtime.onMessage.addListener((req, sender, sendResponse) => {
-  if (req === 'jsdiff-panel-reinject') {
+// listen on tabs page reload
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+  if ('complete' === changeInfo.status) {
     injectScripts();
   }
 });
@@ -34,7 +35,7 @@ chrome.runtime.onMessage.addListener((req, sender, sendResponse) => {
 // us shown at: https://developer.chrome.com/extensions/devtools#content-script-to-devtools
 function injectScripts() {
   chrome.devtools.inspectedWindow.eval(
-      ';(' + jsdiff_devtools_extension_api.toString() + ')()', {
+      ';(' + jsdiff_devtools_extension_api.toString() + ')();', {
         useContentScriptContext: false // default: false
       }, (res, error) => {
         if (res && !error) {

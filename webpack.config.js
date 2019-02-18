@@ -32,6 +32,10 @@ module.exports = {
   module: {
     rules: [
       {
+        test: /\.vue$/,
+        loader: 'vue-loader'
+      },
+      {
         test: /\.(scss|css)$/,
         use: [
           'style-loader',
@@ -40,8 +44,13 @@ module.exports = {
         ]
       },
       {
-        test: /\.vue$/,
-        loader: 'vue-loader'
+        test: /\.(jpg|png|gif)$/,
+        use: {
+          loader: "file-loader",
+          options: {
+            name: "[path][name].[hash].[ext]",
+          }
+        }
       }
     ]
   },

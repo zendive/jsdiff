@@ -1,4 +1,5 @@
 <script>
+  import 'jsondiffpatch/dist/formatters-styles/html.css';
   const api = require('../api');
 
   export default api.Vue.extend({
@@ -13,8 +14,8 @@
         showUnchanged: true,
         compare: {
           timestamp: null,
-          left: {},
-          right: {}
+          left: null,
+          right: null
         },
         now: Date.now(),
         timer: null
@@ -31,24 +32,29 @@
       });
 
       chrome.runtime.sendMessage({type: 'jsdiff-devtools-panel-shown'}, (req) => {
-        this.$_onDiffRequest(req.payload);
+        if (null !== req) {
+          this.$_onDiffRequest(req.payload);
+        }
       });
       window.vm = this;
     },
 
     computed: {
       lastUpdated() {
-        return api.moment(this.compare.timestamp).from(this.now);
+        return api.moment(this.compare.timestamp).fromNow();
       },
+
       hasBothSides() {
         return (
             this.$_hasData(this.compare.left) &&
             this.$_hasData(this.compare.right)
         );
       },
+
       exactMatch() {
         return !this.deltaHtml;
       },
+
       deltaHtml() {
         try {
           this.$_adjustArrows();
@@ -68,10 +74,6 @@
         this.showUnchanged = !this.showUnchanged;
         api.formatters.html.showUnchanged(this.showUnchanged, this.$refs.delta);
         this.$_adjustArrows();
-      },
-
-      onReinject() {
-        chrome.runtime.sendMessage('jsdiff-panel-reinject');
       },
 
       onCopyDelta() {
@@ -167,14 +169,7 @@
 <template lang="Vue">
     <section id="app">
         <section class="-header">
-            <div class="-title">JSDiff</div>
-
             <div class="-toolbox">
-                <button
-                    class="btn"
-                    title="Inject console.diff API to current tab"
-                    @click="onReinject"
-                >Inject API</button>
 
                 <button
                     v-if="hasBothSides"
@@ -186,7 +181,7 @@
                 <button
                     v-if="hasBothSides"
                     class="btn"
-                    title="Copy delta as json string"
+                    title="Copy delta as json object"
                     @click="onCopyDelta"
                 >Copy</button>
 
@@ -197,10 +192,13 @@
                 <span>Last updated</span>
                 <span class="-value" v-text="lastUpdated"/>
             </div>
+
+            <a class="-icon" :href="git.self" target="_blank" :title="git.self">
+              <img src="/src/img/panel-icon64.png" alt="JSDiff"/>
+            </a>
         </section>
 
-        <section
-            v-if="hasBothSides && exactMatch"
+        <section v-if="hasBothSides && exactMatch"
             class="-match">
             <code
                 ref="delta"
@@ -228,5 +226,101 @@
     </section>
 </template>
 
-<style scoped>
+<style lang="scss">
+  $headerHeight: 26px;
+
+  body {
+    margin: 0;
+    background-color: #fff;
+  }
+
+  .btn {
+    height: $headerHeight;
+    cursor: pointer;
+    border: none;
+    border-radius: 0;
+    outline: none;
+    background-color: rgba(0,0,0, 0.03);
+    &:hover {
+      background-color: rgba(0,0,0, 0.3);
+    }
+  }
+
+  .-center {
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  section#app {
+    height: 100vh;
+
+    section.-header {
+      border-bottom: 1px solid #bbb;
+      box-shadow: 1px 2px 5px #bbb;
+      display: flex;
+      align-items: center;
+      height: $headerHeight;
+      margin-bottom: 12px;
+      min-width: 512px;
+
+      .-toolbox {
+        margin-left: 10px;
+        .btn {
+          margin-right: 2px;
+        }
+      }
+      .-last-updated {
+        margin-left: 10px;
+        color: #bbbbbb;
+
+        .-value {
+          font-weight: bold;
+        }
+      }
+
+      .-icon {
+        position: absolute;
+        top: 7px;
+        right: 10px;
+
+        img {
+          width: 32px;
+        }
+      }
+    }
+
+    section.-match {
+      display: flex;
+      align-items: center;
+      height: 100%;
+
+      .-center {
+        font-size: 26px;
+        color: #bbb;
+      }
+    }
+
+    section.-empty {
+      display: flex;
+      height: calc(100vh - #{$headerHeight});
+      justify-content: center;
+      align-items: center;
+
+      .-links {
+        margin-top: 16px;
+        font-size: 11px;
+      }
+
+      .-center {
+        font-size: 26px;
+        color: #bbb;
+      }
+    }
+
+    section.-delta {
+      padding-top: 10px;
+    }
+
+  }
+
 </style>

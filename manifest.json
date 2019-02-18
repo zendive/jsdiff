@@ -1,5 +1,5 @@
 {
-  "name": "console.diff() Devtool",
+  "name": "console.diff(...) Devtool",
   "description": "Compare complex in-memory objects with console.diff command. For example: console.diff({a:1,b:1}, {a:1,b:2,c:3});",
   "version": "1.1",
   "manifest_version": 2,
@@ -19,6 +19,7 @@
     "http://*/*",
     "https://*/*",
     "file:///*",
-    "clipboardWrite"
+    "clipboardWrite",
+    "tabs"
   ]
 }

@@ -1,5 +1,6 @@
 <script>
   'use strict';
+  import 'jsondiffpatch/dist/formatters-styles/html.css';
   const api = require('../js/api');
   window.api = api;
 

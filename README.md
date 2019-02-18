@@ -6,8 +6,12 @@ the help of dedicated commands invoked via console.
 
 [find at chrome web-store](https://chrome.google.com/webstore/detail/jsdiff-devtool/iefeamoljhdcpigpnpggeiiabpnpgonb)
 
-Example
-===
+### Usage basics
+Left side for old state, right side for new.
+To track changes of the same object in timed manner you can push it with `diffPush` command, 
+that will shift objects from right to left, showing differences with previous push state. 
+
+### Example
 ```javascript
 console.diff(left, right);
 console.diffLeft(left);
@@ -15,12 +19,6 @@ console.diffRight(right);
 console.diffPush(next); // private case of console.diff with single argument
 ```
 ![screenshot](./doc/screenshot-01.png)
-
-Usage basics
-===
-Left side for old state, right side for new.
-To track changes of the same object in timed manner you can push it with `diffPush` command, 
-that will shift objects from right to left, showing differences with previous push state. 
 
 Based on 
 ===
