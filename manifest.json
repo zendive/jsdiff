@@ -1,6 +1,6 @@
 {
   "name": "console.diff(...)",
-  "description": "Deep compare complex in-memory objects inside browser devtools panel with console.diff command. For example: console.diff({a:1,b:1}, {a:1,b:2,c:3});",
+  "description": "Deep compare complex in-memory objects inside browser devtools panel with console.diff command.",
   "version": "1.1",
   "manifest_version": 2,
   "minimum_chrome_version": "64.0",
