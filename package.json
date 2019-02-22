@@ -1,0 +1,46 @@
+{
+  "name": "jsdiff",
+  "version": "1.1.0",
+  "description": "![jsdiff](./src/img/panel-icon64.png) --- Chrome devtools extension intended to display result of in-memory object comparisons with the help of dedicated commands invoked via console.",
+  "private": true,
+  "directories": {
+    "doc": "doc"
+  },
+  "scripts": {
+    "test": "echo \"no test\" && exit 1",
+    "dev": "webpack --progress --watch",
+    "prod": "webpack --progress -p"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zendive/jsdiff.git"
+  },
+  "keywords": [
+    "devtools",
+    "chrome",
+    "extension"
+  ],
+  "author": "Block Alexander",
+  "license": "proprietary",
+  "bugs": {
+    "url": "https://github.com/zendive/jsdiff/issues"
+  },
+  "homepage": "https://github.com/zendive/jsdiff#readme",
+  "devDependencies": {
+    "clean-webpack-plugin": "~1.0.1",
+    "css-loader": "~2.1.0",
+    "file-loader": "^3.0.1",
+    "node-sass": "~4.11.0",
+    "sass-loader": "~7.1.0",
+    "style-loader": "~0.23.1",
+    "vue-loader": "~15.6.2",
+    "vue-template-compiler": "~2.6.6",
+    "webpack": "~4.29.0",
+    "webpack-cli": "~3.2.1"
+  },
+  "dependencies": {
+    "jsondiffpatch": "~0.3.11",
+    "moment": "~2.24.0",
+    "vue": "~2.6.6"
+  }
+}
