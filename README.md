@@ -1,4 +1,4 @@
-![jsdiff](./src/img/panel-icon64.png) [available at chrome web-store](https://chrome.google.com/webstore/detail/jsdiff-devtool/iefeamoljhdcpigpnpggeiiabpnpgonb)
+![jsdiff](./src/img/panel-icon28.png) [available at chrome web-store](https://chrome.google.com/webstore/detail/jsdiff-devtool/iefeamoljhdcpigpnpggeiiabpnpgonb)
 ---
 Chrome devtools extension intended to display result of deep in-memory object
 comparisons with the help of dedicated console commands.
