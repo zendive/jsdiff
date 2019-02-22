@@ -1,3 +1,2 @@
-const App = require('./app/panel.vue').default;
-
+import App from './view/panel.vue';
 const app = new App({el: '#app'});

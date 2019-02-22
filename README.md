@@ -24,7 +24,7 @@ You can compare objects from different tabs (sites).
 
 
 ### Screenshot
-![screenshot](./doc/screenshot-01.png)
+![screenshot](./src/img/screenshot-01.png)
 
 
 ### Gotcha

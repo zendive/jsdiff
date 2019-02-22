@@ -1,8 +1,70 @@
-<script>
-  import 'jsondiffpatch/dist/formatters-styles/html.css';
-  const api = require('../api');
+<template lang="Vue">
+    <section id="app">
+        <section
+            v-if="hasBothSides"
+            class="-header">
+            
+            <div class="-toolbox">
+                <button
+                    v-if="hasBothSides"
+                    class="btn"
+                    title="Hide/Show unchanged properties"
+                    @click="onToggleUnchanged"
+                >Toggle Unchanged</button>
 
-  export default api.Vue.extend({
+                <button v-if="hasBothSides"
+                    class="btn"
+                    title="Copy delta as json object"
+                    @click="onCopyDelta"
+                >Copy</button>
+            </div>
+
+            <div class="-last-updated">
+                <span>Last updated</span>
+                <span class="-value" v-text="lastUpdated"/>
+            </div>    
+        </section>
+
+        <a class="-icon" :href="git.self" target="_blank" :title="git.self">
+          <img src="/src/img/panel-icon64.png" alt="JSDiff"/>
+        </a>
+
+        <section v-if="hasBothSides && exactMatch"
+            class="-match">
+            <code
+                ref="delta"
+                class="-center"
+            >match</code>
+        </section>
+        <section v-else-if="hasBothSides && !exactMatch">
+            <code
+                ref="delta"
+                class="-delta"
+                v-html="deltaHtml"
+            />
+        </section>
+        <section v-if="!hasBothSides"
+            class="-empty">
+            <div class="-center">
+                <code>console.diff({a:1,b:1,c:3}, {a:1,b:2,d:3});</code>
+                <div class="-links">
+                    <a :href="git.diffApi" target="_blank">benjamine/jsondiffpatch</a>
+                    <a :href="git.self" target="_blank">zendive/jsdiff</a>
+                </div>
+            </div>
+        </section>
+
+    </section>
+</template>
+
+<script>
+  const jsondiffpatch = require('jsondiffpatch');
+  const formatters = jsondiffpatch.formatters;
+  require('jsondiffpatch/dist/formatters-styles/html.css');
+  const Vue = require('vue').default;
+  const moment = require('moment');
+  
+  module.exports = Vue.extend({
     name: 'jsdiff-panel',
 
     data() {
@@ -41,7 +103,7 @@
 
     computed: {
       lastUpdated() {
-        return api.moment(this.compare.timestamp).fromNow();
+        return moment(this.compare.timestamp).fromNow();
       },
 
       hasBothSides() {
@@ -58,8 +120,8 @@
       deltaHtml() {
         try {
           this.$_adjustArrows();
-          return api.formatters.html.format(
-              api.jsondiffpatch.diff(this.compare.left, this.compare.right),
+          return formatters.html.format(
+              jsondiffpatch.diff(this.compare.left, this.compare.right),
               this.compare.left
           );
         }
@@ -72,12 +134,12 @@
     methods: {
       onToggleUnchanged(e) {
         this.showUnchanged = !this.showUnchanged;
-        api.formatters.html.showUnchanged(this.showUnchanged, this.$refs.delta);
+        formatters.html.showUnchanged(this.showUnchanged, this.$refs.delta);
         this.$_adjustArrows();
       },
 
       onCopyDelta() {
-        const delta = api.jsondiffpatch.diff(this.compare.left, this.compare.right);
+        const delta = jsondiffpatch.diff(this.compare.left, this.compare.right);
         const sDelta = JSON.stringify(delta, null, 2);
         document.oncopy = function(e) {
           e.clipboardData.setData('text', sDelta);
@@ -166,66 +228,6 @@
   });
 </script>
 
-<template lang="Vue">
-    <section id="app">
-        <section class="-header">
-            <div class="-toolbox">
-
-                <button
-                    v-if="hasBothSides"
-                    class="btn"
-                    title="Hide/Show unchanged properties"
-                    @click="onToggleUnchanged"
-                >Toggle Unchanged</button>
-
-                <button
-                    v-if="hasBothSides"
-                    class="btn"
-                    title="Copy delta as json object"
-                    @click="onCopyDelta"
-                >Copy</button>
-
-            </div>
-
-            <div v-if="hasBothSides"
-                class="-last-updated">
-                <span>Last updated</span>
-                <span class="-value" v-text="lastUpdated"/>
-            </div>
-
-            <a class="-icon" :href="git.self" target="_blank" :title="git.self">
-              <img src="/src/img/panel-icon64.png" alt="JSDiff"/>
-            </a>
-        </section>
-
-        <section v-if="hasBothSides && exactMatch"
-            class="-match">
-            <code
-                ref="delta"
-                class="-center"
-            >match</code>
-        </section>
-        <section v-else-if="hasBothSides && !exactMatch">
-            <code
-                ref="delta"
-                class="-delta"
-                v-html="deltaHtml"
-            />
-        </section>
-        <section v-if="!hasBothSides"
-            class="-empty">
-            <div class="-center">
-                <code>console.diff({a:1,b:1,c:3}, {a:1,b:2,d:3});</code>
-                <div class="-links">
-                    <a :href="git.diffApi" target="_blank">benjamine/jsondiffpatch</a>
-                    <a :href="git.self" target="_blank">zendive/jsdiff</a>
-                </div>
-            </div>
-        </section>
-
-    </section>
-</template>
-
 <style lang="scss">
   $headerHeight: 26px;
 
@@ -277,15 +279,15 @@
           font-weight: bold;
         }
       }
+    }
 
-      .-icon {
-        position: absolute;
-        top: 7px;
-        right: 10px;
+    .-icon {
+      position: absolute;
+      top: 7px;
+      right: 10px;
 
-        img {
-          width: 32px;
-        }
+      img {
+        width: 32px;
       }
     }
 

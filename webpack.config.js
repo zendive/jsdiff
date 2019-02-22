@@ -1,4 +1,5 @@
 const path = require('path');
+const webpack = require('webpack');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const VueLoaderPlugin = require('vue-loader/lib/plugin');
 
@@ -6,13 +7,12 @@ module.exports = {
   mode: 'development',
 
   entry: {
-    'jsdiff-panel': './src/js/jsdiff-panel.js',
-    demo: './src/demo/index.js'
+    'jsdiff-panel': './src/js/jsdiff-panel.js'
   },
 
   output: {
-    filename: '[name].bundle.js',
-    path: path.resolve(__dirname, 'dist')
+    filename: '[name].js',
+    path: path.resolve(__dirname, 'src/js/bundle')
   },
 
   resolve: {
@@ -25,7 +25,11 @@ module.exports = {
   },
 
   plugins: [
-    new CleanWebpackPlugin(['dist']),
+    new webpack.IgnorePlugin({
+      resourceRegExp: /^\.\/locale$/,
+      contextRegExp: /moment$/
+    }),
+    new CleanWebpackPlugin(['src/js/bundle']),
     new VueLoaderPlugin()
   ],
 
@@ -42,15 +46,6 @@ module.exports = {
           'css-loader',
           'sass-loader'
         ]
-      },
-      {
-        test: /\.(jpg|png|gif)$/,
-        use: {
-          loader: "file-loader",
-          options: {
-            name: "[path][name].[hash].[ext]",
-          }
-        }
       }
     ]
   },
@@ -59,5 +54,6 @@ module.exports = {
     runtimeChunk : false,
   },
 
-  devtool: 'source-map'
+  // devtool: 'source-map'
+  devtool: false
 };
