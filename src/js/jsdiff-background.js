@@ -54,11 +54,13 @@ class Connection {
    */
   onApiMessage(req) {
     console.log('jsdiff-background message relay', req);
-    this.port.postMessage(req);
+    if (this.port !== null) {
+      this.port.postMessage(req);
+    }
   }
 
   onDisconnect() {
-    this.req = null;
+    this.port = null;
   }
 
 }

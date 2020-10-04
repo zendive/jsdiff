@@ -3,7 +3,7 @@
         <section
             v-if="hasBothSides"
             class="-header">
-            
+
             <div class="-toolbox">
                 <button
                     v-if="hasBothSides"
@@ -22,7 +22,7 @@
             <div class="-last-updated">
                 <span>Last updated</span>
                 <span class="-value" v-text="lastUpdated"/>
-            </div>    
+            </div>
         </section>
 
         <a class="-icon" :href="git.self" target="_blank" :title="git.self">
@@ -63,7 +63,7 @@
   require('jsondiffpatch/dist/formatters-styles/html.css');
   const Vue = require('vue').default;
   const moment = require('moment');
-  
+
   module.exports = Vue.extend({
     name: 'jsdiff-panel',
 
@@ -103,7 +103,7 @@
 
     computed: {
       lastUpdated() {
-        return moment(this.compare.timestamp).fromNow();
+        return moment(this.compare.timestamp).from(this.now);
       },
 
       hasBothSides() {
@@ -119,7 +119,6 @@
 
       deltaHtml() {
         try {
-          this.$_adjustArrows();
           return formatters.html.format(
               jsondiffpatch.diff(this.compare.left, this.compare.right),
               this.compare.left
@@ -135,7 +134,6 @@
       onToggleUnchanged(e) {
         this.showUnchanged = !this.showUnchanged;
         formatters.html.showUnchanged(this.showUnchanged, this.$refs.delta);
-        this.$_adjustArrows();
       },
 
       onCopyDelta() {
@@ -177,52 +175,6 @@
 
         this.$_restartLastUpdated();
       },
-
-      $_adjustArrows() {
-        this.$nextTick(() => {
-          const t = document.body;
-          var e = function(t) {
-                return t.textContent || t.innerText;
-              },
-              o = function(t, e, o) {
-                for (var a = t.querySelectorAll(e), r = 0, i = a.length; i > r; r++) {
-                  o(a[r]);
-                }
-              },
-              a = function(t, e) {
-                for (var o = 0, a = t.children.length; a > o; o++) {
-                  e(t.children[o], o);
-                }
-              };
-
-          o(t, '.jsondiffpatch-arrow', function(t) {
-            var o = t.parentNode,
-                r = t.children[0],
-                i = r.children[1];
-            r.style.display = 'none';
-            var n,
-                s = e(o.querySelector('.jsondiffpatch-moved-destination')),
-                d = o.parentNode;
-            if (a(d, function(t) {
-              t.getAttribute('data-key') === s && (n = t);
-            }), n) {
-              try {
-                var f = n.offsetTop - o.offsetTop;
-                r.setAttribute('height', Math.abs(f) + 6);
-                t.style.top = -8 + (f > 0 ? 0 : f) + 'px';
-                var l = f > 0 ?
-                    'M30,0 Q-10,' + Math.round(f / 2) + ' 26,' + (f - 4) :
-                    'M30,' + -f + ' Q-10,' + Math.round(-f / 2) + ' 26,4';
-                i.setAttribute('d', l);
-                r.style.display = '';
-              } catch (c) {
-                return;
-              }
-            }
-          });
-        });
-      }
-
     }
 
   });

@@ -35,7 +35,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 // us shown at: https://developer.chrome.com/extensions/devtools#content-script-to-devtools
 function injectScripts() {
   chrome.devtools.inspectedWindow.eval(
-      ';(' + jsdiff_devtools_extension_api.toString() + ')();', {
+      `;(${jsdiff_devtools_extension_api.toString()})();`, {
         useContentScriptContext: false // default: false
       }, (res, error) => {
         if (res && !error) {
@@ -48,36 +48,84 @@ function injectScripts() {
 }
 
 function jsdiff_devtools_extension_api() {
-  if (console.diff) {
+  if (typeof(console.diff) === 'function') {
     /*already injected*/
     return false;
   }
 
-  const source = 'jsdiff-devtools-extension-api';
-  const w = window;
+  function postDataAdapter(set, key, value) {
+    try {
+      if (
+        value instanceof Element ||
+        value instanceof Document
+      ) {
+        return undefined;
+      } else if (typeof(value) === 'function') {
+        return value.toString();
+      } else if (
+        value instanceof Object ||
+        typeof(value) === 'object'
+      ) {
+        if (set.has(value)) {
+          return undefined;
+        }
+        set.add(value);
+      }
+
+      return value;
+    } catch (ignore) {
+      return undefined;
+    }
+  }
+
+  function post(payload) {
+    try {
+      ['push', 'left', 'right'].forEach((key) => {
+        if (payload.hasOwnProperty(key)) {
+          let set = new Set();
+          payload[key] = JSON.parse(
+            JSON.stringify(
+              payload[key],
+              postDataAdapter.bind(null, set)
+            )
+          );
+          set.clear();
+          set = null;
+        }
+      });
+      window.postMessage({payload, source: 'jsdiff-devtools-extension-api'}, '*');
+    } catch (e) {
+      console.error('%cJSDiff', `
+        font-weight: 700;
+        color: #000;
+        background-color: yellow;
+        padding: 2px 4px;
+        border: 1px solid #bbb;
+        border-radius: 4px;
+      `, e);
+    }
+  }
 
   Object.assign(console, {
     diff(left, right) {
-      if (right === undefined) {
-        w.postMessage({payload: {push: left}, source}, '*');
-      }
-      else {
-        w.postMessage({payload: {left, right}, source}, '*');
-      }
+      post(right === undefined? {push: left} : {left, right});
     },
+
     diffLeft(left) {
-      w.postMessage({payload: {left}, source}, '*');
+      post({left});
     },
+
     diffRight(right) {
-      w.postMessage({payload: {right}, source}, '*');
+      post({right});
     },
+
     diffPush(push) {
-      w.postMessage({payload: {push}, source}, '*');
-    }
+      post({push});
+    },
   });
 
   console.log(
-    '%cJSDiff API', `
+    '%cJSDiff', `
       font-weight: 700;
       color: #000;
       background-color: yellow;
