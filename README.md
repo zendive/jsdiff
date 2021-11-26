@@ -1,5 +1,5 @@
 ### ![](./src/img/panel-icon28.png) console.diff()
-[![console.diff()](https://developer.chrome.com/webstore/images/ChromeWebStore_BadgeWBorder_v2_206x58.png)](https://chrome.google.com/webstore/detail/jsdiff-devtool/iefeamoljhdcpigpnpggeiiabpnpgonb)
+[![console.diff()](https://storage.googleapis.com/web-dev-uploads/image/WlD8wC6g8khYWPJUsQceQkhXSlv1/tbyBjqi7Zu733AAKA5n4.png)](https://chrome.google.com/webstore/detail/jsdiff-devtool/iefeamoljhdcpigpnpggeiiabpnpgonb)
 
 Chrome devtools extension intended to display result of deep in-memory object
 comparisons with the help of dedicated console commands.
