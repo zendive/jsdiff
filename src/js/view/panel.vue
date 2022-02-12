@@ -58,13 +58,13 @@
 </template>
 
 <script>
-  const jsondiffpatch = require('jsondiffpatch');
-  const formatters = jsondiffpatch.formatters;
-  require('jsondiffpatch/dist/formatters-styles/html.css');
-  const Vue = require('vue').default;
-  const moment = require('moment');
+import jsondiffpatch from 'jsondiffpatch';
+import 'jsondiffpatch/dist/formatters-styles/html.css';
+import Vue from 'vue'
+import {timeFromNow} from './api/time';
+const formatters = jsondiffpatch.formatters;
 
-  module.exports = Vue.extend({
+export default Vue.extend({
     name: 'jsdiff-panel',
 
     data() {
@@ -103,7 +103,7 @@
 
     computed: {
       lastUpdated() {
-        return moment(this.compare.timestamp).from(this.now);
+        return timeFromNow(this.compare.timestamp, this.now);
       },
 
       hasBothSides() {
