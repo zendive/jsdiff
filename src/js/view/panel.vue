@@ -1,69 +1,58 @@
-<template lang="Vue">
-<section id="app">
-  <section class="-header">
-    <div v-if="hasBothSides" class="-toolbox">
-      <button
-          v-if="hasBothSides"
+<template>
+  <section id="app">
+    <section class="-header">
+      <div v-if="hasBothSides" class="-toolbox">
+        <button
           class="btn"
           title="Hide/Show unchanged properties"
           @click="onToggleUnchanged"
-      >Toggle Unchanged
-      </button>
+          v-text="'Toggle Unchanged'"
+        />
 
-      <button v-if="hasBothSides"
-              class="btn"
-              title="Copy delta as json object"
-              @click="onCopyDelta"
-      >Copy
-      </button>
+        <button
+          class="btn"
+          title="Copy delta as json object"
+          @click="onCopyDelta"
+          v-text="'Copy'"
+        />
 
-      <div class="-last-updated">
-        <span>Last updated </span>
-        <span class="-value" v-text="lastUpdated"/>
+        <div class="-last-updated">
+          <span v-text="'Last updated '" />
+          <span class="-value" v-text="lastUpdated" />
+        </div>
       </div>
-    </div>
 
-    <div class="-badge">
-      <div class="-version" v-text="version"/>
-      <a class="-icon" :href="git.self" target="_blank" :title="git.self">
-        <img src="/src/img/panel-icon64.png" alt="JSDiff"/>
-      </a>
-    </div>
-  </section>
-
-  <section v-if="hasBothSides && exactMatch"
-           class="-match">
-    <code
-        ref="delta"
-        class="-center"
-    >match</code>
-  </section>
-  <section v-else-if="hasBothSides && !exactMatch">
-    <code
-        ref="delta"
-        class="-delta"
-        v-html="deltaHtml"
-    />
-  </section>
-  <section v-if="!hasBothSides"
-           class="-empty">
-    <div class="-center">
-      <code>console.diff({a:1,b:1,c:3}, {a:1,b:2,d:3});</code>
-      <div class="-links">
-        <a :href="git.diffApi" target="_blank">benjamine/jsondiffpatch</a>
-        <a :href="git.self" target="_blank">zendive/jsdiff</a>
+      <div class="-badge">
+        <div class="-version" v-text="version" />
+        <a class="-icon" :href="git.self" target="_blank" :title="git.self">
+          <img src="/src/img/panel-icon64.png" alt="JSDiff" />
+        </a>
       </div>
-    </div>
-  </section>
+    </section>
 
-</section>
+    <section v-if="hasBothSides && exactMatch" class="-match">
+      <code ref="delta" class="-center">match</code>
+    </section>
+    <section v-else-if="hasBothSides && !exactMatch">
+      <code ref="delta" class="-delta" v-html="deltaHtml" />
+    </section>
+    <section v-if="!hasBothSides" class="-empty">
+      <div class="-center">
+        <code>console.diff({a:1,b:1,c:3}, {a:1,b:2,d:3});</code>
+        <div class="-links">
+          <a :href="git.diffApi" target="_blank">benjamine/jsondiffpatch</a>,
+          <a :href="git.self" target="_blank">zendive/jsdiff</a>
+        </div>
+      </div>
+    </section>
+  </section>
 </template>
 
 <script>
-import packageJson from '../../../package.json'
+import packageJson from '../../../package.json';
 import * as jsondiffpatch from 'jsondiffpatch';
 import 'jsondiffpatch/dist/formatters-styles/html.css';
-import {timeFromNow} from './api/time';
+import { timeFromNow } from './api/time';
 
 const formatters = jsondiffpatch.formatters;
 
@@ -97,11 +86,14 @@ export default {
       }
     });
 
-    chrome.runtime.sendMessage({type: 'jsdiff-devtools-panel-shown'}, (req) => {
-      if (null !== req) {
-        this.$_onDiffRequest(req.payload);
+    chrome.runtime.sendMessage(
+      { type: 'jsdiff-devtools-panel-shown' },
+      (req) => {
+        if (null !== req) {
+          this.$_onDiffRequest(req.payload);
+        }
       }
-    });
+    );
     window.vm = this;
   },
 
@@ -112,8 +104,7 @@ export default {
 
     hasBothSides() {
       return (
-          this.$_hasData(this.compare.left) &&
-          this.$_hasData(this.compare.right)
+        this.$_hasData(this.compare.left) && this.$_hasData(this.compare.right)
       );
     },
 
@@ -142,7 +133,7 @@ export default {
     onCopyDelta() {
       const delta = jsondiffpatch.diff(this.compare.left, this.compare.right);
       const sDelta = JSON.stringify(delta, null, 2);
-      document.oncopy = function(e) {
+      document.oncopy = function (e) {
         e.clipboardData.setData('text', sDelta);
         e.preventDefault();
       };
@@ -159,10 +150,10 @@ export default {
     },
 
     $_hasData(o) {
-      return (undefined !== o && null !== o);
+      return undefined !== o && null !== o;
     },
 
-    $_onDiffRequest({left, right, push}) {
+    $_onDiffRequest({ left, right, push }) {
       if (push) {
         this.compare.left = this.compare.right;
         this.compare.right = push;
@@ -292,6 +283,5 @@ section#app {
   section.-delta {
     padding-top: 10px;
   }
-
 }
 </style>

@@ -1,11 +1,12 @@
 const path = require('path');
 const webpack = require('webpack');
-const {CleanWebpackPlugin} = require('clean-webpack-plugin');
-const {VueLoaderPlugin} = require('vue-loader');
-const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const { VueLoaderPlugin } = require('vue-loader');
+const BundleAnalyzerPlugin =
+  require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
-module.exports = function(env, op) {
-  const isProd = (op.mode === 'production');
+module.exports = function (env, op) {
+  const isProd = op.mode === 'production';
 
   return {
     mode: op.mode,
@@ -15,13 +16,12 @@ module.exports = function(env, op) {
     },
 
     output: {
-      filename: '[name].js', path: path.resolve(__dirname, 'src/js/bundle'),
+      filename: '[name].js',
+      path: path.resolve(__dirname, 'src/js/bundle'),
     },
 
     resolve: {
-      modules: [
-        path.resolve(__dirname, 'src/js'), 'node_modules'
-      ],
+      modules: [path.resolve(__dirname, 'src/js'), 'node_modules'],
 
       alias: {},
     },
@@ -30,12 +30,14 @@ module.exports = function(env, op) {
       new CleanWebpackPlugin(),
       new VueLoaderPlugin(),
       new BundleAnalyzerPlugin({
-        openAnalyzer: false, logLevel: 'silent',
+        openAnalyzer: false,
+        logLevel: 'silent',
       }),
       new webpack.DefinePlugin({
         __VUE_OPTIONS_API__: 'true',
         __VUE_PROD_DEVTOOLS__: 'false',
-      })],
+      }),
+    ],
 
     module: {
       rules: [
@@ -45,11 +47,7 @@ module.exports = function(env, op) {
         },
         {
           test: /\.(scss|css)$/,
-          use: [
-            'style-loader',
-            'css-loader',
-            'sass-loader',
-          ],
+          use: ['style-loader', 'css-loader', 'sass-loader'],
         },
       ],
     },
@@ -58,6 +56,6 @@ module.exports = function(env, op) {
       splitChunks: false,
     },
 
-    devtool: (isProd? false : 'source-map'),
+    devtool: isProd ? false : 'source-map',
   };
 };

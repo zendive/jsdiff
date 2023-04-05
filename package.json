@@ -9,7 +9,8 @@
   "scripts": {
     "test": "echo \"no test\" && exit 1",
     "dev": "webpack --progress --watch --mode=development",
-    "prod": "NODE_ENV=production webpack --mode=production"
+    "prod": "NODE_ENV=production webpack --mode=production",
+    "format": "prettier . --write"
   },
   "repository": {
     "type": "git",
@@ -32,6 +33,7 @@
     "css-loader": "~6.6.0",
     "jsondiffpatch": "~0.4.1",
     "node-sass": "~7.0.3",
+    "prettier": "^2.8.7",
     "sass-loader": "~12.4.0",
     "style-loader": "~3.3.1",
     "vue": "~3.2.31",
@@ -39,6 +41,5 @@
     "webpack": "~5.77.0",
     "webpack-bundle-analyzer": "^4.5.0",
     "webpack-cli": "~4.9.2"
-  },
-  "dependencies": {}
+  }
 }

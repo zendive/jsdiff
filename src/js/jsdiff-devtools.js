@@ -2,23 +2,25 @@
 
 // Create panel
 chrome.devtools.panels.create(
-    'JSDiff',
-    '/src/img/panel-icon28.png',
-    '/src/jsdiff-panel.html',
-    (panel) => {
-      //panel.onSearch.addListener(sendMessage('jsdiff-panel-search'));
-      //panel.onShown.addListener(sendMessage('jsdiff-panel-shown'));
-      //panel.onHidden.addListener(sendMessage('jsdiff-panel-hidden'));
-    }
+  'JSDiff',
+  '/src/img/panel-icon28.png',
+  '/src/jsdiff-panel.html',
+  (panel) => {
+    //panel.onSearch.addListener(sendMessage('jsdiff-panel-search'));
+    //panel.onShown.addListener(sendMessage('jsdiff-panel-shown'));
+    //panel.onHidden.addListener(sendMessage('jsdiff-panel-hidden'));
+  }
 );
 
 // Create a connection to the background page
 if (chrome.devtools.inspectedWindow.tabId !== null) {
   // tabId may be null if user opened the devtools of the devtools
-  const backgroundPageConnection = chrome.runtime.connect({name: 'jsdiff-devtools'});
+  const backgroundPageConnection = chrome.runtime.connect({
+    name: 'jsdiff-devtools',
+  });
   backgroundPageConnection.postMessage({
     name: 'init',
-    tabId: chrome.devtools.inspectedWindow.tabId
+    tabId: chrome.devtools.inspectedWindow.tabId,
   });
 
   injectScripts();
@@ -35,37 +37,34 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 // us shown at: https://developer.chrome.com/extensions/devtools#content-script-to-devtools
 function injectScripts() {
   chrome.devtools.inspectedWindow.eval(
-      `;(${jsdiff_devtools_extension_api.toString()})();`, {
-        useContentScriptContext: false // default: false
-      }, (res, error) => {
-        if (res && !error) {
-          // injected
-          chrome.tabs.executeScript(chrome.devtools.inspectedWindow.tabId, {
-            file: '/src/js/jsdiff-proxy.js'
-          });
-        }
-      });
+    `;(${jsdiff_devtools_extension_api.toString()})();`,
+    {
+      useContentScriptContext: false, // default: false
+    },
+    (res, error) => {
+      if (res && !error) {
+        // injected
+        chrome.tabs.executeScript(chrome.devtools.inspectedWindow.tabId, {
+          file: '/src/js/jsdiff-proxy.js',
+        });
+      }
+    }
+  );
 }
 
 function jsdiff_devtools_extension_api() {
-  if (typeof(console.diff) === 'function') {
+  if (typeof console.diff === 'function') {
     /*already injected*/
     return false;
   }
 
   function postDataAdapter(set, key, value) {
     try {
-      if (
-        value instanceof Element ||
-        value instanceof Document
-      ) {
+      if (value instanceof Element || value instanceof Document) {
         return undefined;
-      } else if (typeof(value) === 'function') {
+      } else if (typeof value === 'function') {
         return value.toString();
-      } else if (
-        value instanceof Object ||
-        typeof(value) === 'object'
-      ) {
+      } else if (value instanceof Object || typeof value === 'object') {
         if (set.has(value)) {
           return undefined;
         }
@@ -84,48 +83,53 @@ function jsdiff_devtools_extension_api() {
         if (payload.hasOwnProperty(key)) {
           let set = new Set();
           payload[key] = JSON.parse(
-            JSON.stringify(
-              payload[key],
-              postDataAdapter.bind(null, set)
-            )
+            JSON.stringify(payload[key], postDataAdapter.bind(null, set))
           );
           set.clear();
           set = null;
         }
       });
-      window.postMessage({payload, source: 'jsdiff-devtools-extension-api'}, '*');
+      window.postMessage(
+        { payload, source: 'jsdiff-devtools-extension-api' },
+        '*'
+      );
     } catch (e) {
-      console.error('%cJSDiff', `
+      console.error(
+        '%cJSDiff',
+        `
         font-weight: 700;
         color: #000;
         background-color: yellow;
         padding: 2px 4px;
         border: 1px solid #bbb;
         border-radius: 4px;
-      `, e);
+      `,
+        e
+      );
     }
   }
 
   Object.assign(console, {
     diff(left, right) {
-      post(right === undefined? {push: left} : {left, right});
+      post(right === undefined ? { push: left } : { left, right });
     },
 
     diffLeft(left) {
-      post({left});
+      post({ left });
     },
 
     diffRight(right) {
-      post({right});
+      post({ right });
     },
 
     diffPush(push) {
-      post({push});
+      post({ push });
     },
   });
 
   console.log(
-    '%c✚ console.diff(left, right);', `
+    '%c✚ console.diff(left, right);',
+    `
       font-weight: 700;
       color: #000;
       background-color: yellow;
@@ -139,7 +143,7 @@ function jsdiff_devtools_extension_api() {
 }
 
 function sendMessage(message) {
-  return function() {
+  return function () {
     chrome.runtime.sendMessage(message);
   };
 }

@@ -22,7 +22,7 @@ chrome.runtime.onConnect.addListener((port) => {
       if (port === con.port) {
         con.onDisconnect();
         connections.delete(tabId);
-        break
+        break;
       }
     }
   });
@@ -31,11 +31,13 @@ chrome.runtime.onConnect.addListener((port) => {
 chrome.runtime.onMessage.addListener((req, sender, sendResponse) => {
   const tabId = sender.tab && sender.tab.id;
 
-  if ('jsdiff-devtools-extension-api' === req.source && connections.has(tabId)) {
+  if (
+    'jsdiff-devtools-extension-api' === req.source &&
+    connections.has(tabId)
+  ) {
     lastApiReq = req;
     connections.get(tabId).onApiMessage(req);
-  }
-  else if ('jsdiff-devtools-panel-shown' === req.type) {
+  } else if ('jsdiff-devtools-panel-shown' === req.type) {
     // message from one of devtool panels
     sendResponse(lastApiReq);
   }
@@ -62,5 +64,4 @@ class Connection {
   onDisconnect() {
     this.port = null;
   }
-
 }
