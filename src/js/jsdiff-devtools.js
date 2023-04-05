@@ -125,15 +125,14 @@ function jsdiff_devtools_extension_api() {
   });
 
   console.log(
-    '%cJSDiff', `
+    '%c✚ console.diff(left, right);', `
       font-weight: 700;
       color: #000;
       background-color: yellow;
       padding: 2px 4px;
       border: 1px solid #bbb;
       border-radius: 4px;
-    `,
-    `console.diff(left, right); console.diffLeft(left); console.diffRight(right); console.diffPush(next);`
+    `
   );
 
   return true;

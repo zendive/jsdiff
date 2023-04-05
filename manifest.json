@@ -1,7 +1,7 @@
 {
   "name": "console.diff(...)",
   "description": "Deep compare complex in-memory objects inside browser devtools panel with console.diff command.",
-  "version": "2.0",
+  "version": "2.1",
   "manifest_version": 2,
   "minimum_chrome_version": "64.0",
   "devtools_page": "src/jsdiff-devtools.html",

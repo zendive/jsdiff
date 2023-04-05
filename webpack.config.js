@@ -1,63 +1,63 @@
 const path = require('path');
 const webpack = require('webpack');
-const CleanWebpackPlugin = require('clean-webpack-plugin');
-const VueLoaderPlugin = require('vue-loader/lib/plugin');
+const {CleanWebpackPlugin} = require('clean-webpack-plugin');
+const {VueLoaderPlugin} = require('vue-loader');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
-module.exports = {
-  mode: 'development',
+module.exports = function(env, op) {
+  const isProd = (op.mode === 'production');
 
-  entry: {
-    'jsdiff-panel': './src/js/jsdiff-panel.js'
-  },
+  return {
+    mode: op.mode,
 
-  output: {
-    filename: '[name].js',
-    path: path.resolve(__dirname, 'src/js/bundle')
-  },
+    entry: {
+      'jsdiff-panel': './src/js/jsdiff-panel.js',
+    },
 
-  resolve: {
-    modules: [
-      path.resolve(__dirname, 'src/js'),
-      'node_modules'
-    ],
+    output: {
+      filename: '[name].js', path: path.resolve(__dirname, 'src/js/bundle'),
+    },
 
-    alias: {}
-  },
+    resolve: {
+      modules: [
+        path.resolve(__dirname, 'src/js'), 'node_modules'
+      ],
 
-  plugins: [
-    new webpack.IgnorePlugin({
-      resourceRegExp: /^\.\/locale$/,
-    }),
-    new CleanWebpackPlugin(['src/js/bundle']),
-    new VueLoaderPlugin(),
-    new BundleAnalyzerPlugin({
-      openAnalyzer: false,
-      logLevel: 'silent',
-    }),
-  ],
+      alias: {},
+    },
 
-  module: {
-    rules: [
-      {
-        test: /\.vue$/,
-        loader: 'vue-loader'
-      },
-      {
-        test: /\.(scss|css)$/,
-        use: [
-          'style-loader',
-          'css-loader',
-          'sass-loader'
-        ]
-      }
-    ]
-  },
+    plugins: [
+      new CleanWebpackPlugin(),
+      new VueLoaderPlugin(),
+      new BundleAnalyzerPlugin({
+        openAnalyzer: false, logLevel: 'silent',
+      }),
+      new webpack.DefinePlugin({
+        __VUE_OPTIONS_API__: 'true',
+        __VUE_PROD_DEVTOOLS__: 'false',
+      })],
 
-  optimization : {
-    runtimeChunk : false,
-  },
+    module: {
+      rules: [
+        {
+          test: /\.vue$/,
+          loader: 'vue-loader',
+        },
+        {
+          test: /\.(scss|css)$/,
+          use: [
+            'style-loader',
+            'css-loader',
+            'sass-loader',
+          ],
+        },
+      ],
+    },
 
-  // devtool: 'source-map'
-  devtool: false
+    optimization: {
+      splitChunks: false,
+    },
+
+    devtool: (isProd? false : 'source-map'),
+  };
 };
