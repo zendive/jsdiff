@@ -53,6 +53,11 @@ export default function (env, op) {
           test: /\.(scss|css)$/,
           use: ['style-loader', 'css-loader', 'sass-loader'],
         },
+        {
+          test: /\.tsx?$/,
+          loader: 'ts-loader',
+          options: { appendTsSuffixTo: [/\.vue$/] },
+        },
       ],
     },
 

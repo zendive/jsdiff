@@ -61,11 +61,12 @@
 import packageJson from '../../../package.json';
 import * as jsondiffpatch from 'jsondiffpatch';
 import 'jsondiffpatch/dist/formatters-styles/html.css';
-import { timeFromNow } from './api/time';
+import { timeFromNow } from './api/time.ts';
 import { computed, onMounted, reactive, ref } from 'vue';
 
 const formatters = jsondiffpatch.formatters;
 const deltaEl = ref(null);
+const appStartTimestamp = Date.now();
 const state = reactive({
   version: packageJson.version,
   git: {
@@ -75,11 +76,11 @@ const state = reactive({
   codeExample: 'console.diff({a:1,b:1,c:3}, {a:1,b:2,d:3});',
   showUnchanged: true,
   compare: {
-    timestamp: null,
+    timestamp: appStartTimestamp,
     left: null,
     right: null,
   },
-  now: Date.now(),
+  now: appStartTimestamp,
   timer: null,
 });
 

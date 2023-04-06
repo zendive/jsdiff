@@ -22,15 +22,16 @@ const rtf = new Intl.RelativeTimeFormat(undefined, { numeric: 'auto' });
  * @param [now] {number}
  * @return {string}
  */
-export function timeFromNow(test, now) {
-  test = typeof test === 'number' ? test : new Date(test).getTime();
-  now = typeof now === 'number' ? now : Date.now();
+export function timeFromNow(test: number, now: number) {
   const delta = now - test;
   const absDelta = Math.abs(delta);
+
   for (const interval of intervals) {
     if (absDelta >= interval.ge) {
       const time = Math.trunc(delta / interval.divisor);
-      return interval.unit ? rtf.format(-time, interval.unit) : interval.text;
+      return interval.unit
+        ? rtf.format(-time, interval.unit as Intl.RelativeTimeFormatUnit)
+        : interval.text;
     }
   }
 }
