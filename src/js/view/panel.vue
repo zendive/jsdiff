@@ -104,7 +104,7 @@ const deltaHtml = computed(() => {
 });
 
 onMounted(() => {
-  chrome.runtime.onMessage.addListener((req, sender, sendResponse) => {
+  chrome.runtime.onMessage.addListener((req) => {
     console.log('$_onRuntimeMessage', req);
 
     if (req.source === 'jsdiff-devtools-extension-api') {

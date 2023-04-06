@@ -30,20 +30,20 @@
   "type": "module",
   "devDependencies": {
     "@types/chrome": "^0.0.228",
-    "@vue/compiler-sfc": "^3.2.31",
+    "@vue/compiler-sfc": "^3.2.47",
     "clean-webpack-plugin": "~4.0.0",
-    "css-loader": "~6.6.0",
+    "css-loader": "~6.7.3",
     "jsondiffpatch": "~0.4.1",
     "node-sass": "~7.0.3",
     "prettier": "^2.8.7",
-    "sass-loader": "~12.4.0",
-    "style-loader": "~3.3.1",
+    "sass-loader": "~13.2.2",
+    "style-loader": "~3.3.2",
     "ts-loader": "^9.4.2",
     "typescript": "^5.0.3",
     "vue": "~3.2.47",
-    "vue-loader": "~17.0.0",
-    "webpack": "~5.77.0",
-    "webpack-bundle-analyzer": "^4.5.0",
-    "webpack-cli": "~4.9.2"
+    "vue-loader": "~17.0.1",
+    "webpack": "~5.78.0",
+    "webpack-bundle-analyzer": "^4.8.0",
+    "webpack-cli": "~5.0.1"
   }
 }
