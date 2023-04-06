@@ -127,7 +127,7 @@ function jsdiff_devtools_extension_api() {
     },
   });
 
-  console.log(
+  console.debug(
     '%c✚ console.diff(left, right);',
     `
       font-weight: 700;
