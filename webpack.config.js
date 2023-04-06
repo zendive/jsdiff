@@ -1,11 +1,15 @@
-const path = require('path');
-const webpack = require('webpack');
-const { CleanWebpackPlugin } = require('clean-webpack-plugin');
-const { VueLoaderPlugin } = require('vue-loader');
-const BundleAnalyzerPlugin =
-  require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+import path from 'path';
+import webpack from 'webpack';
+import { CleanWebpackPlugin } from 'clean-webpack-plugin';
+import { VueLoaderPlugin } from 'vue-loader';
+import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
+import { fileURLToPath } from 'url';
 
-module.exports = function (env, op) {
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+export default function (env, op) {
+  console.log('⌥', env, op.mode);
   const isProd = op.mode === 'production';
 
   return {
@@ -22,13 +26,13 @@ module.exports = function (env, op) {
 
     resolve: {
       modules: [path.resolve(__dirname, 'src/js'), 'node_modules'],
-
       alias: {},
     },
 
     plugins: [
       new CleanWebpackPlugin(),
       new VueLoaderPlugin(),
+      // http://127.0.0.1:8888
       new BundleAnalyzerPlugin({
         openAnalyzer: false,
         logLevel: 'silent',
@@ -58,4 +62,4 @@ module.exports = function (env, op) {
 
     devtool: isProd ? false : 'source-map',
   };
-};
+}

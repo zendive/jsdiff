@@ -27,6 +27,7 @@
     "url": "https://github.com/zendive/jsdiff/issues"
   },
   "homepage": "https://github.com/zendive/jsdiff#readme",
+  "type": "module",
   "devDependencies": {
     "@vue/compiler-sfc": "^3.2.31",
     "clean-webpack-plugin": "~4.0.0",
