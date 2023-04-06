@@ -23,153 +23,154 @@
       </div>
 
       <div class="-badge">
-        <div class="-version" v-text="version" />
-        <a class="-icon" :href="git.self" target="_blank" :title="git.self">
+        <div class="-version" v-text="state.version" />
+        <a
+          class="-icon"
+          :href="state.git.self"
+          target="_blank"
+          :title="state.git.self"
+        >
           <img src="/src/img/panel-icon64.png" alt="JSDiff" />
         </a>
       </div>
     </section>
 
-    <section v-if="hasBothSides && exactMatch" class="-match">
-      <code ref="delta" class="-center">match</code>
+    <section v-if="hasBothSides && !deltaHtml" class="-match">
+      <code ref="deltaEl" class="-center">match</code>
     </section>
-    <section v-else-if="hasBothSides && !exactMatch">
-      <code ref="delta" class="-delta" v-html="deltaHtml" />
+    <section v-else-if="hasBothSides && deltaHtml">
+      <code ref="deltaEl" class="-delta" v-html="deltaHtml" />
     </section>
     <section v-if="!hasBothSides" class="-empty">
       <div class="-center">
-        <code>console.diff({a:1,b:1,c:3}, {a:1,b:2,d:3});</code>
+        <code v-text="state.codeExample" />
         <div class="-links">
-          <a :href="git.diffApi" target="_blank">benjamine/jsondiffpatch</a>,
-          <a :href="git.self" target="_blank">zendive/jsdiff</a>
+          <a
+            :href="state.git.diffApi"
+            target="_blank"
+            v-text="'benjamine/jsondiffpatch'"
+          />,
+          <a :href="state.git.self" target="_blank" v-text="'zendive/jsdiff'" />
         </div>
       </div>
     </section>
   </section>
 </template>
 
-<script>
+<script setup>
 import packageJson from '../../../package.json';
 import * as jsondiffpatch from 'jsondiffpatch';
 import 'jsondiffpatch/dist/formatters-styles/html.css';
 import { timeFromNow } from './api/time';
+import { computed, onMounted, reactive, ref } from 'vue';
 
 const formatters = jsondiffpatch.formatters;
-
-export default {
-  name: 'jsdiff-panel',
-
-  data() {
-    return {
-      version: packageJson.version,
-      git: {
-        self: 'https://github.com/zendive/jsdiff',
-        diffApi: 'https://github.com/benjamine/jsondiffpatch',
-      },
-      showUnchanged: true,
-      compare: {
-        timestamp: null,
-        left: null,
-        right: null,
-      },
-      now: Date.now(),
-      timer: null,
-    };
+const deltaEl = ref(null);
+const state = reactive({
+  version: packageJson.version,
+  git: {
+    self: 'https://github.com/zendive/jsdiff',
+    diffApi: 'https://github.com/benjamine/jsondiffpatch',
   },
+  codeExample: 'console.diff({a:1,b:1,c:3}, {a:1,b:2,d:3});',
+  showUnchanged: true,
+  compare: {
+    timestamp: null,
+    left: null,
+    right: null,
+  },
+  now: Date.now(),
+  timer: null,
+});
 
-  mounted() {
-    chrome.runtime.onMessage.addListener((req, sender, sendResponse) => {
-      console.log('$_onRuntimeMessage', req);
+const lastUpdated = computed(() =>
+  timeFromNow(state.compare.timestamp, state.now)
+);
 
-      if (req.source === 'jsdiff-devtools-extension-api') {
-        this.$_onDiffRequest(req.payload);
-      }
-    });
+const hasBothSides = computed(
+  () => $_hasData(state.compare.left) && $_hasData(state.compare.right)
+);
 
-    chrome.runtime.sendMessage(
-      { type: 'jsdiff-devtools-panel-shown' },
-      (req) => {
-        if (null !== req) {
-          this.$_onDiffRequest(req.payload);
-        }
-      }
+const deltaHtml = computed(() => {
+  try {
+    return formatters.html.format(
+      jsondiffpatch.diff(state.compare.left, state.compare.right),
+      state.compare.left
     );
-    window.vm = this;
-  },
+  } catch (bug) {
+    return JSON.stringify(bug);
+  }
+});
 
-  computed: {
-    lastUpdated() {
-      return timeFromNow(this.compare.timestamp, this.now);
-    },
+onMounted(() => {
+  chrome.runtime.onMessage.addListener((req, sender, sendResponse) => {
+    console.log('$_onRuntimeMessage', req);
 
-    hasBothSides() {
-      return (
-        this.$_hasData(this.compare.left) && this.$_hasData(this.compare.right)
-      );
-    },
+    if (req.source === 'jsdiff-devtools-extension-api') {
+      $_onDiffRequest(req.payload);
+    }
+  });
 
-    exactMatch() {
-      return !this.deltaHtml;
-    },
+  chrome.runtime.sendMessage({ type: 'jsdiff-devtools-panel-shown' }, (req) => {
+    if (null !== req) {
+      $_onDiffRequest(req.payload);
+    }
+  });
+});
 
-    deltaHtml() {
-      try {
-        return formatters.html.format(
-          jsondiffpatch.diff(this.compare.left, this.compare.right),
-          this.compare.left
-        );
-      } catch (bug) {
-        return JSON.stringify(bug);
-      }
-    },
-  },
-
-  methods: {
-    onToggleUnchanged(e) {
-      this.showUnchanged = !this.showUnchanged;
-      formatters.html.showUnchanged(this.showUnchanged, this.$refs.delta);
-    },
-
-    onCopyDelta() {
-      const delta = jsondiffpatch.diff(this.compare.left, this.compare.right);
-      const sDelta = JSON.stringify(delta, null, 2);
-      document.oncopy = function (e) {
-        e.clipboardData.setData('text', sDelta);
-        e.preventDefault();
-      };
-      document.execCommand('copy', false, null);
-    },
-
-    $_restartLastUpdated() {
-      this.compare.timestamp = Date.now();
-
-      clearInterval(this.timer);
-      this.timer = setInterval(() => {
-        this.now = Date.now();
-      }, 1e3);
-    },
-
-    $_hasData(o) {
-      return undefined !== o && null !== o;
-    },
-
-    $_onDiffRequest({ left, right, push }) {
-      if (push) {
-        this.compare.left = this.compare.right;
-        this.compare.right = push;
-      } else {
-        if (left) {
-          this.compare.left = left;
-        }
-        if (right) {
-          this.compare.right = right;
-        }
-      }
-
-      this.$_restartLastUpdated();
-    },
-  },
+const onToggleUnchanged = () => {
+  state.showUnchanged = !state.showUnchanged;
+  formatters.html.showUnchanged(state.showUnchanged, deltaEl.value);
 };
+
+const onCopyDelta = () => {
+  const diff = jsondiffpatch.diff(state.compare.left, state.compare.right);
+  const sDiff = JSON.stringify(diff, null, 2);
+
+  document.oncopy = function (e) {
+    e.clipboardData.setData('text', sDiff);
+    e.preventDefault();
+  };
+  document.execCommand('copy', false, null);
+  // modern alternative, but don't have permission [?]
+  // navigator.clipboard.writeText(sDiff).then(
+  //   () => {
+  //     console.log('clipboard successfully set');
+  //   },
+  //   (e) => {
+  //     console.error('clipboard write failed', e);
+  //   }
+  // );
+};
+
+function $_restartLastUpdated() {
+  state.compare.timestamp = Date.now();
+
+  clearInterval(state.timer);
+  state.timer = window.setInterval(() => {
+    state.now = Date.now();
+  }, 1e3);
+}
+
+function $_onDiffRequest({ left, right, push }) {
+  if (push) {
+    state.compare.left = state.compare.right;
+    state.compare.right = push;
+  } else {
+    if (left) {
+      state.compare.left = left;
+    }
+    if (right) {
+      state.compare.right = right;
+    }
+  }
+
+  $_restartLastUpdated();
+}
+
+function $_hasData(o) {
+  return undefined !== o && null !== o;
+}
 </script>
 
 <style lang="scss">

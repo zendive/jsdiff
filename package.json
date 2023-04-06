@@ -37,7 +37,7 @@
     "prettier": "^2.8.7",
     "sass-loader": "~12.4.0",
     "style-loader": "~3.3.1",
-    "vue": "~3.2.31",
+    "vue": "~3.2.47",
     "vue-loader": "~17.0.0",
     "webpack": "~5.77.0",
     "webpack-bundle-analyzer": "^4.5.0",
