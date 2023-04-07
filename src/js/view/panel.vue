@@ -36,10 +36,10 @@
     </section>
 
     <section v-if="hasBothSides && !deltaHtml" class="-match">
-      <code ref="deltaEl" class="-center">match</code>
+      <div ref="deltaEl" class="-center">match</div>
     </section>
     <section v-else-if="hasBothSides && deltaHtml">
-      <code ref="deltaEl" class="-delta" v-html="deltaHtml" />
+      <div ref="deltaEl" class="-delta" v-html="deltaHtml" />
     </section>
     <section v-if="!hasBothSides" class="-empty">
       <div class="-center">
@@ -58,11 +58,12 @@
 </template>
 
 <script setup>
+import { computed, onMounted, reactive, ref } from 'vue';
 import packageJson from '../../../package.json';
 import * as jsondiffpatch from 'jsondiffpatch';
 import 'jsondiffpatch/dist/formatters-styles/html.css';
 import { timeFromNow } from './api/time.ts';
-import { computed, onMounted, reactive, ref } from 'vue';
+import { postDiffRender } from './api/html-helper.ts';
 
 const formatters = jsondiffpatch.formatters;
 const deltaEl = ref(null);
@@ -92,12 +93,13 @@ const hasBothSides = computed(
   () => $_hasData(state.compare.left) && $_hasData(state.compare.right)
 );
 
+const deltaObj = computed(() =>
+  jsondiffpatch.diff(state.compare.left, state.compare.right)
+);
+
 const deltaHtml = computed(() => {
   try {
-    return formatters.html.format(
-      jsondiffpatch.diff(state.compare.left, state.compare.right),
-      state.compare.left
-    );
+    return formatters.html.format(deltaObj.value, state.compare.left);
   } catch (bug) {
     return JSON.stringify(bug);
   }
@@ -122,6 +124,7 @@ onMounted(() => {
 const onToggleUnchanged = () => {
   state.showUnchanged = !state.showUnchanged;
   formatters.html.showUnchanged(state.showUnchanged, deltaEl.value);
+  postDiffRender(deltaEl.value);
 };
 
 const onCopyDelta = () => {
@@ -167,6 +170,7 @@ function $_onDiffRequest({ left, right, push }) {
   }
 
   $_restartLastUpdated();
+  postDiffRender(deltaEl.value);
 }
 
 function $_hasData(o) {
