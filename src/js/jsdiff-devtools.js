@@ -1,28 +1,19 @@
-// resistance is futile
-
-// Create panel
 chrome.devtools.panels.create(
   'JSDiff',
   '/src/img/panel-icon28.png',
   '/src/jsdiff-panel.html',
   (panel) => {
-    //panel.onSearch.addListener(sendMessage('jsdiff-panel-search'));
-    //panel.onShown.addListener(sendMessage('jsdiff-panel-shown'));
-    //panel.onHidden.addListener(sendMessage('jsdiff-panel-hidden'));
+    panel.onSearch.addListener(async (cmd, query) => {
+      await chrome.runtime.sendMessage({
+        source: 'jsdiff-panel-search',
+        params: { cmd, query },
+      });
+    });
   }
 );
 
-// Create a connection to the background page
+// tabId may be null if user opened the devtools of the devtools
 if (chrome.devtools.inspectedWindow.tabId !== null) {
-  // tabId may be null if user opened the devtools of the devtools
-  const backgroundPageConnection = chrome.runtime.connect({
-    name: 'jsdiff-devtools',
-  });
-  backgroundPageConnection.postMessage({
-    name: 'init',
-    tabId: chrome.devtools.inspectedWindow.tabId,
-  });
-
   injectScripts();
 }
 
@@ -30,6 +21,13 @@ if (chrome.devtools.inspectedWindow.tabId !== null) {
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   if ('complete' === changeInfo.status) {
     injectScripts();
+  }
+});
+
+// track api invocation - (api can be invoked prior opening of jsdiff panel)
+chrome.runtime.onMessage.addListener(async (req) => {
+  if ('jsdiff-devtools-extension-api' === req.source) {
+    await chrome.storage.local.set({ lastApiReq: req });
   }
 });
 
@@ -43,10 +41,24 @@ function injectScripts() {
     },
     (res, error) => {
       if (res && !error) {
-        // injected
-        chrome.tabs.executeScript(chrome.devtools.inspectedWindow.tabId, {
-          file: '/src/js/jsdiff-proxy.js',
-        });
+        const tabId = chrome.devtools.inspectedWindow.tabId;
+
+        chrome.scripting
+          .executeScript({
+            target: {
+              tabId,
+              allFrames: true,
+            },
+            files: ['/src/js/jsdiff-proxy.js'],
+          })
+          .then(
+            () => {
+              // console.log('script injected in all frames');
+            },
+            (error) => {
+              // console.error('script inject failed', error);
+            }
+          );
       }
     }
   );
@@ -54,7 +66,7 @@ function injectScripts() {
 
 function jsdiff_devtools_extension_api() {
   if (typeof console.diff === 'function') {
-    /*already injected*/
+    /* already injected */
     return false;
   }
 
@@ -89,17 +101,21 @@ function jsdiff_devtools_extension_api() {
           set = null;
         }
       });
+
       window.postMessage(
-        { payload, source: 'jsdiff-devtools-extension-api' },
+        {
+          payload,
+          source: 'jsdiff-devtools-extension-api',
+        },
         '*'
       );
     } catch (e) {
       console.error(
-        '%cJSDiff',
+        '%cconsole.diff',
         `
         font-weight: 700;
         color: #000;
-        background-color: yellow;
+        background-color: #ffbbbb;
         padding: 2px 4px;
         border: 1px solid #bbb;
         border-radius: 4px;
@@ -110,25 +126,15 @@ function jsdiff_devtools_extension_api() {
   }
 
   Object.assign(console, {
-    diff(left, right) {
-      post(right === undefined ? { push: left } : { left, right });
-    },
-
-    diffLeft(left) {
-      post({ left });
-    },
-
-    diffRight(right) {
-      post({ right });
-    },
-
-    diffPush(push) {
-      post({ push });
-    },
+    diff: (left, right) =>
+      post(right === undefined ? { push: left } : { left, right }),
+    diffLeft: (left) => post({ left }),
+    diffRight: (right) => post({ right }),
+    diffPush: (push) => post({ push }),
   });
 
   console.debug(
-    '%c✚ console.diff(left, right);',
+    '%c✚ console.diff',
     `
       font-weight: 700;
       color: #000;
@@ -140,10 +146,4 @@ function jsdiff_devtools_extension_api() {
   );
 
   return true;
-}
-
-function sendMessage(message) {
-  return function () {
-    chrome.runtime.sendMessage(message);
-  };
 }

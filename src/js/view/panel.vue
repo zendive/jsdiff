@@ -1,5 +1,5 @@
 <template>
-  <section id="app">
+  <section id="jsdiff-panel">
     <section class="-header">
       <div v-if="hasBothSides" class="-toolbox">
         <button
@@ -106,17 +106,21 @@ const deltaHtml = computed(() => {
 });
 
 onMounted(() => {
-  chrome.runtime.onMessage.addListener((req) => {
-    console.log('$_onRuntimeMessage', req);
-
-    if (req.source === 'jsdiff-devtools-extension-api') {
-      $_onDiffRequest(req.payload);
+  chrome.storage.local.get(['lastApiReq']).then(({ lastApiReq }) => {
+    if (lastApiReq && lastApiReq.payload) {
+      $_onDiffRequest(lastApiReq.payload);
     }
   });
 
-  chrome.runtime.sendMessage({ type: 'jsdiff-devtools-panel-shown' }, (req) => {
-    if (null !== req) {
+  chrome.runtime.onMessage.addListener((req) => {
+    if ('jsdiff-devtools-extension-api' === req.source && req.payload) {
       $_onDiffRequest(req.payload);
+    } else if ('jsdiff-panel-search' === req.source) {
+      /**
+       * cmd = 'performSearch'|'nextSearchResult'|'cancelSearch'
+       */
+      const { cmd, query } = req.params;
+      console.log('🔦', cmd, query);
     }
   });
 });
@@ -179,41 +183,41 @@ function $_hasData(o) {
 </script>
 
 <style lang="scss">
-$headerHeight: 26px;
+:root {
+  --color-background: #fff;
+  --color-text: #000;
+  --height-header: 1.625rem;
+}
 
 body {
   margin: 0;
   padding: 0;
-  background-color: #fff;
 }
 
-.btn {
-  height: $headerHeight;
-  cursor: pointer;
-  border: none;
-  border-radius: 0;
-  outline: none;
-  background-color: rgba(0, 0, 0, 0.03);
-
-  &:hover {
-    background-color: rgba(0, 0, 0, 0.3);
-  }
-}
-
-.-center {
-  margin: 0 auto;
-  text-align: center;
-}
-
-section#app {
+#jsdiff-panel {
   height: 100vh;
+  background-color: var(--color-background);
+  color: var(--color-text);
 
-  section.-header {
+  .btn {
+    height: var(--height-header);
+    cursor: pointer;
+    border: none;
+    border-radius: 0;
+    outline: none;
+    background-color: rgba(0, 0, 0, 0.03);
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.3);
+    }
+  }
+
+  .-header {
     border-bottom: 1px solid #bbb;
     box-shadow: 1px 2px 5px #bbb;
     display: flex;
     align-items: center;
-    height: $headerHeight;
+    height: var(--height-header);
     margin-bottom: 12px;
     min-width: 512px;
 
@@ -258,7 +262,12 @@ section#app {
     }
   }
 
-  section.-match {
+  .-center {
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .-match {
     display: flex;
     align-items: center;
     height: 100%;
@@ -269,9 +278,9 @@ section#app {
     }
   }
 
-  section.-empty {
+  .-empty {
     display: flex;
-    height: calc(100vh - #{$headerHeight});
+    height: calc(100vh - var(--height-header));
     justify-content: center;
     align-items: center;
 
@@ -286,7 +295,7 @@ section#app {
     }
   }
 
-  section.-delta {
+  .-delta {
     padding-top: 10px;
   }
 }
