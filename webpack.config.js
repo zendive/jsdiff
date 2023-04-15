@@ -25,6 +25,7 @@ export default function (env, op) {
     },
 
     resolve: {
+      extensions: ['.ts', '.js'],
       modules: [path.resolve(__dirname, 'src/js'), 'node_modules'],
       alias: {},
     },
@@ -50,13 +51,13 @@ export default function (env, op) {
           loader: 'vue-loader',
         },
         {
-          test: /\.(scss|css)$/,
-          use: ['style-loader', 'css-loader', 'sass-loader'],
-        },
-        {
           test: /\.tsx?$/,
           loader: 'ts-loader',
           options: { appendTsSuffixTo: [/\.vue$/] },
+        },
+        {
+          test: /\.(scss|css)$/,
+          use: ['style-loader', 'css-loader', 'sass-loader'],
         },
       ],
     },

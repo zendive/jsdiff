@@ -26,13 +26,11 @@ function eachChildren(
   }
 }
 
-export const postDiffRender = () => {
-  setTimeout(function jsondiffpatchHtmlFormatterAdjustArrows(
-    nodeArg: HTMLElement
-  ) {
+export const postDiffRender = (nodeArg: HTMLElement | null) => {
+  setTimeout(function jsondiffpatchHtmlFormatterAdjustArrows() {
     const node = nodeArg || document;
 
-    eachByQuery(node, '.jsondiffpatch-arrow', function (_ref3) {
+    eachByQuery(<HTMLElement>node, '.jsondiffpatch-arrow', function (_ref3) {
       const parentNode = _ref3.parentNode;
       const children = _ref3.children;
       const style = _ref3.style;
@@ -77,6 +75,5 @@ export const postDiffRender = () => {
         }
       }
     });
-  },
-  10);
+  }, 10);
 };

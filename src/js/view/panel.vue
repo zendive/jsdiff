@@ -35,10 +35,10 @@
       </div>
     </section>
 
-    <section v-if="hasBothSides && !deltaHtml" class="-match">
+    <section v-if="hasBothSides && !deltaObj" class="-match">
       <div ref="deltaEl" class="-center">match</div>
     </section>
-    <section v-else-if="hasBothSides && deltaHtml">
+    <section v-else-if="hasBothSides && deltaObj">
       <div ref="deltaEl" class="-delta" v-html="deltaHtml" />
     </section>
     <section v-if="!hasBothSides" class="-empty">
@@ -57,16 +57,17 @@
   </section>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue';
 import packageJson from '../../../package.json';
 import * as jsondiffpatch from 'jsondiffpatch';
 import 'jsondiffpatch/dist/formatters-styles/html.css';
-import { timeFromNow } from './api/time.ts';
-import { postDiffRender } from './api/html-helper.ts';
+import { timeFromNow } from './api/time';
+import { postDiffRender } from './api/html-helper';
+import { Delta } from 'jsondiffpatch';
 
 const formatters = jsondiffpatch.formatters;
-const deltaEl = ref(null);
+const deltaEl = ref<HTMLElement | null>(null);
 const appStartTimestamp = Date.now();
 const state = reactive({
   version: packageJson.version,
@@ -76,30 +77,39 @@ const state = reactive({
   },
   codeExample: 'console.diff({a:1,b:1,c:3}, {a:1,b:2,d:3});',
   showUnchanged: true,
-  compare: {
-    timestamp: appStartTimestamp,
-    left: null,
-    right: null,
-  },
   now: appStartTimestamp,
-  timer: null,
 });
+interface CompareState {
+  timestamp: number;
+  left?: unknown;
+  right?: unknown;
+}
+const compare = ref<CompareState>({
+  timestamp: appStartTimestamp,
+  left: undefined,
+  right: undefined,
+});
+let timer: number;
 
 const lastUpdated = computed(() =>
-  timeFromNow(state.compare.timestamp, state.now)
+  timeFromNow(compare.value.timestamp, state.now)
 );
 
 const hasBothSides = computed(
-  () => $_hasData(state.compare.left) && $_hasData(state.compare.right)
+  () => $_hasData(compare.value.left) && $_hasData(compare.value.right)
 );
 
 const deltaObj = computed(() =>
-  jsondiffpatch.diff(state.compare.left, state.compare.right)
+  jsondiffpatch.diff(compare.value.left, compare.value.right)
 );
 
 const deltaHtml = computed(() => {
   try {
-    return formatters.html.format(deltaObj.value, state.compare.left);
+    if (deltaObj.value) {
+      return formatters.html.format(<Delta>deltaObj.value, compare.value.left);
+    } else {
+      return '';
+    }
   } catch (bug) {
     return JSON.stringify(bug);
   }
@@ -126,20 +136,22 @@ onMounted(() => {
 });
 
 const onToggleUnchanged = () => {
-  state.showUnchanged = !state.showUnchanged;
-  formatters.html.showUnchanged(state.showUnchanged, deltaEl.value);
-  postDiffRender(deltaEl.value);
+  if (deltaEl.value) {
+    state.showUnchanged = !state.showUnchanged;
+    formatters.html.showUnchanged(state.showUnchanged, deltaEl.value);
+    postDiffRender(deltaEl.value);
+  }
 };
 
 const onCopyDelta = () => {
-  const diff = jsondiffpatch.diff(state.compare.left, state.compare.right);
+  const diff = jsondiffpatch.diff(compare.value.left, compare.value.right);
   const sDiff = JSON.stringify(diff, null, 2);
 
   document.oncopy = function (e) {
-    e.clipboardData.setData('text', sDiff);
+    e.clipboardData?.setData('text', sDiff);
     e.preventDefault();
   };
-  document.execCommand('copy', false, null);
+  document.execCommand('copy', false);
   // modern alternative, but don't have permission [?]
   // navigator.clipboard.writeText(sDiff).then(
   //   () => {
@@ -152,24 +164,32 @@ const onCopyDelta = () => {
 };
 
 function $_restartLastUpdated() {
-  state.compare.timestamp = Date.now();
+  compare.value.timestamp = Date.now();
 
-  clearInterval(state.timer);
-  state.timer = window.setInterval(() => {
+  window.clearInterval(timer);
+  timer = window.setInterval(() => {
     state.now = Date.now();
   }, 1e3);
 }
 
-function $_onDiffRequest({ left, right, push }) {
+function $_onDiffRequest({
+  left,
+  right,
+  push,
+}: {
+  left?: unknown;
+  right?: unknown;
+  push?: unknown;
+}) {
   if (push) {
-    state.compare.left = state.compare.right;
-    state.compare.right = push;
+    compare.value.left = compare.value.right;
+    compare.value.right = push;
   } else {
     if (left) {
-      state.compare.left = left;
+      compare.value.left = left;
     }
     if (right) {
-      state.compare.right = right;
+      compare.value.right = right;
     }
   }
 
@@ -177,7 +197,7 @@ function $_onDiffRequest({ left, right, push }) {
   postDiffRender(deltaEl.value);
 }
 
-function $_hasData(o) {
+function $_hasData(o: unknown): boolean {
   return undefined !== o && null !== o;
 }
 </script>

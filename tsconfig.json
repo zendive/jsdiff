@@ -12,7 +12,8 @@
     "module": "ESNext",
     "lib": ["ESNext", "DOM"],
     "resolveJsonModule": true,
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true
   },
   "include": ["./**/*"],
   "exclude": ["node_modules", ".ts-built", "src/js/bundle"]

@@ -22,16 +22,20 @@ const rtf = new Intl.RelativeTimeFormat(undefined, { numeric: 'auto' });
  * @param [now] {number}
  * @return {string}
  */
-export function timeFromNow(test: number, now: number) {
+export function timeFromNow(test: number, now: number): string {
   const delta = now - test;
   const absDelta = Math.abs(delta);
+  let rv = '';
 
   for (const interval of intervals) {
     if (absDelta >= interval.ge) {
       const time = Math.trunc(delta / interval.divisor);
-      return interval.unit
+      rv = interval.unit
         ? rtf.format(-time, interval.unit as Intl.RelativeTimeFormatUnit)
-        : interval.text;
+        : interval.text || '';
+      break;
     }
   }
+
+  return rv;
 }
