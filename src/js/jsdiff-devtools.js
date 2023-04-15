@@ -1,35 +1,35 @@
-chrome.devtools.panels.create(
-  'JSDiff',
-  '/src/img/panel-icon28.png',
-  '/src/jsdiff-panel.html',
-  (panel) => {
-    panel.onSearch.addListener(async (cmd, query) => {
-      await chrome.runtime.sendMessage({
-        source: 'jsdiff-panel-search',
-        params: { cmd, query },
-      });
-    });
-  }
-);
-
 // tabId may be null if user opened the devtools of the devtools
 if (chrome.devtools.inspectedWindow.tabId !== null) {
+  chrome.devtools.panels.create(
+    'JSDiff',
+    '/src/img/panel-icon28.png',
+    '/src/jsdiff-panel.html',
+    (panel) => {
+      panel.onSearch.addListener(async (cmd, query) => {
+        await chrome.runtime.sendMessage({
+          source: 'jsdiff-panel-search',
+          params: { cmd, query },
+        });
+      });
+    }
+  );
+
   injectScripts();
+
+  // listen on tabs page reload
+  chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+    if ('complete' === changeInfo.status) {
+      injectScripts();
+    }
+  });
+
+  // track api invocation - (api can be invoked prior opening of jsdiff panel)
+  chrome.runtime.onMessage.addListener(async (req) => {
+    if ('jsdiff-devtools-extension-api' === req.source) {
+      await chrome.storage.local.set({ lastApiReq: req });
+    }
+  });
 }
-
-// listen on tabs page reload
-chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  if ('complete' === changeInfo.status) {
-    injectScripts();
-  }
-});
-
-// track api invocation - (api can be invoked prior opening of jsdiff panel)
-chrome.runtime.onMessage.addListener(async (req) => {
-  if ('jsdiff-devtools-extension-api' === req.source) {
-    await chrome.storage.local.set({ lastApiReq: req });
-  }
-});
 
 // Inject console api and messaging proxy
 // us shown at: https://developer.chrome.com/extensions/devtools#content-script-to-devtools
