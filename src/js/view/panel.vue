@@ -58,7 +58,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from 'vue';
+import { computed, onMounted, onUnmounted, reactive, ref } from 'vue';
 import packageJson from '../../../package.json';
 import * as jsondiffpatch from 'jsondiffpatch';
 import 'jsondiffpatch/dist/formatters-styles/html.css';
@@ -80,19 +80,19 @@ const state = reactive({
   now: appStartTimestamp,
 });
 interface CompareState {
-  timestamp: number;
+  timestamp?: number;
   left?: unknown;
   right?: unknown;
 }
 const compare = ref<CompareState>({
-  timestamp: appStartTimestamp,
+  timestamp: undefined,
   left: undefined,
   right: undefined,
 });
 let timer: number;
 
 const lastUpdated = computed(() =>
-  timeFromNow(compare.value.timestamp, state.now)
+  compare.value.timestamp ? timeFromNow(compare.value.timestamp, state.now) : ''
 );
 
 const hasBothSides = computed(
@@ -135,6 +135,10 @@ onMounted(() => {
   });
 });
 
+onUnmounted(() => {
+  window.clearInterval(timer);
+});
+
 const onToggleUnchanged = () => {
   if (deltaEl.value) {
     state.showUnchanged = !state.showUnchanged;
@@ -164,8 +168,6 @@ const onCopyDelta = () => {
 };
 
 function $_restartLastUpdated() {
-  compare.value.timestamp = Date.now();
-
   window.clearInterval(timer);
   timer = window.setInterval(() => {
     state.now = Date.now();
@@ -176,11 +178,15 @@ function $_onDiffRequest({
   left,
   right,
   push,
+  timestamp,
 }: {
   left?: unknown;
   right?: unknown;
   push?: unknown;
+  timestamp?: number;
 }) {
+  compare.value.timestamp = timestamp || Date.now();
+
   if (push) {
     compare.value.left = compare.value.right;
     compare.value.right = push;

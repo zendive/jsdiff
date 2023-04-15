@@ -127,10 +127,14 @@ function jsdiff_devtools_extension_api() {
 
   Object.assign(console, {
     diff: (left, right) =>
-      post(right === undefined ? { push: left } : { left, right }),
-    diffLeft: (left) => post({ left }),
-    diffRight: (right) => post({ right }),
-    diffPush: (push) => post({ push }),
+      post(
+        right === undefined
+          ? { push: left, timestamp: Date.now() }
+          : { left, right, timestamp: Date.now() }
+      ),
+    diffLeft: (left) => post({ left, timestamp: Date.now() }),
+    diffRight: (right) => post({ right, timestamp: Date.now() }),
+    diffPush: (push) => post({ push, timestamp: Date.now() }),
   });
 
   console.debug(
