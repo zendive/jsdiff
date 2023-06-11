@@ -14,9 +14,12 @@ export default function (env, op) {
 
   return {
     mode: op.mode,
+    devServer: {
+      hot: true,
+    },
 
     entry: {
-      'jsdiff-panel': './src/js/jsdiff-panel.js',
+      'jsdiff-panel': './src/js/view/app.js',
     },
 
     output: {
@@ -47,13 +50,13 @@ export default function (env, op) {
     module: {
       rules: [
         {
-          test: /\.vue$/,
-          loader: 'vue-loader',
-        },
-        {
           test: /\.tsx?$/,
           loader: 'ts-loader',
-          options: { appendTsSuffixTo: [/\.vue$/] },
+          options: { appendTsSuffixTo: [/\.vue$/], transpileOnly: true },
+        },
+        {
+          test: /\.vue$/,
+          loader: 'vue-loader',
         },
         {
           test: /\.(scss|css)$/,

@@ -1,5 +1,5 @@
 <template>
-  <section id="jsdiff-panel">
+  <section class="jsdiff-panel">
     <section class="-header">
       <div v-if="hasBothSides" class="-toolbox">
         <button
@@ -58,13 +58,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, reactive, ref } from 'vue';
 import packageJson from '../../../package.json';
+import { computed, onMounted, onUnmounted, reactive, ref } from 'vue';
 import * as jsondiffpatch from 'jsondiffpatch';
-import 'jsondiffpatch/dist/formatters-styles/html.css';
-import { timeFromNow } from './api/time';
-import { postDiffRender } from './api/html-helper';
 import { Delta } from 'jsondiffpatch';
+import 'jsondiffpatch/dist/formatters-styles/html.css';
+import { SECOND, timeFromNow } from './api/time';
+import { postDiffRender } from './api/formatter-dom';
+import { searchQueryInDom } from './api/search';
 
 const formatters = jsondiffpatch.formatters;
 const deltaEl = ref<HTMLElement | null>(null);
@@ -79,12 +80,13 @@ const state = reactive({
   showUnchanged: true,
   now: appStartTimestamp,
 });
-interface CompareState {
+
+interface ICompareState {
   timestamp?: number;
   left?: unknown;
   right?: unknown;
 }
-const compare = ref<CompareState>({
+const compare = ref<ICompareState>({
   timestamp: undefined,
   left: undefined,
   right: undefined,
@@ -126,11 +128,9 @@ onMounted(() => {
     if ('jsdiff-devtools-extension-api' === req.source && req.payload) {
       $_onDiffRequest(req.payload);
     } else if ('jsdiff-panel-search' === req.source) {
-      /**
-       * cmd = 'performSearch'|'nextSearchResult'|'cancelSearch'
-       */
-      const { cmd, query } = req.params;
-      console.log('🔦', cmd, query);
+      if (deltaEl.value) {
+        searchQueryInDom({ el: deltaEl.value, ...req.params });
+      }
     }
   });
 });
@@ -171,7 +171,7 @@ function $_restartLastUpdated() {
   window.clearInterval(timer);
   timer = window.setInterval(() => {
     state.now = Date.now();
-  }, 1e3);
+  }, SECOND);
 }
 
 function $_onDiffRequest({
@@ -185,11 +185,22 @@ function $_onDiffRequest({
   push?: unknown;
   timestamp?: number;
 }) {
+  // console.log('$_onDiffRequest');
   compare.value.timestamp = timestamp || Date.now();
 
   if (push) {
     compare.value.left = compare.value.right;
     compare.value.right = push;
+
+    chrome.storage.local.set({
+      lastApiReq: {
+        payload: {
+          left: compare.value.left,
+          right: compare.value.right,
+          timestamp,
+        },
+      },
+    });
   } else {
     if (left) {
       compare.value.left = left;
@@ -198,7 +209,6 @@ function $_onDiffRequest({
       compare.value.right = right;
     }
   }
-
   $_restartLastUpdated();
   postDiffRender(deltaEl.value);
 }
@@ -220,7 +230,7 @@ body {
   padding: 0;
 }
 
-#jsdiff-panel {
+.jsdiff-panel {
   height: 100vh;
   background-color: var(--color-background);
   color: var(--color-text);
@@ -323,6 +333,10 @@ body {
 
   .-delta {
     padding-top: 10px;
+    .found {
+      outline: 2px solid red;
+      outline-offset: -2px;
+    }
   }
 }
 </style>

@@ -13,8 +13,8 @@
     "lib": ["ESNext", "DOM"],
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "typeRoots": ["node_modules/@types"],
   },
-  "include": ["./**/*"],
-  "exclude": ["node_modules", ".ts-built", "src/js/bundle"]
+  "exclude": [".ts-built", "src/js/bundle"]
 }
