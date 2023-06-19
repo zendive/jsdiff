@@ -1,7 +1,7 @@
 {
   "name": "console.diff(...)",
   "description": "Compare in-memory objects and see the result inside devtools panel with a set of console.diff functions.",
-  "version": "2.1",
+  "version": "3.0.0",
   "manifest_version": 3,
   "minimum_chrome_version": "64.0",
   "devtools_page": "src/jsdiff-devtools.html",

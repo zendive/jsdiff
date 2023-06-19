@@ -65,7 +65,17 @@ import { Delta } from 'jsondiffpatch';
 import 'jsondiffpatch/dist/formatters-styles/html.css';
 import { SECOND, timeFromNow } from './api/time';
 import { postDiffRender } from './api/formatter-dom';
-import { searchQueryInDom } from './api/search';
+import { searchQueryInDom, ISearchOptions } from './api/search';
+import { hasValue } from './api/toolkit';
+
+interface ICompareState {
+  timestamp?: number;
+  left?: unknown;
+  right?: unknown;
+}
+interface ICompareDiffRequest extends ICompareState {
+  push?: unknown;
+}
 
 const formatters = jsondiffpatch.formatters;
 const deltaEl = ref<HTMLElement | null>(null);
@@ -80,31 +90,21 @@ const state = reactive({
   showUnchanged: true,
   now: appStartTimestamp,
 });
-
-interface ICompareState {
-  timestamp?: number;
-  left?: unknown;
-  right?: unknown;
-}
 const compare = ref<ICompareState>({
   timestamp: undefined,
   left: undefined,
   right: undefined,
 });
 let timer: number;
-
 const lastUpdated = computed(() =>
   compare.value.timestamp ? timeFromNow(compare.value.timestamp, state.now) : ''
 );
-
 const hasBothSides = computed(
-  () => $_hasData(compare.value.left) && $_hasData(compare.value.right)
+  () => hasValue(compare.value.left) && hasValue(compare.value.right)
 );
-
 const deltaObj = computed(() =>
   jsondiffpatch.diff(compare.value.left, compare.value.right)
 );
-
 const deltaHtml = computed(() => {
   try {
     if (deltaObj.value) {
@@ -119,28 +119,21 @@ const deltaHtml = computed(() => {
 
 onMounted(() => {
   chrome.storage.local.get(['lastApiReq']).then(({ lastApiReq }) => {
-    if (lastApiReq && lastApiReq.payload) {
+    if (hasValue(lastApiReq?.payload)) {
       $_onDiffRequest(lastApiReq.payload);
     }
   });
 
-  chrome.runtime.onMessage.addListener((req) => {
-    if ('jsdiff-devtools-extension-api' === req.source && req.payload) {
-      $_onDiffRequest(req.payload);
-    } else if ('jsdiff-panel-search' === req.source) {
-      if (deltaEl.value) {
-        searchQueryInDom({ el: deltaEl.value, ...req.params });
-      }
-    }
-  });
+  chrome.runtime.onMessage.addListener($_onRuntimeMessage);
 });
 
 onUnmounted(() => {
   window.clearInterval(timer);
+  chrome.runtime.onMessage.removeListener($_onRuntimeMessage);
 });
 
 const onToggleUnchanged = () => {
-  if (deltaEl.value) {
+  if (hasValue(deltaEl.value)) {
     state.showUnchanged = !state.showUnchanged;
     formatters.html.showUnchanged(state.showUnchanged, deltaEl.value);
     postDiffRender(deltaEl.value);
@@ -148,14 +141,10 @@ const onToggleUnchanged = () => {
 };
 
 const onCopyDelta = () => {
-  const diff = jsondiffpatch.diff(compare.value.left, compare.value.right);
-  const sDiff = JSON.stringify(diff, null, 2);
-
-  document.oncopy = function (e) {
-    e.clipboardData?.setData('text', sDiff);
-    e.preventDefault();
-  };
+  document.addEventListener('copy', $_onDocumentCopy);
   document.execCommand('copy', false);
+  document.removeEventListener('copy', $_onDocumentCopy);
+
   // modern alternative, but don't have permission [?]
   // navigator.clipboard.writeText(sDiff).then(
   //   () => {
@@ -166,6 +155,20 @@ const onCopyDelta = () => {
   //   }
   // );
 };
+
+function $_onRuntimeMessage(req) {
+  if ('jsdiff-devtools-extension-api' === req.source && req.payload) {
+    $_onDiffRequest(req.payload);
+  } else if ('jsdiff-panel-search' === req.source && deltaEl.value) {
+    searchQueryInDom(<HTMLElement>deltaEl.value, <ISearchOptions>req.params);
+  }
+}
+
+function $_onDocumentCopy(e: ClipboardEvent) {
+  const sDiff = JSON.stringify(deltaObj.value, null, 2);
+  e.clipboardData?.setData('text', sDiff);
+  e.preventDefault();
+}
 
 function $_restartLastUpdated() {
   window.clearInterval(timer);
@@ -179,28 +182,13 @@ function $_onDiffRequest({
   right,
   push,
   timestamp,
-}: {
-  left?: unknown;
-  right?: unknown;
-  push?: unknown;
-  timestamp?: number;
-}) {
+}: ICompareDiffRequest) {
   // console.log('$_onDiffRequest');
   compare.value.timestamp = timestamp || Date.now();
 
   if (push) {
     compare.value.left = compare.value.right;
     compare.value.right = push;
-
-    chrome.storage.local.set({
-      lastApiReq: {
-        payload: {
-          left: compare.value.left,
-          right: compare.value.right,
-          timestamp,
-        },
-      },
-    });
   } else {
     if (left) {
       compare.value.left = left;
@@ -209,19 +197,27 @@ function $_onDiffRequest({
       compare.value.right = right;
     }
   }
+
+  chrome.storage.local.set({
+    lastApiReq: {
+      payload: {
+        left: compare.value.left,
+        right: compare.value.right,
+        timestamp,
+      },
+    },
+  });
+
   $_restartLastUpdated();
   postDiffRender(deltaEl.value);
-}
-
-function $_hasData(o: unknown): boolean {
-  return undefined !== o && null !== o;
 }
 </script>
 
 <style lang="scss">
 :root {
-  --color-background: #fff;
-  --color-text: #000;
+  --colour-background: #fff;
+  --colour-text: #000;
+  --colour-found: 0, 191, 255;
   --height-header: 1.625rem;
 }
 
@@ -232,8 +228,8 @@ body {
 
 .jsdiff-panel {
   height: 100vh;
-  background-color: var(--color-background);
-  color: var(--color-text);
+  background-color: var(--colour-background);
+  color: var(--colour-text);
 
   .btn {
     height: var(--height-header);
@@ -333,9 +329,25 @@ body {
 
   .-delta {
     padding-top: 10px;
-    .found {
-      outline: 2px solid red;
-      outline-offset: -2px;
+
+    .jsdiff-found {
+      outline: 1px solid rgba(var(--colour-found), 0.6);
+      outline-offset: -1px;
+
+      &.jsdiff-found-this {
+        outline: 2px solid rgb(var(--colour-found));
+        outline-offset: -2px;
+        animation: found_this 1s infinite;
+      }
+
+      @keyframes found_this {
+        0% {
+          background-color: transparent;
+        }
+        50% {
+          background-color: rgba(var(--colour-found), 0.2);
+        }
+      }
     }
   }
 }

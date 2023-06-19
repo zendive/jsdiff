@@ -138,7 +138,7 @@ function jsdiff_devtools_extension_api() {
   });
 
   console.debug(
-    '%c✚ console.diff',
+    '%c✚ console.diff()',
     `
       font-weight: 700;
       color: #000;

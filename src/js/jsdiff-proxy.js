@@ -1,4 +1,4 @@
-(async () => {
+(() => {
   window.addEventListener('message', (e) => {
     if (
       typeof e.data === 'object' &&

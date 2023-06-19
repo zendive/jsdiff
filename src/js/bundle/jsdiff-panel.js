@@ -11540,8 +11540,9 @@ __webpack_require__.r(__webpack_exports__);
 var ___CSS_LOADER_EXPORT___ = _node_modules_pnpm_css_loader_6_8_1_webpack_5_86_0_node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default()((_node_modules_pnpm_css_loader_6_8_1_webpack_5_86_0_node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default()));
 // Module
 ___CSS_LOADER_EXPORT___.push([module.id, `:root {
-  --color-background: #fff;
-  --color-text: #000;
+  --colour-background: #fff;
+  --colour-text: #000;
+  --colour-found: 0, 191, 255;
   --height-header: 1.625rem;
 }
 body {
@@ -11550,8 +11551,8 @@ body {
 }
 .jsdiff-panel {
   height: 100vh;
-  background-color: var(--color-background);
-  color: var(--color-text);
+  background-color: var(--colour-background);
+  color: var(--colour-text);
 }
 .jsdiff-panel .btn {
   height: var(--height-header);
@@ -11634,10 +11635,23 @@ body {
 .jsdiff-panel .-delta {
   padding-top: 10px;
 }
-.jsdiff-panel .-delta .found {
-  outline: 2px solid red;
+.jsdiff-panel .-delta .jsdiff-found {
+  outline: 1px solid rgba(var(--colour-found), 0.6);
+  outline-offset: -1px;
+}
+.jsdiff-panel .-delta .jsdiff-found.jsdiff-found-this {
+  outline: 2px solid rgb(var(--colour-found));
   outline-offset: -2px;
-}`, "",{"version":3,"sources":["webpack://./src/js/view/panel.vue","webpack://./panel.vue"],"names":[],"mappings":"AACA;EACE,wBAAA;EACA,kBAAA;EACA,yBAAA;ACAF;ADGA;EACE,SAAA;EACA,UAAA;ACAF;ADGA;EACE,aAAA;EACA,yCAAA;EACA,wBAAA;ACAF;ADEE;EACE,4BAAA;EACA,eAAA;EACA,YAAA;EACA,gBAAA;EACA,aAAA;EACA,qCAAA;ACAJ;ADEI;EACE,oCAAA;ACAN;ADIE;EACE,6BAAA;EACA,4BAAA;EACA,aAAA;EACA,mBAAA;EACA,4BAAA;EACA,mBAAA;EACA,gBAAA;ACFJ;ADII;EACE,aAAA;EACA,uBAAA;EACA,mBAAA;EACA,kBAAA;ACFN;ADIM;EACE,aAAA;ACFR;ADKM;EACE,iBAAA;EACA,cAAA;ACHR;ADKQ;EACE,iBAAA;ACHV;ADQI;EACE,eAAA;EACA,MAAA;EACA,QAAA;EACA,aAAA;EACA,sBAAA;EACA,mBAAA;EACA,gBAAA;ACNN;ADQM;EACE,sBAAA;ACNR;ADUQ;EACE,WAAA;ACRV;ADcE;EACE,cAAA;EACA,kBAAA;ACZJ;ADeE;EACE,aAAA;EACA,mBAAA;EACA,YAAA;ACbJ;ADeI;EACE,eAAA;EACA,WAAA;ACbN;ADiBE;EACE,aAAA;EACA,0CAAA;EACA,uBAAA;EACA,mBAAA;ACfJ;ADiBI;EACE,gBAAA;EACA,eAAA;ACfN;ADkBI;EACE,eAAA;EACA,WAAA;AChBN;ADoBE;EACE,iBAAA;AClBJ;ADmBI;EACE,sBAAA;EACA,oBAAA;ACjBN","sourcesContent":["\n:root {\n  --color-background: #fff;\n  --color-text: #000;\n  --height-header: 1.625rem;\n}\n\nbody {\n  margin: 0;\n  padding: 0;\n}\n\n.jsdiff-panel {\n  height: 100vh;\n  background-color: var(--color-background);\n  color: var(--color-text);\n\n  .btn {\n    height: var(--height-header);\n    cursor: pointer;\n    border: none;\n    border-radius: 0;\n    outline: none;\n    background-color: rgba(0, 0, 0, 0.03);\n\n    &:hover {\n      background-color: rgba(0, 0, 0, 0.3);\n    }\n  }\n\n  .-header {\n    border-bottom: 1px solid #bbb;\n    box-shadow: 1px 2px 5px #bbb;\n    display: flex;\n    align-items: center;\n    height: var(--height-header);\n    margin-bottom: 12px;\n    min-width: 512px;\n\n    .-toolbox {\n      display: flex;\n      justify-content: center;\n      align-items: center;\n      padding-left: 10px;\n\n      .btn {\n        margin: 0 2px;\n      }\n\n      .-last-updated {\n        margin-left: 10px;\n        color: #bbbbbb;\n\n        .-value {\n          font-weight: bold;\n        }\n      }\n    }\n\n    .-badge {\n      position: fixed;\n      top: 0;\n      right: 0;\n      display: flex;\n      flex-direction: column;\n      align-items: center;\n      padding: 4px 4px;\n\n      .-version {\n        font-family: monospace;\n      }\n\n      .-icon {\n        img {\n          width: 32px;\n        }\n      }\n    }\n  }\n\n  .-center {\n    margin: 0 auto;\n    text-align: center;\n  }\n\n  .-match {\n    display: flex;\n    align-items: center;\n    height: 100%;\n\n    .-center {\n      font-size: 26px;\n      color: #bbb;\n    }\n  }\n\n  .-empty {\n    display: flex;\n    height: calc(100vh - var(--height-header));\n    justify-content: center;\n    align-items: center;\n\n    .-links {\n      margin-top: 16px;\n      font-size: 11px;\n    }\n\n    .-center {\n      font-size: 26px;\n      color: #bbb;\n    }\n  }\n\n  .-delta {\n    padding-top: 10px;\n    .found {\n      outline: 2px solid red;\n      outline-offset: -2px;\n    }\n  }\n}\n",":root {\n  --color-background: #fff;\n  --color-text: #000;\n  --height-header: 1.625rem;\n}\n\nbody {\n  margin: 0;\n  padding: 0;\n}\n\n.jsdiff-panel {\n  height: 100vh;\n  background-color: var(--color-background);\n  color: var(--color-text);\n}\n.jsdiff-panel .btn {\n  height: var(--height-header);\n  cursor: pointer;\n  border: none;\n  border-radius: 0;\n  outline: none;\n  background-color: rgba(0, 0, 0, 0.03);\n}\n.jsdiff-panel .btn:hover {\n  background-color: rgba(0, 0, 0, 0.3);\n}\n.jsdiff-panel .-header {\n  border-bottom: 1px solid #bbb;\n  box-shadow: 1px 2px 5px #bbb;\n  display: flex;\n  align-items: center;\n  height: var(--height-header);\n  margin-bottom: 12px;\n  min-width: 512px;\n}\n.jsdiff-panel .-header .-toolbox {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  padding-left: 10px;\n}\n.jsdiff-panel .-header .-toolbox .btn {\n  margin: 0 2px;\n}\n.jsdiff-panel .-header .-toolbox .-last-updated {\n  margin-left: 10px;\n  color: #bbbbbb;\n}\n.jsdiff-panel .-header .-toolbox .-last-updated .-value {\n  font-weight: bold;\n}\n.jsdiff-panel .-header .-badge {\n  position: fixed;\n  top: 0;\n  right: 0;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  padding: 4px 4px;\n}\n.jsdiff-panel .-header .-badge .-version {\n  font-family: monospace;\n}\n.jsdiff-panel .-header .-badge .-icon img {\n  width: 32px;\n}\n.jsdiff-panel .-center {\n  margin: 0 auto;\n  text-align: center;\n}\n.jsdiff-panel .-match {\n  display: flex;\n  align-items: center;\n  height: 100%;\n}\n.jsdiff-panel .-match .-center {\n  font-size: 26px;\n  color: #bbb;\n}\n.jsdiff-panel .-empty {\n  display: flex;\n  height: calc(100vh - var(--height-header));\n  justify-content: center;\n  align-items: center;\n}\n.jsdiff-panel .-empty .-links {\n  margin-top: 16px;\n  font-size: 11px;\n}\n.jsdiff-panel .-empty .-center {\n  font-size: 26px;\n  color: #bbb;\n}\n.jsdiff-panel .-delta {\n  padding-top: 10px;\n}\n.jsdiff-panel .-delta .found {\n  outline: 2px solid red;\n  outline-offset: -2px;\n}"],"sourceRoot":""}]);
+  animation: found_this 1s infinite;
+}
+@keyframes found_this {
+0% {
+    background-color: transparent;
+}
+50% {
+    background-color: rgba(var(--colour-found), 0.2);
+}
+}`, "",{"version":3,"sources":["webpack://./src/js/view/panel.vue","webpack://./panel.vue"],"names":[],"mappings":"AACA;EACE,yBAAA;EACA,mBAAA;EACA,2BAAA;EACA,yBAAA;ACAF;ADGA;EACE,SAAA;EACA,UAAA;ACAF;ADGA;EACE,aAAA;EACA,0CAAA;EACA,yBAAA;ACAF;ADEE;EACE,4BAAA;EACA,eAAA;EACA,YAAA;EACA,gBAAA;EACA,aAAA;EACA,qCAAA;ACAJ;ADEI;EACE,oCAAA;ACAN;ADIE;EACE,6BAAA;EACA,4BAAA;EACA,aAAA;EACA,mBAAA;EACA,4BAAA;EACA,mBAAA;EACA,gBAAA;ACFJ;ADII;EACE,aAAA;EACA,uBAAA;EACA,mBAAA;EACA,kBAAA;ACFN;ADIM;EACE,aAAA;ACFR;ADKM;EACE,iBAAA;EACA,cAAA;ACHR;ADKQ;EACE,iBAAA;ACHV;ADQI;EACE,eAAA;EACA,MAAA;EACA,QAAA;EACA,aAAA;EACA,sBAAA;EACA,mBAAA;EACA,gBAAA;ACNN;ADQM;EACE,sBAAA;ACNR;ADUQ;EACE,WAAA;ACRV;ADcE;EACE,cAAA;EACA,kBAAA;ACZJ;ADeE;EACE,aAAA;EACA,mBAAA;EACA,YAAA;ACbJ;ADeI;EACE,eAAA;EACA,WAAA;ACbN;ADiBE;EACE,aAAA;EACA,0CAAA;EACA,uBAAA;EACA,mBAAA;ACfJ;ADiBI;EACE,gBAAA;EACA,eAAA;ACfN;ADkBI;EACE,eAAA;EACA,WAAA;AChBN;ADoBE;EACE,iBAAA;AClBJ;ADoBI;EACE,iDAAA;EACA,oBAAA;AClBN;ADoBM;EACE,2CAAA;EACA,oBAAA;EACA,iCAAA;AClBR;ADqBM;AACE;IACE,6BAAA;ACnBR;ADqBM;IACE,gDAAA;ACnBR;AACF","sourcesContent":["\n:root {\n  --colour-background: #fff;\n  --colour-text: #000;\n  --colour-found: 0, 191, 255;\n  --height-header: 1.625rem;\n}\n\nbody {\n  margin: 0;\n  padding: 0;\n}\n\n.jsdiff-panel {\n  height: 100vh;\n  background-color: var(--colour-background);\n  color: var(--colour-text);\n\n  .btn {\n    height: var(--height-header);\n    cursor: pointer;\n    border: none;\n    border-radius: 0;\n    outline: none;\n    background-color: rgba(0, 0, 0, 0.03);\n\n    &:hover {\n      background-color: rgba(0, 0, 0, 0.3);\n    }\n  }\n\n  .-header {\n    border-bottom: 1px solid #bbb;\n    box-shadow: 1px 2px 5px #bbb;\n    display: flex;\n    align-items: center;\n    height: var(--height-header);\n    margin-bottom: 12px;\n    min-width: 512px;\n\n    .-toolbox {\n      display: flex;\n      justify-content: center;\n      align-items: center;\n      padding-left: 10px;\n\n      .btn {\n        margin: 0 2px;\n      }\n\n      .-last-updated {\n        margin-left: 10px;\n        color: #bbbbbb;\n\n        .-value {\n          font-weight: bold;\n        }\n      }\n    }\n\n    .-badge {\n      position: fixed;\n      top: 0;\n      right: 0;\n      display: flex;\n      flex-direction: column;\n      align-items: center;\n      padding: 4px 4px;\n\n      .-version {\n        font-family: monospace;\n      }\n\n      .-icon {\n        img {\n          width: 32px;\n        }\n      }\n    }\n  }\n\n  .-center {\n    margin: 0 auto;\n    text-align: center;\n  }\n\n  .-match {\n    display: flex;\n    align-items: center;\n    height: 100%;\n\n    .-center {\n      font-size: 26px;\n      color: #bbb;\n    }\n  }\n\n  .-empty {\n    display: flex;\n    height: calc(100vh - var(--height-header));\n    justify-content: center;\n    align-items: center;\n\n    .-links {\n      margin-top: 16px;\n      font-size: 11px;\n    }\n\n    .-center {\n      font-size: 26px;\n      color: #bbb;\n    }\n  }\n\n  .-delta {\n    padding-top: 10px;\n\n    .jsdiff-found {\n      outline: 1px solid rgba(var(--colour-found), 0.6);\n      outline-offset: -1px;\n\n      &.jsdiff-found-this {\n        outline: 2px solid rgb(var(--colour-found));\n        outline-offset: -2px;\n        animation: found_this 1s infinite;\n      }\n\n      @keyframes found_this {\n        0% {\n          background-color: transparent;\n        }\n        50% {\n          background-color: rgba(var(--colour-found), 0.2);\n        }\n      }\n    }\n  }\n}\n",":root {\n  --colour-background: #fff;\n  --colour-text: #000;\n  --colour-found: 0, 191, 255;\n  --height-header: 1.625rem;\n}\n\nbody {\n  margin: 0;\n  padding: 0;\n}\n\n.jsdiff-panel {\n  height: 100vh;\n  background-color: var(--colour-background);\n  color: var(--colour-text);\n}\n.jsdiff-panel .btn {\n  height: var(--height-header);\n  cursor: pointer;\n  border: none;\n  border-radius: 0;\n  outline: none;\n  background-color: rgba(0, 0, 0, 0.03);\n}\n.jsdiff-panel .btn:hover {\n  background-color: rgba(0, 0, 0, 0.3);\n}\n.jsdiff-panel .-header {\n  border-bottom: 1px solid #bbb;\n  box-shadow: 1px 2px 5px #bbb;\n  display: flex;\n  align-items: center;\n  height: var(--height-header);\n  margin-bottom: 12px;\n  min-width: 512px;\n}\n.jsdiff-panel .-header .-toolbox {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  padding-left: 10px;\n}\n.jsdiff-panel .-header .-toolbox .btn {\n  margin: 0 2px;\n}\n.jsdiff-panel .-header .-toolbox .-last-updated {\n  margin-left: 10px;\n  color: #bbbbbb;\n}\n.jsdiff-panel .-header .-toolbox .-last-updated .-value {\n  font-weight: bold;\n}\n.jsdiff-panel .-header .-badge {\n  position: fixed;\n  top: 0;\n  right: 0;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  padding: 4px 4px;\n}\n.jsdiff-panel .-header .-badge .-version {\n  font-family: monospace;\n}\n.jsdiff-panel .-header .-badge .-icon img {\n  width: 32px;\n}\n.jsdiff-panel .-center {\n  margin: 0 auto;\n  text-align: center;\n}\n.jsdiff-panel .-match {\n  display: flex;\n  align-items: center;\n  height: 100%;\n}\n.jsdiff-panel .-match .-center {\n  font-size: 26px;\n  color: #bbb;\n}\n.jsdiff-panel .-empty {\n  display: flex;\n  height: calc(100vh - var(--height-header));\n  justify-content: center;\n  align-items: center;\n}\n.jsdiff-panel .-empty .-links {\n  margin-top: 16px;\n  font-size: 11px;\n}\n.jsdiff-panel .-empty .-center {\n  font-size: 26px;\n  color: #bbb;\n}\n.jsdiff-panel .-delta {\n  padding-top: 10px;\n}\n.jsdiff-panel .-delta .jsdiff-found {\n  outline: 1px solid rgba(var(--colour-found), 0.6);\n  outline-offset: -1px;\n}\n.jsdiff-panel .-delta .jsdiff-found.jsdiff-found-this {\n  outline: 2px solid rgb(var(--colour-found));\n  outline-offset: -2px;\n  animation: found_this 1s infinite;\n}\n@keyframes found_this {\n  0% {\n    background-color: transparent;\n  }\n  50% {\n    background-color: rgba(var(--colour-found), 0.2);\n  }\n}"],"sourceRoot":""}]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -17105,6 +17119,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _api_time__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./api/time */ "./src/js/view/api/time.ts");
 /* harmony import */ var _api_formatter_dom__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./api/formatter-dom */ "./src/js/view/api/formatter-dom.ts");
 /* harmony import */ var _api_search__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./api/search */ "./src/js/view/api/search.ts");
+/* harmony import */ var _api_toolkit__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./api/toolkit */ "./src/js/view/api/toolkit.ts");
+
 
 
 
@@ -17137,7 +17153,7 @@ __webpack_require__.r(__webpack_exports__);
         });
         let timer;
         const lastUpdated = (0,vue__WEBPACK_IMPORTED_MODULE_0__.computed)(() => compare.value.timestamp ? (0,_api_time__WEBPACK_IMPORTED_MODULE_4__.timeFromNow)(compare.value.timestamp, state.now) : '');
-        const hasBothSides = (0,vue__WEBPACK_IMPORTED_MODULE_0__.computed)(() => $_hasData(compare.value.left) && $_hasData(compare.value.right));
+        const hasBothSides = (0,vue__WEBPACK_IMPORTED_MODULE_0__.computed)(() => (0,_api_toolkit__WEBPACK_IMPORTED_MODULE_7__.hasValue)(compare.value.left) && (0,_api_toolkit__WEBPACK_IMPORTED_MODULE_7__.hasValue)(compare.value.right));
         const deltaObj = (0,vue__WEBPACK_IMPORTED_MODULE_0__.computed)(() => jsondiffpatch__WEBPACK_IMPORTED_MODULE_2__.diff(compare.value.left, compare.value.right));
         const deltaHtml = (0,vue__WEBPACK_IMPORTED_MODULE_0__.computed)(() => {
             try {
@@ -17154,39 +17170,27 @@ __webpack_require__.r(__webpack_exports__);
         });
         (0,vue__WEBPACK_IMPORTED_MODULE_0__.onMounted)(() => {
             chrome.storage.local.get(['lastApiReq']).then(({ lastApiReq }) => {
-                if (lastApiReq && lastApiReq.payload) {
+                if ((0,_api_toolkit__WEBPACK_IMPORTED_MODULE_7__.hasValue)(lastApiReq?.payload)) {
                     $_onDiffRequest(lastApiReq.payload);
                 }
             });
-            chrome.runtime.onMessage.addListener((req) => {
-                if ('jsdiff-devtools-extension-api' === req.source && req.payload) {
-                    $_onDiffRequest(req.payload);
-                }
-                else if ('jsdiff-panel-search' === req.source) {
-                    if (deltaEl.value) {
-                        (0,_api_search__WEBPACK_IMPORTED_MODULE_6__.searchQueryInDom)({ el: deltaEl.value, ...req.params });
-                    }
-                }
-            });
+            chrome.runtime.onMessage.addListener($_onRuntimeMessage);
         });
         (0,vue__WEBPACK_IMPORTED_MODULE_0__.onUnmounted)(() => {
             window.clearInterval(timer);
+            chrome.runtime.onMessage.removeListener($_onRuntimeMessage);
         });
         const onToggleUnchanged = () => {
-            if (deltaEl.value) {
+            if ((0,_api_toolkit__WEBPACK_IMPORTED_MODULE_7__.hasValue)(deltaEl.value)) {
                 state.showUnchanged = !state.showUnchanged;
                 formatters.html.showUnchanged(state.showUnchanged, deltaEl.value);
                 (0,_api_formatter_dom__WEBPACK_IMPORTED_MODULE_5__.postDiffRender)(deltaEl.value);
             }
         };
         const onCopyDelta = () => {
-            const diff = jsondiffpatch__WEBPACK_IMPORTED_MODULE_2__.diff(compare.value.left, compare.value.right);
-            const sDiff = JSON.stringify(diff, null, 2);
-            document.oncopy = function (e) {
-                e.clipboardData?.setData('text', sDiff);
-                e.preventDefault();
-            };
+            document.addEventListener('copy', $_onDocumentCopy);
             document.execCommand('copy', false);
+            document.removeEventListener('copy', $_onDocumentCopy);
             // modern alternative, but don't have permission [?]
             // navigator.clipboard.writeText(sDiff).then(
             //   () => {
@@ -17197,6 +17201,19 @@ __webpack_require__.r(__webpack_exports__);
             //   }
             // );
         };
+        function $_onRuntimeMessage(req) {
+            if ('jsdiff-devtools-extension-api' === req.source && req.payload) {
+                $_onDiffRequest(req.payload);
+            }
+            else if ('jsdiff-panel-search' === req.source && deltaEl.value) {
+                (0,_api_search__WEBPACK_IMPORTED_MODULE_6__.searchQueryInDom)(deltaEl.value, req.params);
+            }
+        }
+        function $_onDocumentCopy(e) {
+            const sDiff = JSON.stringify(deltaObj.value, null, 2);
+            e.clipboardData?.setData('text', sDiff);
+            e.preventDefault();
+        }
         function $_restartLastUpdated() {
             window.clearInterval(timer);
             timer = window.setInterval(() => {
@@ -17209,15 +17226,6 @@ __webpack_require__.r(__webpack_exports__);
             if (push) {
                 compare.value.left = compare.value.right;
                 compare.value.right = push;
-                chrome.storage.local.set({
-                    lastApiReq: {
-                        payload: {
-                            left: compare.value.left,
-                            right: compare.value.right,
-                            timestamp,
-                        },
-                    },
-                });
             }
             else {
                 if (left) {
@@ -17227,13 +17235,19 @@ __webpack_require__.r(__webpack_exports__);
                     compare.value.right = right;
                 }
             }
+            chrome.storage.local.set({
+                lastApiReq: {
+                    payload: {
+                        left: compare.value.left,
+                        right: compare.value.right,
+                        timestamp,
+                    },
+                },
+            });
             $_restartLastUpdated();
             (0,_api_formatter_dom__WEBPACK_IMPORTED_MODULE_5__.postDiffRender)(deltaEl.value);
         }
-        function $_hasData(o) {
-            return undefined !== o && null !== o;
-        }
-        const __returned__ = { formatters, deltaEl, appStartTimestamp, state, compare, get timer() { return timer; }, set timer(v) { timer = v; }, lastUpdated, hasBothSides, deltaObj, deltaHtml, onToggleUnchanged, onCopyDelta, $_restartLastUpdated, $_onDiffRequest, $_hasData };
+        const __returned__ = { formatters, deltaEl, appStartTimestamp, state, compare, get timer() { return timer; }, set timer(v) { timer = v; }, lastUpdated, hasBothSides, deltaObj, deltaHtml, onToggleUnchanged, onCopyDelta, $_onRuntimeMessage, $_onDocumentCopy, $_restartLastUpdated, $_onDiffRequest };
         Object.defineProperty(__returned__, '__isScriptSetup', { enumerable: false, value: true });
         return __returned__;
     }
@@ -17461,39 +17475,91 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   searchQueryInDom: () => (/* binding */ searchQueryInDom)
 /* harmony export */ });
 const searchState = {
-    lastCmd: '',
-    currentEl: 0,
+    foundEls: [],
+    query: '',
+    currentIndex: -1,
+    clear() {
+        this.foundEls.splice(0);
+        this.query = '';
+        this.currentIndex = -1;
+    },
 };
-function highlightElements(container, query) {
-    const childNodes = container.childNodes;
-    for (let n = 0, N = childNodes.length; n < N; n++) {
-        const child = childNodes[n];
-        if (child.nodeType === Node.ELEMENT_NODE) {
-            const element = child;
-            const text = element.textContent || element.innerText;
-            if (text.includes(query)) {
-                element.classList.add('found');
+const CLASS_FOUND = 'jsdiff-found';
+const CLASS_FOUND_THIS = 'jsdiff-found-this';
+const uppercasePattern = /\p{Lu}/u; // 'u' flag enables Unicode matching
+function hasUppercaseCharacter(str) {
+    for (let n = 0, N = str.length; n < N; n++) {
+        if (uppercasePattern.test(str.charAt(n))) {
+            return true;
+        }
+    }
+    return false;
+}
+function highlightElements(container, query, foundEls) {
+    const containerNodes = container.childNodes;
+    if (containerNodes.length) {
+        const firstChild = containerNodes[0];
+        if (containerNodes.length === 1 && firstChild.nodeType === Node.TEXT_NODE) {
+            const text = firstChild.textContent || firstChild.innerText;
+            const found = hasUppercaseCharacter(query)
+                ? text.includes(query) // case-sensitive
+                : text.toLocaleLowerCase().includes(query); // case-insensitive
+            if (found) {
+                container.classList.add('jsdiff-found');
+                foundEls.push(container);
             }
-            highlightElements(element, query); // recursion
+        }
+        else {
+            for (let n = 0, N = containerNodes.length; n < N; n++) {
+                const child = containerNodes[n];
+                if (child.nodeType === Node.ELEMENT_NODE) {
+                    highlightElements(child, query, foundEls); // recursion
+                }
+            }
         }
     }
 }
 function clearHighlight(container) {
-    const allFound = container.querySelectorAll('.found');
-    for (let n = 0, N = allFound.length; n < N; n++) {
-        allFound[n].classList.remove('found', 'foundThis');
+    const allFound = container.querySelectorAll(`.${CLASS_FOUND}`);
+    for (let n = allFound.length - 1; n >= 0; n--) {
+        allFound[n].classList.remove(CLASS_FOUND, CLASS_FOUND_THIS);
     }
 }
-function searchQueryInDom({ el, cmd, query }) {
+function highlightCurrentResult(searchState) {
+    searchState.currentIndex++;
+    searchState.currentIndex %= searchState.foundEls.length;
+    const el = searchState.foundEls[searchState.currentIndex];
+    el.classList.add(CLASS_FOUND_THIS);
+    el.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+        inline: 'nearest',
+    });
+}
+function searchQueryInDom(el, { cmd, query }) {
     query = (typeof query === 'string' && query.trim()) || '';
-    console.log('🔦', cmd, query);
-    if ('performSearch' === cmd && query) {
-        highlightElements(el, query);
+    // console.log('🔦', cmd, query);
+    if ('performSearch' === cmd) {
+        searchState.query = query;
+        if (!query) {
+            searchState.clear();
+            clearHighlight(el);
+        }
     }
-    else if ('nextSearchResult' === cmd) {
-        // TODO: ...
+    else if ('nextSearchResult' === cmd && searchState.query) {
+        clearHighlight(el);
+        searchState.foundEls.splice(0);
+        highlightElements(el, searchState.query, searchState.foundEls);
+        if (searchState.foundEls.length) {
+            highlightCurrentResult(searchState);
+        }
+        else {
+            searchState.clear();
+            clearHighlight(el);
+        }
     }
     else if ('cancelSearch' === cmd) {
+        searchState.clear();
         clearHighlight(el);
     }
 }
@@ -17556,6 +17622,24 @@ function timeFromNow(test, now) {
         }
     }
     return rv;
+}
+
+
+/***/ }),
+
+/***/ "./src/js/view/api/toolkit.ts":
+/*!************************************!*\
+  !*** ./src/js/view/api/toolkit.ts ***!
+  \************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   hasValue: () => (/* binding */ hasValue)
+/* harmony export */ });
+function hasValue(o) {
+    return undefined !== o && null !== o;
 }
 
 
@@ -17858,7 +17942,7 @@ const compile = () => {
 /***/ ((module) => {
 
 "use strict";
-module.exports = JSON.parse('{"name":"jsdiff","version":"2.1.0","description":"![jsdiff](./src/img/panel-icon64.png) --- Chrome devtools extension intended to display result of in-memory object comparisons with the help of dedicated commands invoked via console.","private":true,"directories":{"doc":"doc"},"scripts":{"test":"echo \\"no test\\" && exit 1","dev":"webpack --progress --watch --mode=development","prod":"NODE_ENV=production webpack --mode=production","format":"prettier . --write"},"repository":{"type":"git","url":"git+https://github.com/zendive/jsdiff.git"},"keywords":["devtools","chrome","extension"],"author":"Block Alexander","license":"proprietary","bugs":{"url":"https://github.com/zendive/jsdiff/issues"},"homepage":"https://github.com/zendive/jsdiff#readme","type":"module","devDependencies":{"@types/chrome":"^0.0.237","@vue/compiler-sfc":"^3.3.4","clean-webpack-plugin":"~4.0.0","css-loader":"~6.8.1","jsondiffpatch":"~0.4.1","prettier":"^2.8.8","sass":"^1.63.3","sass-loader":"~13.3.2","style-loader":"~3.3.3","ts-loader":"^9.4.3","typescript":"^5.1.3","vue":"~3.3.4","vue-loader":"~17.2.2","webpack":"~5.86.0","webpack-bundle-analyzer":"^4.9.0","webpack-cli":"~5.1.4"}}');
+module.exports = JSON.parse('{"name":"jsdiff","version":"3.0.0","description":"![jsdiff](./src/img/panel-icon64.png) --- Chrome devtools extension intended to display result of in-memory object comparisons with the help of dedicated commands invoked via console.","private":true,"directories":{"doc":"doc"},"scripts":{"test":"echo \\"no test\\" && exit 1","dev":"webpack --progress --watch --mode=development","prod":"NODE_ENV=production webpack --mode=production","format":"prettier . --write"},"repository":{"type":"git","url":"git+https://github.com/zendive/jsdiff.git"},"keywords":["devtools","chrome","extension"],"author":"Block Alexander","license":"proprietary","bugs":{"url":"https://github.com/zendive/jsdiff/issues"},"homepage":"https://github.com/zendive/jsdiff#readme","type":"module","devDependencies":{"@types/chrome":"^0.0.237","@vue/compiler-sfc":"^3.3.4","clean-webpack-plugin":"~4.0.0","css-loader":"~6.8.1","jsondiffpatch":"~0.4.1","prettier":"^2.8.8","sass":"^1.63.3","sass-loader":"~13.3.2","style-loader":"~3.3.3","ts-loader":"^9.4.3","typescript":"^5.1.3","vue":"~3.3.4","vue-loader":"~17.2.2","webpack":"~5.86.0","webpack-bundle-analyzer":"^4.9.0","webpack-cli":"~5.1.4"}}');
 
 /***/ })
 
@@ -17961,7 +18045,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 const app = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createApp)(_panel_vue__WEBPACK_IMPORTED_MODULE_1__["default"]);
-app.mount('#app');
+app.mount('#jsdiff-app');
 
 })();
 
