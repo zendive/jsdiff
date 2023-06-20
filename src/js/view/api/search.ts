@@ -52,8 +52,11 @@ function highlightElements(
       const found = hasUppercaseCharacter(query)
         ? text.includes(query) // case-sensitive
         : text.toLocaleLowerCase().includes(query); // case-insensitive
+      const isHidden =
+        container.closest('.jsondiffpatch-unchanged-hidden') &&
+        container.closest('.jsondiffpatch-unchanged');
 
-      if (found) {
+      if (found && !isHidden) {
         container.classList.add('jsdiff-found');
         foundEls.push(container);
       }
