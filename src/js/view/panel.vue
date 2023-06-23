@@ -73,9 +73,6 @@ interface ICompareState {
   left?: unknown;
   right?: unknown;
 }
-interface ICompareDiffRequest extends ICompareState {
-  push?: unknown;
-}
 
 const formatters = jsondiffpatch.formatters;
 const deltaEl = ref<HTMLElement | null>(null);
@@ -117,13 +114,11 @@ const deltaHtml = computed(() => {
   }
 });
 
-onMounted(() => {
-  chrome.storage.local.get(['lastApiReq']).then(({ lastApiReq }) => {
-    if (hasValue(lastApiReq?.payload)) {
-      $_onDiffRequest(lastApiReq.payload);
-    }
-  });
-
+onMounted(async () => {
+  const { lastApiReq } = await chrome.storage.local.get(['lastApiReq']);
+  if (hasValue(lastApiReq)) {
+    $_onDiffRequest(lastApiReq);
+  }
   chrome.runtime.onMessage.addListener($_onRuntimeMessage);
 });
 
@@ -157,9 +152,12 @@ const onCopyDelta = () => {
 };
 
 function $_onRuntimeMessage(req) {
-  if ('jsdiff-devtools-extension-api' === req.source && req.payload) {
+  if ('jsdiff-devtools-to-panel-compare' === req.source && req.payload) {
     $_onDiffRequest(req.payload);
-  } else if ('jsdiff-panel-search' === req.source && deltaEl.value) {
+  } else if (
+    'jsdiff-devtools-to-panel-search' === req.source &&
+    deltaEl.value
+  ) {
     searchQueryInDom(<HTMLElement>deltaEl.value, <ISearchOptions>req.params);
   }
 }
@@ -177,36 +175,11 @@ function $_restartLastUpdated() {
   }, SECOND);
 }
 
-function $_onDiffRequest({
-  left,
-  right,
-  push,
-  timestamp,
-}: ICompareDiffRequest) {
+function $_onDiffRequest({ left, right, timestamp }: ICompareState) {
   // console.log('$_onDiffRequest');
+  compare.value.left = left;
+  compare.value.right = right;
   compare.value.timestamp = timestamp || Date.now();
-
-  if (push) {
-    compare.value.left = compare.value.right;
-    compare.value.right = push;
-  } else {
-    if (left) {
-      compare.value.left = left;
-    }
-    if (right) {
-      compare.value.right = right;
-    }
-  }
-
-  chrome.storage.local.set({
-    lastApiReq: {
-      payload: {
-        left: compare.value.left,
-        right: compare.value.right,
-        timestamp,
-      },
-    },
-  });
 
   $_restartLastUpdated();
   postDiffRender(deltaEl.value);

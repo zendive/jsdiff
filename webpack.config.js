@@ -37,10 +37,12 @@ export default function (env, op) {
       new CleanWebpackPlugin(),
       new VueLoaderPlugin(),
       // http://127.0.0.1:8888
-      new BundleAnalyzerPlugin({
-        openAnalyzer: false,
-        logLevel: 'silent',
-      }),
+      !isProd
+        ? new BundleAnalyzerPlugin({
+            openAnalyzer: false,
+            logLevel: 'silent',
+          })
+        : () => {},
       new webpack.DefinePlugin({
         __VUE_OPTIONS_API__: 'true',
         __VUE_PROD_DEVTOOLS__: 'false',

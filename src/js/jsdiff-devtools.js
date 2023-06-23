@@ -7,7 +7,7 @@ if (chrome.devtools.inspectedWindow.tabId !== null) {
     (panel) => {
       panel.onSearch.addListener(async (cmd, query) => {
         await chrome.runtime.sendMessage({
-          source: 'jsdiff-panel-search',
+          source: 'jsdiff-devtools-to-panel-search',
           params: { cmd, query },
         });
       });
@@ -25,8 +25,35 @@ if (chrome.devtools.inspectedWindow.tabId !== null) {
 
   // track api invocation - (api can be invoked prior opening of jsdiff panel)
   chrome.runtime.onMessage.addListener(async (req) => {
-    if ('jsdiff-devtools-extension-api' === req.source) {
-      await chrome.storage.local.set({ lastApiReq: req });
+    if ('jsdiff-proxy-to-devtools' === req.source) {
+      const payload = req.payload;
+      let { lastApiReq } = await chrome.storage.local.get(['lastApiReq']);
+      if (!lastApiReq) {
+        lastApiReq = {
+          left: '(empty)',
+          right: '(empty)',
+          timestamp: Date.now(),
+        };
+      }
+
+      if (Object.getOwnPropertyDescriptor(payload, 'push')) {
+        lastApiReq.left = lastApiReq.right;
+        lastApiReq.right = payload.push;
+      } else {
+        if (Object.getOwnPropertyDescriptor(payload, 'left')) {
+          lastApiReq.left = payload.left;
+        }
+        if (Object.getOwnPropertyDescriptor(payload, 'right')) {
+          lastApiReq.right = payload.right;
+        }
+      }
+      lastApiReq.timestamp = payload.timestamp;
+
+      chrome.storage.local.set({ lastApiReq: lastApiReq });
+      chrome.runtime.sendMessage({
+        source: 'jsdiff-devtools-to-panel-compare',
+        payload: lastApiReq,
+      });
     }
   });
 }
@@ -93,19 +120,27 @@ function jsdiff_devtools_extension_api() {
     try {
       ['push', 'left', 'right'].forEach((key) => {
         if (payload.hasOwnProperty(key)) {
-          let set = new Set();
-          payload[key] = JSON.parse(
-            JSON.stringify(payload[key], postDataAdapter.bind(null, set))
-          );
-          set.clear();
-          set = null;
+          const value = payload[key];
+
+          if (value === undefined) {
+            payload[key] = '(undefined)';
+          } else if (value === null) {
+            payload[key] = '(null)';
+          } else {
+            let set = new Set();
+            payload[key] = JSON.parse(
+              JSON.stringify(value, postDataAdapter.bind(null, set))
+            );
+            set.clear();
+            set = null;
+          }
         }
       });
 
       window.postMessage(
         {
           payload,
-          source: 'jsdiff-devtools-extension-api',
+          source: 'jsdiff-console-to-proxy',
         },
         '*'
       );
@@ -126,11 +161,11 @@ function jsdiff_devtools_extension_api() {
   }
 
   Object.assign(console, {
-    diff: (left, right) =>
+    diff: (...args) =>
       post(
-        right === undefined
-          ? { push: left, timestamp: Date.now() }
-          : { left, right, timestamp: Date.now() }
+        args.length === 1
+          ? { push: args[0], timestamp: Date.now() }
+          : { left: args[0], right: args[1], timestamp: Date.now() }
       ),
     diffLeft: (left) => post({ left, timestamp: Date.now() }),
     diffRight: (right) => post({ right, timestamp: Date.now() }),
