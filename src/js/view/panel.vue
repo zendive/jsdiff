@@ -135,20 +135,9 @@ const onToggleUnchanged = () => {
   }
 };
 
-const onCopyDelta = () => {
-  document.addEventListener('copy', $_onDocumentCopy);
-  document.execCommand('copy', false);
-  document.removeEventListener('copy', $_onDocumentCopy);
-
-  // modern alternative, but don't have permission [?]
-  // navigator.clipboard.writeText(sDiff).then(
-  //   () => {
-  //     console.log('clipboard successfully set');
-  //   },
-  //   (e) => {
-  //     console.error('clipboard write failed', e);
-  //   }
-  // );
+const onCopyDelta = async () => {
+  const sDiff = JSON.stringify(deltaObj.value, null, 2);
+  await navigator.clipboard.writeText(sDiff);
 };
 
 function $_onRuntimeMessage(req) {
@@ -160,12 +149,6 @@ function $_onRuntimeMessage(req) {
   ) {
     searchQueryInDom(<HTMLElement>deltaEl.value, <ISearchOptions>req.params);
   }
-}
-
-function $_onDocumentCopy(e: ClipboardEvent) {
-  const sDiff = JSON.stringify(deltaObj.value, null, 2);
-  e.clipboardData?.setData('text', sDiff);
-  e.preventDefault();
 }
 
 function $_restartLastUpdated() {
