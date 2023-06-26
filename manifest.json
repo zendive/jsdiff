@@ -10,6 +10,6 @@
     "64": "src/img/panel-icon64.png",
     "128": "src/img/panel-icon128.png"
   },
-  "permissions": ["storage", "scripting", "activeTab", "clipboardWrite"],
+  "permissions": ["storage", "scripting", "clipboardWrite"],
   "host_permissions": ["*://*/*"]
 }
