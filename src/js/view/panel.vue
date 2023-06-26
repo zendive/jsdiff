@@ -159,10 +159,11 @@ function $_restartLastUpdated() {
 }
 
 function $_onDiffRequest({ left, right, timestamp }: ICompareState) {
-  // console.log('$_onDiffRequest');
-  compare.value.left = left;
-  compare.value.right = right;
-  compare.value.timestamp = timestamp || Date.now();
+  compare.value = {
+    left,
+    right,
+    timestamp: timestamp || Date.now(),
+  };
 
   $_restartLastUpdated();
   postDiffRender(deltaEl.value);

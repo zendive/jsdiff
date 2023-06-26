@@ -17,6 +17,7 @@ comparisons with the help of dedicated console commands.
 - document, dom-elements and other non-serializable objects are filtered-out from the results
 - self recurring references displayed only once, the rest of occurrences are filtered-out
 - basic integration with search functionality within devtools
+  - if search query contains upper-case letter - the search will be case-sensitive
 
 ### Limitations and workarounds
 
@@ -48,13 +49,13 @@ console.diffPush(Date.now());
 console.diff(Date.now());
 ```
 
-- **console.diffLeft(left)** - update the old value
+- **console.diffLeft(left)** - update the old value only
 
 ```javascript
 console.diffLeft(Date.now());
 ```
 
-- **console.diffRight(right)** - update the new value
+- **console.diffRight(right)** - update the new value only
 
 ```javascript
 console.diffRight(Date.now());
@@ -82,7 +83,6 @@ with a single argument, that will shift objects from right to left, showing diff
   - reflects result of last compare request
   - listens on `jsdiff-devtools-to-panel-compare` requests
   - listens on `jsdiff-devtools-to-panel-search` and tries to find query in DOM
-    - if search query contains upper-case letter - the search will be case-sensitive
 
 ### Screenshot
 
