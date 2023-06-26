@@ -61,4 +61,7 @@ typings/
 .DS_Store
 
 *.zip
-package-lock.json
+*.js.map
+
+# typescript output
+.ts-built

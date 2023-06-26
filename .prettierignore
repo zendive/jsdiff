@@ -1,0 +1,3 @@
+/src/js/bundle
+.ts-built
+*.min.js

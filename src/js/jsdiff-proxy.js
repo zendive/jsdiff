@@ -1,12 +1,14 @@
-;(function(w, x) {
-  'use strict';
-  w.addEventListener('message', function jsdiff_devtools_extension_proxy(e) {
-    if (// message from the same frame
-        e.source === w &&
-        e.data && typeof(e.data) === 'object' &&
-        e.data.source === 'jsdiff-devtools-extension-api'
+(() => {
+  window.addEventListener('message', (e) => {
+    if (
+      typeof e.data === 'object' &&
+      e.data !== null &&
+      e.data.source === 'jsdiff-console-to-proxy'
     ) {
-      x && x.sendMessage(e.data);
+      chrome.runtime.sendMessage({
+        source: 'jsdiff-proxy-to-devtools',
+        payload: e.data.payload,
+      });
     }
   });
-})(window, chrome.runtime);
+})();

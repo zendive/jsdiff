@@ -1,26 +1,15 @@
 {
   "name": "console.diff(...)",
-  "description": "Deep compare complex in-memory objects inside browser devtools panel with console.diff command.",
-  "version": "2.0",
-  "manifest_version": 2,
-  "minimum_chrome_version": "64.0",
+  "description": "Compare in-memory objects and see the result inside devtools panel with a set of console.diff functions.",
+  "version": "3.0.0",
+  "manifest_version": 3,
+  "minimum_chrome_version": "66.0",
   "devtools_page": "src/jsdiff-devtools.html",
   "icons": {
     "28": "src/img/panel-icon28.png",
     "64": "src/img/panel-icon64.png",
     "128": "src/img/panel-icon128.png"
   },
-  "background": {
-    "persistent": false,
-    "scripts": [
-      "src/js/jsdiff-background.js"
-    ]
-  },
-  "content_security_policy": "script-src 'self'; object-src 'self'",
-  "permissions": [
-    "http://*/*",
-    "https://*/*",
-    "file:///*",
-    "clipboardWrite"
-  ]
+  "permissions": ["storage", "scripting", "activeTab", "clipboardWrite"],
+  "host_permissions": ["*://*/*"]
 }

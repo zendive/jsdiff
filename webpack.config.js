@@ -1,59 +1,76 @@
-const path = require('path');
-const webpack = require('webpack');
-const CleanWebpackPlugin = require('clean-webpack-plugin');
-const VueLoaderPlugin = require('vue-loader/lib/plugin');
+import path from 'path';
+import webpack from 'webpack';
+import { CleanWebpackPlugin } from 'clean-webpack-plugin';
+import { VueLoaderPlugin } from 'vue-loader';
+import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
+import { fileURLToPath } from 'url';
 
-module.exports = {
-  mode: 'development',
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-  entry: {
-    'jsdiff-panel': './src/js/jsdiff-panel.js'
-  },
+export default function (env, op) {
+  console.log('⌥', env, op.mode);
+  const isProd = op.mode === 'production';
 
-  output: {
-    filename: '[name].js',
-    path: path.resolve(__dirname, 'src/js/bundle')
-  },
+  return {
+    mode: op.mode,
+    devServer: {
+      hot: true,
+    },
 
-  resolve: {
-    modules: [
-      path.resolve(__dirname, 'src/js'),
-      'node_modules'
+    entry: {
+      'jsdiff-panel': './src/js/view/app.js',
+    },
+
+    output: {
+      filename: '[name].js',
+      path: path.resolve(__dirname, 'src/js/bundle'),
+    },
+
+    resolve: {
+      extensions: ['.ts', '.js'],
+      modules: [path.resolve(__dirname, 'src/js'), 'node_modules'],
+      alias: {},
+    },
+
+    plugins: [
+      new CleanWebpackPlugin(),
+      new VueLoaderPlugin(),
+      // http://127.0.0.1:8888
+      !isProd
+        ? new BundleAnalyzerPlugin({
+            openAnalyzer: false,
+            logLevel: 'silent',
+          })
+        : () => {},
+      new webpack.DefinePlugin({
+        __VUE_OPTIONS_API__: 'true',
+        __VUE_PROD_DEVTOOLS__: 'false',
+      }),
     ],
 
-    alias: {}
-  },
+    module: {
+      rules: [
+        {
+          test: /\.tsx?$/,
+          loader: 'ts-loader',
+          options: { appendTsSuffixTo: [/\.vue$/], transpileOnly: true },
+        },
+        {
+          test: /\.vue$/,
+          loader: 'vue-loader',
+        },
+        {
+          test: /\.(scss|css)$/,
+          use: ['style-loader', 'css-loader', 'sass-loader'],
+        },
+      ],
+    },
 
-  plugins: [
-    new webpack.IgnorePlugin({
-      resourceRegExp: /^\.\/locale$/,
-      contextRegExp: /moment$/
-    }),
-    new CleanWebpackPlugin(['src/js/bundle']),
-    new VueLoaderPlugin()
-  ],
+    optimization: {
+      splitChunks: false,
+    },
 
-  module: {
-    rules: [
-      {
-        test: /\.vue$/,
-        loader: 'vue-loader'
-      },
-      {
-        test: /\.(scss|css)$/,
-        use: [
-          'style-loader',
-          'css-loader',
-          'sass-loader'
-        ]
-      }
-    ]
-  },
-
-  optimization : {
-    runtimeChunk : false,
-  },
-
-  // devtool: 'source-map'
-  devtool: false
-};
+    devtool: isProd ? false : 'source-map',
+  };
+}
