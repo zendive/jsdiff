@@ -5,6 +5,17 @@
 Chrome devtools extension intended to display result of deep in-memory object
 comparisons with the help of dedicated console commands.
 
+<details>
+  <summary> <strong>Screenshots</strong> </summary>
+
+- Comparing two objects
+  ![screenshot](./src/img/screenshot-01.png)
+
+- Tracking changes in localStorage (unchanged are hidden)
+  ![screenshot](./src/img/screenshot-02.png)
+
+</details>
+
 ### Based on
 
 - [jsondiffpatch](https://github.com/benjamine/jsondiffpatch) by Benjamín Eidelman
@@ -83,7 +94,3 @@ with a single argument, that will shift objects from right to left, showing diff
   - reflects result of last compare request
   - listens on `jsdiff-devtools-to-panel-compare` requests
   - listens on `jsdiff-devtools-to-panel-search` and tries to find query in DOM
-
-### Screenshot
-
-![screenshot](./src/img/screenshot-01.png)
