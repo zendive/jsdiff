@@ -5,12 +5,12 @@
 
 version: 2
 updates:
-  - package-ecosystem: "npm" # See documentation for possible values
-    directory: "/" # Location of package manifests
+  - package-ecosystem: 'npm' # See documentation for possible values
+    directory: '/' # Location of package manifests
     schedule:
-      interval: "monthly"
-      day: "sunday"
+      interval: 'monthly'
+      day: 'sunday'
     allow:
       # Allow updates for dpecific dependencies
-      - dependency-name: "jsondiffpatch"
-      - dependency-name: "vue"
+      - dependency-name: 'jsondiffpatch'
+      - dependency-name: 'vue'

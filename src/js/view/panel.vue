@@ -301,6 +301,7 @@ body {
         0% {
           background-color: transparent;
         }
+
         50% {
           background-color: rgba(var(--colour-found), 0.2);
         }
