@@ -23,7 +23,7 @@ comparisons with the help of dedicated console commands.
 
 ### Features
 
-- compare objects from multiple tabs and/or between page reloads
+- compare objects between multiple [sub]domains, chrome tabs, or single page reloads
 - function code included in comparison result in form of a string, may help to see if it was altered
 - document, dom-elements and other non-serializable objects are filtered-out from the results
 - self recurring references displayed only once, the rest of occurrences are filtered-out
@@ -88,9 +88,9 @@ with a single argument, that will shift objects from right to left, showing diff
   - injects `console.diff` commands into inspected window's console interface
     - each function clones arguments and sends them via `postMessage` to `jsdiff-proxy.js` in `jsdiff-console-to-proxy` message
   - injects `jsdiff-proxy.js` that listens on window `jsdiff-console-to-proxy` message and sends it further to chrome runtime in `jsdiff-proxy-to-devtools` message
-  - listens on `jsdiff-proxy-to-devtools` and prepares payload for `vue/panel.js` and sends it with `jsdiff-devtools-to-panel-compare` message
-  - when user invokes devtools search command - informs `vue/panel.js` with `jsdiff-devtools-to-panel-search` message
-- when `vue/panel.js` is visible in devtools
+  - listens on `jsdiff-proxy-to-devtools` and prepares payload for `view/panel.vue` and sends it with `jsdiff-devtools-to-panel-compare` message
+  - when user invokes devtools search command - informs `view/panel.vue` with `jsdiff-devtools-to-panel-search` message
+- when `view/panel.vue` is visible in devtools
   - reflects result of last compare request
   - listens on `jsdiff-devtools-to-panel-compare` requests
   - listens on `jsdiff-devtools-to-panel-search` and tries to find query in DOM
