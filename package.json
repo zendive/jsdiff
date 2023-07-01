@@ -3,9 +3,6 @@
   "version": "3.0.0",
   "description": "![jsdiff](./src/img/panel-icon64.png) --- Chrome devtools extension intended to display result of in-memory object comparisons with the help of dedicated commands invoked via console.",
   "private": true,
-  "directories": {
-    "doc": "doc"
-  },
   "scripts": {
     "test": "echo \"no test\" && exit 1",
     "dev": "webpack --progress --watch --mode=development",
