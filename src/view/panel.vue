@@ -16,6 +16,13 @@
           v-text="'Copy'"
         />
 
+        <button
+          class="btn"
+          title="Clear results"
+          @click="onClearResults"
+          v-text="'Clear'"
+        />
+
         <div class="-last-updated">
           <span v-text="'Last updated '" />
           <span class="-value" v-text="lastUpdated" />
@@ -30,7 +37,7 @@
           target="_blank"
           :title="state.git.self"
         >
-          <img src="/src/img/panel-icon64.png" alt="JSDiff" />
+          <img src="/bundle/img/panel-icon64.png" alt="JSDiff" />
         </a>
       </div>
     </section>
@@ -58,21 +65,15 @@
 </template>
 
 <script setup lang="ts">
-import packageJson from '../../../package.json';
+import packageJson from '@/../package.json';
 import { computed, onMounted, onUnmounted, reactive, ref } from 'vue';
 import * as jsondiffpatch from 'jsondiffpatch';
 import { Delta } from 'jsondiffpatch';
 import 'jsondiffpatch/dist/formatters-styles/html.css';
-import { SECOND, timeFromNow } from './api/time';
-import { postDiffRender } from './api/formatter-dom';
-import { searchQueryInDom, ISearchOptions } from './api/search';
-import { hasValue } from './api/toolkit';
-
-interface ICompareState {
-  timestamp?: number;
-  left?: unknown;
-  right?: unknown;
-}
+import { SECOND, timeFromNow } from '@/api/time';
+import { postDiffRender } from '@/api/formatter-dom';
+import { searchQueryInDom } from '@/api/search';
+import { hasValue } from '@/api/toolkit';
 
 const formatters = jsondiffpatch.formatters;
 const deltaEl = ref<HTMLElement | null>(null);
@@ -88,7 +89,7 @@ const state = reactive({
   now: appStartTimestamp,
 });
 const compare = ref<ICompareState>({
-  timestamp: undefined,
+  timestamp: 0,
   left: undefined,
   right: undefined,
 });
@@ -140,14 +141,20 @@ const onCopyDelta = async () => {
   await navigator.clipboard.writeText(sDiff);
 };
 
-function $_onRuntimeMessage(req) {
+const onClearResults = async () => {
+  await chrome.storage.local.clear();
+  compare.value = { left: undefined, right: undefined, timestamp: 0 };
+};
+
+function $_onRuntimeMessage(req: IRuntimeMessageOptions) {
   if ('jsdiff-devtools-to-panel-compare' === req.source && req.payload) {
     $_onDiffRequest(req.payload);
   } else if (
     'jsdiff-devtools-to-panel-search' === req.source &&
-    deltaEl.value
+    deltaEl.value &&
+    req.params
   ) {
-    searchQueryInDom(<HTMLElement>deltaEl.value, <ISearchOptions>req.params);
+    searchQueryInDom(<HTMLElement>deltaEl.value, req.params);
   }
 }
 

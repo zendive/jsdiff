@@ -1,10 +1,3 @@
-type TSearchCommands = 'performSearch' | 'nextSearchResult' | 'cancelSearch';
-
-export interface ISearchOptions {
-  cmd: TSearchCommands;
-  query: string | null;
-}
-
 interface ISearchState {
   foundEls: HTMLElement[];
   query: string;

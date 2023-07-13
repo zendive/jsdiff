@@ -6,6 +6,7 @@
     "allowJs": true,
     "checkJs": false,
     "strict": true,
+    "noImplicitAny": true,
     "skipLibCheck": true,
     "moduleResolution": "Node",
     "useDefineForClassFields": true,
@@ -14,7 +15,12 @@
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
-    "typeRoots": ["node_modules/@types"]
+    "typeRoots": ["node_modules/@types", "src/@types"],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    }
   },
-  "exclude": [".ts-built", "src/js/bundle"]
+  "include": ["src"],
+  "exclude": [".ts-built", "bundle"]
 }

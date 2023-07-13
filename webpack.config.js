@@ -19,18 +19,23 @@ export default function (env, op) {
     },
 
     entry: {
-      'jsdiff-panel': './src/js/view/app.js',
+      'jsdiff-devtools': './src/jsdiff-devtools.ts',
+      'jsdiff-panel': './src/view/app.js',
+      'jsdiff-proxy': './src/jsdiff-proxy.ts',
+      'jsdiff-console': './src/jsdiff-console.ts',
     },
 
     output: {
       filename: '[name].js',
-      path: path.resolve(__dirname, 'src/js/bundle'),
+      path: path.resolve(__dirname, 'bundle/js'),
     },
 
     resolve: {
       extensions: ['.ts', '.js'],
       modules: [path.resolve(__dirname, 'src/js'), 'node_modules'],
-      alias: {},
+      alias: {
+        '@': path.resolve(__dirname, 'src'),
+      },
     },
 
     plugins: [

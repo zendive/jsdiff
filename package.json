@@ -1,6 +1,6 @@
 {
   "name": "jsdiff",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "![jsdiff](./src/img/panel-icon64.png) --- Chrome devtools extension intended to display result of in-memory object comparisons with the help of dedicated commands invoked via console.",
   "private": true,
   "scripts": {
