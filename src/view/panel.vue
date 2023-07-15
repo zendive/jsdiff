@@ -24,8 +24,8 @@
         />
 
         <div class="-last-updated">
-          <span v-text="'Last updated '" />
-          <span class="-value" v-text="lastUpdated" />
+          <span v-text="'⏱️'" title="Last updated" />&nbsp;
+          <span class="-value" v-text="elapsedTime" :title="envokedTime" />
         </div>
       </div>
 
@@ -70,7 +70,7 @@ import { computed, onMounted, onUnmounted, reactive, ref } from 'vue';
 import * as jsondiffpatch from 'jsondiffpatch';
 import { Delta } from 'jsondiffpatch';
 import 'jsondiffpatch/dist/formatters-styles/html.css';
-import { SECOND, timeFromNow } from '@/api/time';
+import { SECOND, timeFromNow, timeToString } from '@/api/time';
 import { postDiffRender } from '@/api/formatter-dom';
 import { searchQueryInDom } from '@/api/search';
 import { hasValue } from '@/api/toolkit';
@@ -94,8 +94,11 @@ const compare = ref<ICompareState>({
   right: undefined,
 });
 let timer: number;
-const lastUpdated = computed(() =>
+const elapsedTime = computed(() =>
   compare.value.timestamp ? timeFromNow(compare.value.timestamp, state.now) : ''
+);
+const envokedTime = computed(() =>
+  compare.value.timestamp ? timeToString(compare.value.timestamp) : ''
 );
 const hasBothSides = computed(
   () => hasValue(compare.value.left) && hasValue(compare.value.right)
@@ -146,9 +149,12 @@ const onClearResults = async () => {
   compare.value = { left: undefined, right: undefined, timestamp: 0 };
 };
 
-function $_onRuntimeMessage(req: IRuntimeMessageOptions) {
-  if ('jsdiff-devtools-to-panel-compare' === req.source && req.payload) {
-    $_onDiffRequest(req.payload);
+async function $_onRuntimeMessage(req: IRuntimeMessageOptions) {
+  if ('jsdiff-proxy-to-panel' === req.source) {
+    const { lastApiReq } = await chrome.storage.local.get(['lastApiReq']);
+    if (hasValue(lastApiReq)) {
+      $_onDiffRequest(lastApiReq);
+    }
   } else if (
     'jsdiff-devtools-to-panel-search' === req.source &&
     deltaEl.value &&
@@ -158,7 +164,7 @@ function $_onRuntimeMessage(req: IRuntimeMessageOptions) {
   }
 }
 
-function $_restartLastUpdated() {
+function $_restartElapsedTime() {
   window.clearInterval(timer);
   timer = window.setInterval(() => {
     state.now = Date.now();
@@ -172,7 +178,7 @@ function $_onDiffRequest({ left, right, timestamp }: ICompareState) {
     timestamp: timestamp || Date.now(),
   };
 
-  $_restartLastUpdated();
+  $_restartElapsedTime();
   postDiffRender(deltaEl.value);
 }
 </script>
@@ -228,6 +234,7 @@ body {
       }
 
       .-last-updated {
+        cursor: default;
         margin-left: 10px;
         color: #bbbbbb;
 
