@@ -1,5 +1,7 @@
 <template>
   <section class="jsdiff-panel">
+    <progress-indicator v-if="state.inprogress" />
+
     <section class="-header">
       <div v-if="hasBothSides" class="-toolbox">
         <button
@@ -66,7 +68,7 @@
 
 <script setup lang="ts">
 import packageJson from '@/../package.json';
-import { computed, onMounted, onUnmounted, reactive, ref } from 'vue';
+import { computed, nextTick, onMounted, onUnmounted, reactive, ref } from 'vue';
 import * as jsondiffpatch from 'jsondiffpatch';
 import { Delta } from 'jsondiffpatch';
 import 'jsondiffpatch/dist/formatters-styles/html.css';
@@ -74,6 +76,7 @@ import { SECOND, timeFromNow, timeToString } from '@/api/time';
 import { postDiffRender } from '@/api/formatter-dom';
 import { searchQueryInDom } from '@/api/search';
 import { hasValue } from '@/api/toolkit';
+import progressIndicator from '@/view/progress-indicator.vue';
 
 const formatters = jsondiffpatch.formatters;
 const deltaEl = ref<HTMLElement | null>(null);
@@ -87,6 +90,7 @@ const state = reactive({
   codeExample: 'console.diff({a:1,b:1,c:3}, {a:1,b:2,d:3});',
   showUnchanged: true,
   now: appStartTimestamp,
+  inprogress: false,
 });
 const compare = ref<ICompareState>({
   timestamp: 0,
@@ -147,10 +151,16 @@ const onCopyDelta = async () => {
 const onClearResults = async () => {
   await chrome.storage.local.clear();
   compare.value = { left: undefined, right: undefined, timestamp: 0 };
+  state.inprogress = false;
 };
 
 async function $_onRuntimeMessage(req: IRuntimeMessageOptions) {
-  if ('jsdiff-proxy-to-panel' === req.source) {
+  if (
+    'jsdiff-proxy-to-panel-inprogress' === req.source &&
+    typeof req.on === 'boolean'
+  ) {
+    state.inprogress = req.on;
+  } else if ('jsdiff-proxy-to-panel-compare' === req.source) {
     const { lastApiReq } = await chrome.storage.local.get(['lastApiReq']);
     if (hasValue(lastApiReq)) {
       $_onDiffRequest(lastApiReq);
@@ -179,7 +189,9 @@ function $_onDiffRequest({ left, right, timestamp }: ICompareState) {
   };
 
   $_restartElapsedTime();
-  postDiffRender(deltaEl.value);
+  postDiffRender(deltaEl.value).then(() => {
+    state.inprogress = false;
+  });
 }
 </script>
 

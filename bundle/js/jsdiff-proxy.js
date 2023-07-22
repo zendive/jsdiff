@@ -13,10 +13,16 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   TAG: () => (/* binding */ TAG)
 /* harmony export */ });
 const TAG = {
-    EXCEPTION: '👉️exception👈️',
-    VALUE_IS_EMPTY: '👉️empty👈️',
-    VALUE_IS_UNDEFINED: '👉️undefined👈️',
-    VALUE_IS_NULL: '👉️null👈️',
+    EXCEPTION: '⁉️(exception)',
+    VALUE_HAD_EXCEPTION: (str) => `⁉️(${str})`,
+    VALUE_IS_EMPTY: '(empty)',
+    VALUE_IS_UNDEFINED: '(undefined)',
+    VALUE_IS_NULL: '(null)',
+    VALUE_IS_REOCCURING_ARRAY: (id) => `♻️(recurring [0x${id}])`,
+    VALUE_IS_REOCCURING_OBJECT: (id) => `♻️(recurring {0x${id}})`,
+    IS_SYMBOL: (name, id) => `${name} 0x${id}`,
+    VALUE_IS_NATIVE_FUNCTION: '𝑓(native)',
+    VALUE_IS_FUCNTION: (hash) => `𝑓(${hash})`,
 };
 
 
@@ -30,21 +36,39 @@ const TAG = {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   proxyMessageGate: () => (/* binding */ proxyMessageGate),
-/* harmony export */   proxyMessageHandler: () => (/* binding */ proxyMessageHandler)
+/* harmony export */   proxyCompareHandler: () => (/* binding */ proxyCompareHandler),
+/* harmony export */   proxyInprogressHandler: () => (/* binding */ proxyInprogressHandler),
+/* harmony export */   proxyMessageGate: () => (/* binding */ proxyMessageGate)
 /* harmony export */ });
 /* harmony import */ var _api_const__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @/api/const */ "./src/api/const.ts");
 
-function proxyMessageGate(callback) {
+function proxyMessageGate(callbackInprogress, callbackCompare) {
     return function (e) {
         if (e.origin === window.location.origin &&
             e.source === window &&
             typeof e.data === 'object' &&
-            e.data !== null &&
-            e.data.source === 'jsdiff-console-to-proxy') {
-            callback(e);
+            e.data !== null) {
+            if ('jsdiff-console-to-proxy-inprogress' === e.data.source) {
+                callbackInprogress(e);
+            }
+            else if ('jsdiff-console-to-proxy-compare' === e.data.source) {
+                callbackCompare(e);
+            }
         }
     };
+}
+async function proxyCompareHandler(e) {
+    const current = e.data.payload;
+    const { lastApiReq: old } = await chrome.storage.local.get(['lastApiReq']);
+    const next = processComparisonObject(old, current);
+    await chrome.storage.local.set({ lastApiReq: next });
+    chrome.runtime.sendMessage({ source: 'jsdiff-proxy-to-panel-compare' });
+}
+function proxyInprogressHandler(e) {
+    chrome.runtime.sendMessage({
+        source: 'jsdiff-proxy-to-panel-inprogress',
+        on: e.data.on,
+    });
 }
 function processComparisonObject(old, next) {
     if (!old) {
@@ -69,13 +93,6 @@ function processComparisonObject(old, next) {
     }
     rv.timestamp = next.timestamp;
     return rv;
-}
-async function proxyMessageHandler(e) {
-    const current = e.data.payload;
-    const { lastApiReq: old } = await chrome.storage.local.get(['lastApiReq']);
-    const next = processComparisonObject(old, current);
-    await chrome.storage.local.set({ lastApiReq: next });
-    chrome.runtime.sendMessage({ source: 'jsdiff-proxy-to-panel' });
 }
 
 
@@ -146,7 +163,7 @@ var __webpack_exports__ = {};
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _api_proxy__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @/api/proxy */ "./src/api/proxy.ts");
 
-window.addEventListener('message', (0,_api_proxy__WEBPACK_IMPORTED_MODULE_0__.proxyMessageGate)(_api_proxy__WEBPACK_IMPORTED_MODULE_0__.proxyMessageHandler));
+window.addEventListener('message', (0,_api_proxy__WEBPACK_IMPORTED_MODULE_0__.proxyMessageGate)(_api_proxy__WEBPACK_IMPORTED_MODULE_0__.proxyInprogressHandler, _api_proxy__WEBPACK_IMPORTED_MODULE_0__.proxyCompareHandler));
 
 })();
 

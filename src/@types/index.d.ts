@@ -15,9 +15,24 @@ declare global {
     [key: string]: unknown;
   }
 
+  type TMessages =
+    | 'jsdiff-proxy-to-panel-compare'
+    | 'jsdiff-proxy-to-panel-inprogress'
+    | 'jsdiff-devtools-to-panel-search';
+
   interface ICompareMessage {
-    source: string;
+    source: TMessages;
     payload: ICompareMessagePayload;
+  }
+
+  interface IProgressMessage {
+    source: TMessages;
+    on: boolean;
+  }
+
+  interface ISearchMessage {
+    source: TMessages;
+    params: ISearchOptions;
   }
 
   type TSearchCommands = 'performSearch' | 'nextSearchResult' | 'cancelSearch';
@@ -27,9 +42,8 @@ declare global {
     query: string | null;
   }
 
-  interface IRuntimeMessageOptions {
-    source: string;
-    payload?: ICompareState;
-    params?: ISearchOptions;
-  }
+  interface IRuntimeMessageOptions
+    extends ICompareMessage,
+      IProgressMessage,
+      ISearchMessage {}
 }
