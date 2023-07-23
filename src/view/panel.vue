@@ -144,8 +144,13 @@ const onToggleUnchanged = () => {
 };
 
 const onCopyDelta = async () => {
-  const sDiff = JSON.stringify(deltaObj.value, null, 2);
-  await navigator.clipboard.writeText(sDiff);
+  const sDelta = JSON.stringify(deltaObj.value, null, 2);
+  document.addEventListener('copy', function onCopy(e: ClipboardEvent) {
+    e.preventDefault();
+    document.removeEventListener('copy', onCopy);
+    e.clipboardData?.setData('text', sDelta);
+  });
+  document.execCommand('copy', false);
 };
 
 const onClearResults = async () => {
@@ -234,6 +239,7 @@ body {
     height: var(--height-header);
     margin-bottom: 12px;
     min-width: 512px;
+    user-select: none;
 
     .-toolbox {
       display: flex;

@@ -14,7 +14,8 @@
       "match_origin_as_fallback": true,
       "all_frames": true,
       "run_at": "document_start"
-    },{
+    },
+    {
       "js": ["/bundle/js/jsdiff-proxy.js"],
       "matches": ["<all_urls>"],
       "match_origin_as_fallback": true,
