@@ -16,9 +16,9 @@ async function post(
         const value = payload[key];
 
         if (value === undefined) {
-          payload[key] = TAG.VALUE_IS_UNDEFINED;
+          payload[key] = TAG.UNDEFINED;
         } else if (value === null) {
-          payload[key] = TAG.VALUE_IS_NULL;
+          payload[key] = TAG.NULL;
         } else {
           payload[key] = await cloneFn(value);
         }

@@ -12,52 +12,45 @@ export async function nativeClone(value: unknown): Promise<unknown> {
   return rv;
 }
 
+type TInstanceBadgeTag = (id: string) => string;
+type TSymbolBadgeTag = (symbolName: string, symbolId: string) => string;
+
 class Catalog {
-  #instances: WeakMap<object, string>;
+  #instances: Map<unknown, string>;
   #instanceCounter = 0;
-  #symbols: Map<object, string>;
-  #symbolCounter = 0;
 
   constructor() {
-    this.#instances = new WeakMap();
-    this.#symbols = new Map();
+    this.#instances = new Map();
   }
 
   clear() {
-    this.#symbols.clear();
+    this.#instances.clear();
   }
 
   #counterToString(counter: number): string {
     return counter.toString(16).padStart(4, '0');
   }
 
-  getRecurringName(value: object, instanceBadge: (id: string) => string) {
+  get(
+    value: unknown,
+    badge: TInstanceBadgeTag | TSymbolBadgeTag
+  ): { seenBefore: boolean; name: string } {
     let instanceId = this.#instances.get(value);
+    let seenBefore = true;
 
-    if (instanceId) {
-      return instanceBadge(instanceId);
-    } else {
+    if (!instanceId) {
+      seenBefore = false;
       ++this.#instanceCounter;
       instanceId = this.#counterToString(this.#instanceCounter);
       this.#instances.set(value, instanceId);
-
-      return null;
-    }
-  }
-
-  getSymbolName(
-    value: Symbol,
-    symbolBage: (symbolName: string, symbolId: string) => string
-  ): string {
-    let symbolId = this.#symbols.get(value);
-
-    if (!symbolId) {
-      ++this.#symbolCounter;
-      symbolId = this.#counterToString(this.#symbolCounter);
-      this.#symbols.set(value, symbolId);
     }
 
-    return symbolBage(value.toString(), symbolId);
+    return {
+      seenBefore,
+      name: isSymbol(value)
+        ? (badge as TSymbolBadgeTag)(value.toString(), instanceId)
+        : (badge as TInstanceBadgeTag)(instanceId),
+    };
   }
 }
 
@@ -77,37 +70,88 @@ async function recursiveClone(
 ): Promise<unknown> {
   let rv = value;
 
-  if (isNonSerializable(value)) {
+  if (isUnserializable(value)) {
+    catalog.get(value, TAG.NON_SERIALIZABLE);
     rv = undefined;
   } else if (isFunction(value)) {
     return await serializeFunction(value);
   } else if (isSymbol(value)) {
-    rv = catalog.getSymbolName(value, TAG.IS_SYMBOL);
+    const { name } = catalog.get(value, TAG.SYMBOL);
+    rv = name;
   } else if (isArray(value)) {
-    const recurringName = catalog.getRecurringName(
-      value,
-      TAG.VALUE_IS_REOCCURING_ARRAY
-    );
+    const { seenBefore, name } = catalog.get(value, TAG.RECURRING_ARRAY);
 
-    if (recurringName) {
-      rv = recurringName;
+    if (seenBefore) {
+      rv = name;
     } else {
       const arr = [];
+
       for (const v of value) {
         arr.push(await recursiveClone(catalog, v));
       }
+
       rv = arr;
     }
-  }
-  // TODO: Map, Set
-  else if (isObject(value)) {
-    const recurringName = catalog.getRecurringName(
-      value,
-      TAG.VALUE_IS_REOCCURING_OBJECT
-    );
+  } else if (isSet(value)) {
+    const { seenBefore, name } = catalog.get(value, TAG.RECURRING_SET);
 
-    if (recurringName) {
-      rv = recurringName;
+    if (seenBefore) {
+      rv = name;
+    } else {
+      const arr = [];
+
+      for (const v of value) {
+        arr.push(await recursiveClone(catalog, v));
+      }
+
+      rv = arr;
+    }
+  } else if (isMap(value)) {
+    const { seenBefore, name } = catalog.get(value, TAG.RECURRING_MAP);
+
+    if (seenBefore) {
+      rv = name;
+    } else {
+      const obj = {} as ISerializeToObject;
+
+      for (const [k, v] of value) {
+        let newKey, newValue;
+
+        if (isUnserializable(k)) {
+          const { name } = catalog.get(k, TAG.NON_SERIALIZABLE);
+          newKey = name;
+        } else if (isFunction(k)) {
+          newKey = await serializeFunction(k);
+        } else if (isSymbol(k)) {
+          const { name } = catalog.get(k, TAG.SYMBOL);
+          newKey = name;
+        } else if (isArray(k)) {
+          const { name } = catalog.get(k, TAG.RECURRING_ARRAY);
+          newKey = name;
+        } else if (isSet(k)) {
+          const { name } = catalog.get(k, TAG.RECURRING_SET);
+          newKey = name;
+        } else if (isMap(k)) {
+          const { name } = catalog.get(k, TAG.RECURRING_MAP);
+          newKey = name;
+        } else if (isObject(k)) {
+          const { name } = catalog.get(k, TAG.RECURRING_OBJECT);
+          newKey = name;
+        } else {
+          newKey = String(k);
+        }
+
+        newValue = await recursiveClone(catalog, v);
+        obj[newKey] = newValue;
+      }
+
+      rv = obj;
+    }
+  } else if (isObject(value)) {
+    const { seenBefore, name } = catalog.get(value, TAG.RECURRING_OBJECT);
+
+    if (seenBefore) {
+      rv = name;
     } else {
       if (isSelfSerializableObject(value)) {
         rv = serializeSelfSerializable(value);
@@ -120,11 +164,11 @@ async function recursiveClone(
         const ownKeys = Reflect.ownKeys(value);
 
         for (const key of ownKeys) {
-          let newKey;
-          let newValue;
+          let newKey, newValue;
 
           if (isSymbol(key)) {
-            newKey = catalog.getSymbolName(key, TAG.IS_SYMBOL);
+            const { name } = catalog.get(key, TAG.SYMBOL);
+            newKey = name;
           } else {
             newKey = key;
           }
@@ -142,19 +186,22 @@ async function recursiveClone(
         rv = obj;
       }
     }
+  } else if (value === undefined) {
+    rv = TAG.UNDEFINED;
   }
 
   return rv;
 }
+`  `;
 
 async function serializeFunction(value: IHasToString): Promise<string> {
   const fnBody = value.toString();
 
   if (fnBody.endsWith('{ [native code] }')) {
-    return TAG.VALUE_IS_NATIVE_FUNCTION;
+    return TAG.NATIVE_FUNCTION;
   } else {
     const hash = await SHA256(fnBody);
-    return TAG.VALUE_IS_FUCNTION(hash);
+    return TAG.FUCNTION(hash);
   }
 }
 
@@ -177,8 +224,8 @@ function serializeSelfSerializable(value: IHasToJSON) {
 
 function stringifyError(error: unknown) {
   return typeof error?.toString === 'function'
-    ? TAG.VALUE_HAD_EXCEPTION(error.toString())
-    : TAG.EXCEPTION;
+    ? TAG.EXCEPTION(error.toString())
+    : TAG.EXCEPTION_FALLBACK;
 }
 
 function nativeClonePostDataAdapter(
@@ -187,7 +234,7 @@ function nativeClonePostDataAdapter(
   value: unknown
 ): unknown {
   try {
-    if (isNonSerializable(value)) {
+    if (isUnserializable(value)) {
       return undefined;
     } else if (isFunction(value)) {
       return value.toString();
@@ -238,6 +285,14 @@ function isFunction(that: unknown): that is IHasToString {
   );
 }
 
+function isSet(that: unknown): that is Set<unknown> {
+  return that instanceof Set;
+}
+
+function isMap(that: unknown): that is Map<unknown, unknown> {
+  return that instanceof Map;
+}
+
 function isSelfSerializableObject(that: unknown): that is IHasToJSON {
   let rv;
 
@@ -254,10 +309,8 @@ function isSelfSerializableObject(that: unknown): that is IHasToJSON {
   return rv;
 }
 
-function isNonSerializable(that: unknown): boolean {
-  return (
-    that instanceof Element || that instanceof Document //||that instanceof Promise
-  );
+function isUnserializable(that: unknown): boolean {
+  return that instanceof Element || that instanceof Document;
 }
 
 function isSymbol(that: unknown): that is Symbol {

@@ -9,7 +9,7 @@ if (chrome.devtools.inspectedWindow.tabId !== null) {
         await chrome.runtime.sendMessage({
           source: 'jsdiff-devtools-to-panel-search',
           params: { cmd, query },
-        });
+        } as ISearchMessage);
       });
     }
   );

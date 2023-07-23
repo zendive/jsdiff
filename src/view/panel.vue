@@ -159,7 +159,7 @@ const onClearResults = async () => {
   state.inprogress = false;
 };
 
-async function $_onRuntimeMessage(req: IRuntimeMessageOptions) {
+async function $_onRuntimeMessage(req: TRuntimeMessageOptions) {
   if (
     'jsdiff-proxy-to-panel-inprogress' === req.source &&
     typeof req.on === 'boolean'

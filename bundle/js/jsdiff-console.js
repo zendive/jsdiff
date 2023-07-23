@@ -26,7 +26,7 @@ var __classPrivateFieldGet = (undefined && undefined.__classPrivateFieldGet) || 
     if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
     return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
 };
-var _Catalog_instances, _Catalog_instances_1, _Catalog_instanceCounter, _Catalog_symbols, _Catalog_symbolCounter, _Catalog_counterToString;
+var _Catalog_instances, _Catalog_instances_1, _Catalog_instanceCounter, _Catalog_counterToString;
 
 
 async function nativeClone(value) {
@@ -40,39 +40,30 @@ class Catalog {
         _Catalog_instances.add(this);
         _Catalog_instances_1.set(this, void 0);
         _Catalog_instanceCounter.set(this, 0);
-        _Catalog_symbols.set(this, void 0);
-        _Catalog_symbolCounter.set(this, 0);
-        __classPrivateFieldSet(this, _Catalog_instances_1, new WeakMap(), "f");
-        __classPrivateFieldSet(this, _Catalog_symbols, new Map(), "f");
+        __classPrivateFieldSet(this, _Catalog_instances_1, new Map(), "f");
     }
     clear() {
-        __classPrivateFieldGet(this, _Catalog_symbols, "f").clear();
+        __classPrivateFieldGet(this, _Catalog_instances_1, "f").clear();
     }
-    getRecurringName(value, instanceBadge) {
+    get(value, badge) {
         var _a;
         let instanceId = __classPrivateFieldGet(this, _Catalog_instances_1, "f").get(value);
-        if (instanceId) {
-            return instanceBadge(instanceId);
-        }
-        else {
+        let seenBefore = true;
+        if (!instanceId) {
+            seenBefore = false;
             __classPrivateFieldSet(this, _Catalog_instanceCounter, (_a = __classPrivateFieldGet(this, _Catalog_instanceCounter, "f"), ++_a), "f");
             instanceId = __classPrivateFieldGet(this, _Catalog_instances, "m", _Catalog_counterToString).call(this, __classPrivateFieldGet(this, _Catalog_instanceCounter, "f"));
             __classPrivateFieldGet(this, _Catalog_instances_1, "f").set(value, instanceId);
-            return null;
         }
-    }
-    getSymbolName(value, symbolBage) {
-        var _a;
-        let symbolId = __classPrivateFieldGet(this, _Catalog_symbols, "f").get(value);
-        if (!symbolId) {
-            __classPrivateFieldSet(this, _Catalog_symbolCounter, (_a = __classPrivateFieldGet(this, _Catalog_symbolCounter, "f"), ++_a), "f");
-            symbolId = __classPrivateFieldGet(this, _Catalog_instances, "m", _Catalog_counterToString).call(this, __classPrivateFieldGet(this, _Catalog_symbolCounter, "f"));
-            __classPrivateFieldGet(this, _Catalog_symbols, "f").set(value, symbolId);
-        }
-        return symbolBage(value.toString(), symbolId);
+        return {
+            seenBefore,
+            name: isSymbol(value)
+                ? badge(value.toString(), instanceId)
+                : badge(instanceId),
+        };
     }
 }
-_Catalog_instances_1 = new WeakMap(), _Catalog_instanceCounter = new WeakMap(), _Catalog_symbols = new WeakMap(), _Catalog_symbolCounter = new WeakMap(), _Catalog_instances = new WeakSet(), _Catalog_counterToString = function _Catalog_counterToString(counter) {
+_Catalog_instances_1 = new WeakMap(), _Catalog_instanceCounter = new WeakMap(), _Catalog_instances = new WeakSet(), _Catalog_counterToString = function _Catalog_counterToString(counter) {
     return counter.toString(16).padStart(4, '0');
 };
 async function customClone(value) {
@@ -84,19 +75,21 @@ async function customClone(value) {
 }
 async function recursiveClone(catalog, value) {
     let rv = value;
-    if (isNonSerializable(value)) {
+    if (isUnserializable(value)) {
+        catalog.get(value, _api_const__WEBPACK_IMPORTED_MODULE_0__.TAG.NON_SERIALIZABLE);
         rv = undefined;
     }
     else if (isFunction(value)) {
         return await serializeFunction(value);
     }
     else if (isSymbol(value)) {
-        rv = catalog.getSymbolName(value, _api_const__WEBPACK_IMPORTED_MODULE_0__.TAG.IS_SYMBOL);
+        const { name } = catalog.get(value, _api_const__WEBPACK_IMPORTED_MODULE_0__.TAG.SYMBOL);
+        rv = name;
     }
     else if (isArray(value)) {
-        const recurringName = catalog.getRecurringName(value, _api_const__WEBPACK_IMPORTED_MODULE_0__.TAG.VALUE_IS_REOCCURING_ARRAY);
-        if (recurringName) {
-            rv = recurringName;
+        const { seenBefore, name } = catalog.get(value, _api_const__WEBPACK_IMPORTED_MODULE_0__.TAG.RECURRING_ARRAY);
+        if (seenBefore) {
+            rv = name;
         }
         else {
             const arr = [];
@@ -106,11 +99,68 @@ async function recursiveClone(catalog, value) {
             rv = arr;
         }
     }
-    // TODO: Map, Set
+    else if (isSet(value)) {
+        const { seenBefore, name } = catalog.get(value, _api_const__WEBPACK_IMPORTED_MODULE_0__.TAG.RECURRING_SET);
+        if (seenBefore) {
+            rv = name;
+        }
+        else {
+            const arr = [];
+            for (const v of value) {
+                arr.push(await recursiveClone(catalog, v));
+            }
+            rv = arr;
+        }
+    }
+    else if (isMap(value)) {
+        const { seenBefore, name } = catalog.get(value, _api_const__WEBPACK_IMPORTED_MODULE_0__.TAG.RECURRING_MAP);
+        if (seenBefore) {
+            rv = name;
+        }
+        else {
+            const obj = {};
+            for (const [k, v] of value) {
+                let newKey, newValue;
+                if (isUnserializable(k)) {
+                    const { name } = catalog.get(k, _api_const__WEBPACK_IMPORTED_MODULE_0__.TAG.NON_SERIALIZABLE);
+                    newKey = name;
+                }
+                else if (isFunction(k)) {
+                    newKey = await serializeFunction(k);
+                }
+                else if (isSymbol(k)) {
+                    const { name } = catalog.get(k, _api_const__WEBPACK_IMPORTED_MODULE_0__.TAG.SYMBOL);
+                    newKey = name;
+                }
+                else if (isArray(k)) {
+                    const { name } = catalog.get(k, _api_const__WEBPACK_IMPORTED_MODULE_0__.TAG.RECURRING_ARRAY);
+                    newKey = name;
+                }
+                else if (isSet(k)) {
+                    const { name } = catalog.get(k, _api_const__WEBPACK_IMPORTED_MODULE_0__.TAG.RECURRING_SET);
+                    newKey = name;
+                }
+                else if (isMap(k)) {
+                    const { name } = catalog.get(k, _api_const__WEBPACK_IMPORTED_MODULE_0__.TAG.RECURRING_MAP);
+                    newKey = name;
+                }
+                else if (isObject(k)) {
+                    const { name } = catalog.get(k, _api_const__WEBPACK_IMPORTED_MODULE_0__.TAG.RECURRING_OBJECT);
+                    newKey = name;
+                }
+                else {
+                    newKey = String(k);
+                }
+                newValue = await recursiveClone(catalog, v);
+                obj[newKey] = newValue;
+            }
+            rv = obj;
+        }
+    }
     else if (isObject(value)) {
-        const recurringName = catalog.getRecurringName(value, _api_const__WEBPACK_IMPORTED_MODULE_0__.TAG.VALUE_IS_REOCCURING_OBJECT);
-        if (recurringName) {
-            rv = recurringName;
+        const { seenBefore, name } = catalog.get(value, _api_const__WEBPACK_IMPORTED_MODULE_0__.TAG.RECURRING_OBJECT);
+        if (seenBefore) {
+            rv = name;
         }
         else {
             if (isSelfSerializableObject(value)) {
@@ -123,10 +173,10 @@ async function recursiveClone(catalog, value) {
                 const obj = {};
                 const ownKeys = Reflect.ownKeys(value);
                 for (const key of ownKeys) {
-                    let newKey;
-                    let newValue;
+                    let newKey, newValue;
                     if (isSymbol(key)) {
-                        newKey = catalog.getSymbolName(key, _api_const__WEBPACK_IMPORTED_MODULE_0__.TAG.IS_SYMBOL);
+                        const { name } = catalog.get(key, _api_const__WEBPACK_IMPORTED_MODULE_0__.TAG.SYMBOL);
+                        newKey = name;
                     }
                     else {
                         newKey = key;
@@ -144,16 +194,20 @@ async function recursiveClone(catalog, value) {
             }
         }
     }
+    else if (value === undefined) {
+        rv = _api_const__WEBPACK_IMPORTED_MODULE_0__.TAG.UNDEFINED;
+    }
     return rv;
 }
+`  `;
 async function serializeFunction(value) {
     const fnBody = value.toString();
     if (fnBody.endsWith('{ [native code] }')) {
-        return _api_const__WEBPACK_IMPORTED_MODULE_0__.TAG.VALUE_IS_NATIVE_FUNCTION;
+        return _api_const__WEBPACK_IMPORTED_MODULE_0__.TAG.NATIVE_FUNCTION;
     }
     else {
         const hash = await (0,_toolkit__WEBPACK_IMPORTED_MODULE_1__.SHA256)(fnBody);
-        return _api_const__WEBPACK_IMPORTED_MODULE_0__.TAG.VALUE_IS_FUCNTION(hash);
+        return _api_const__WEBPACK_IMPORTED_MODULE_0__.TAG.FUCNTION(hash);
     }
 }
 function serializeSelfSerializable(value) {
@@ -169,12 +223,12 @@ function serializeSelfSerializable(value) {
 }
 function stringifyError(error) {
     return typeof error?.toString === 'function'
-        ? _api_const__WEBPACK_IMPORTED_MODULE_0__.TAG.VALUE_HAD_EXCEPTION(error.toString())
-        : _api_const__WEBPACK_IMPORTED_MODULE_0__.TAG.EXCEPTION;
+        ? _api_const__WEBPACK_IMPORTED_MODULE_0__.TAG.EXCEPTION(error.toString())
+        : _api_const__WEBPACK_IMPORTED_MODULE_0__.TAG.EXCEPTION_FALLBACK;
 }
 function nativeClonePostDataAdapter(set, key, value) {
     try {
-        if (isNonSerializable(value)) {
+        if (isUnserializable(value)) {
             return undefined;
         }
         else if (isFunction(value)) {
@@ -213,6 +267,12 @@ function isFunction(that) {
         'toString' in that &&
         typeof that.toString === 'function');
 }
+function isSet(that) {
+    return that instanceof Set;
+}
+function isMap(that) {
+    return that instanceof Map;
+}
 function isSelfSerializableObject(that) {
     let rv;
     try {
@@ -227,9 +287,8 @@ function isSelfSerializableObject(that) {
     }
     return rv;
 }
-function isNonSerializable(that) {
-    return (that instanceof Element || that instanceof Document //||that instanceof Promise
-    );
+function isUnserializable(that) {
+    return that instanceof Element || that instanceof Document;
 }
 function isSymbol(that) {
     return typeof that === 'symbol';
@@ -252,16 +311,19 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   TAG: () => (/* binding */ TAG)
 /* harmony export */ });
 const TAG = {
-    EXCEPTION: '⁉️(exception)',
-    VALUE_HAD_EXCEPTION: (str) => `⁉️(${str})`,
-    VALUE_IS_EMPTY: '(empty)',
-    VALUE_IS_UNDEFINED: '(undefined)',
-    VALUE_IS_NULL: '(null)',
-    VALUE_IS_REOCCURING_ARRAY: (id) => `♻️(recurring [0x${id}])`,
-    VALUE_IS_REOCCURING_OBJECT: (id) => `♻️(recurring {0x${id}})`,
-    IS_SYMBOL: (name, id) => `${name} 0x${id}`,
-    VALUE_IS_NATIVE_FUNCTION: '𝑓(native)',
-    VALUE_IS_FUCNTION: (hash) => `𝑓(${hash})`,
+    EMPTY: '(empty)',
+    UNDEFINED: '(undefined)',
+    NULL: '(null)',
+    NATIVE_FUNCTION: '𝑓(native)',
+    EXCEPTION_FALLBACK: '⁉️(exception)',
+    EXCEPTION: (str) => `⁉️(${str})`,
+    RECURRING_ARRAY: (id) => `0x${id}: [♻️]`,
+    RECURRING_OBJECT: (id) => `0x${id}: {♻️}`,
+    RECURRING_SET: (id) => `0x${id}: Set[♻️]`,
+    RECURRING_MAP: (id) => `0x${id}: Map{♻️}`,
+    NON_SERIALIZABLE: (id) => `0x${id}: unserializable`,
+    SYMBOL: (name, id) => `0x${id}: ${name}`,
+    FUCNTION: (hash) => `𝑓(${hash})`,
 };
 
 
@@ -368,10 +430,10 @@ async function post(cloneFn, payload) {
             if (Reflect.has(payload, key)) {
                 const value = payload[key];
                 if (value === undefined) {
-                    payload[key] = _api_const__WEBPACK_IMPORTED_MODULE_1__.TAG.VALUE_IS_UNDEFINED;
+                    payload[key] = _api_const__WEBPACK_IMPORTED_MODULE_1__.TAG.UNDEFINED;
                 }
                 else if (value === null) {
-                    payload[key] = _api_const__WEBPACK_IMPORTED_MODULE_1__.TAG.VALUE_IS_NULL;
+                    payload[key] = _api_const__WEBPACK_IMPORTED_MODULE_1__.TAG.NULL;
                 }
                 else {
                     payload[key] = await cloneFn(value);

@@ -13,16 +13,19 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   TAG: () => (/* binding */ TAG)
 /* harmony export */ });
 const TAG = {
-    EXCEPTION: '⁉️(exception)',
-    VALUE_HAD_EXCEPTION: (str) => `⁉️(${str})`,
-    VALUE_IS_EMPTY: '(empty)',
-    VALUE_IS_UNDEFINED: '(undefined)',
-    VALUE_IS_NULL: '(null)',
-    VALUE_IS_REOCCURING_ARRAY: (id) => `♻️(recurring [0x${id}])`,
-    VALUE_IS_REOCCURING_OBJECT: (id) => `♻️(recurring {0x${id}})`,
-    IS_SYMBOL: (name, id) => `${name} 0x${id}`,
-    VALUE_IS_NATIVE_FUNCTION: '𝑓(native)',
-    VALUE_IS_FUCNTION: (hash) => `𝑓(${hash})`,
+    EMPTY: '(empty)',
+    UNDEFINED: '(undefined)',
+    NULL: '(null)',
+    NATIVE_FUNCTION: '𝑓(native)',
+    EXCEPTION_FALLBACK: '⁉️(exception)',
+    EXCEPTION: (str) => `⁉️(${str})`,
+    RECURRING_ARRAY: (id) => `0x${id}: [♻️]`,
+    RECURRING_OBJECT: (id) => `0x${id}: {♻️}`,
+    RECURRING_SET: (id) => `0x${id}: Set[♻️]`,
+    RECURRING_MAP: (id) => `0x${id}: Map{♻️}`,
+    NON_SERIALIZABLE: (id) => `0x${id}: unserializable`,
+    SYMBOL: (name, id) => `0x${id}: ${name}`,
+    FUCNTION: (hash) => `𝑓(${hash})`,
 };
 
 
@@ -62,7 +65,9 @@ async function proxyCompareHandler(e) {
     const { lastApiReq: old } = await chrome.storage.local.get(['lastApiReq']);
     const next = processComparisonObject(old, current);
     await chrome.storage.local.set({ lastApiReq: next });
-    chrome.runtime.sendMessage({ source: 'jsdiff-proxy-to-panel-compare' });
+    chrome.runtime.sendMessage({
+        source: 'jsdiff-proxy-to-panel-compare',
+    });
 }
 function proxyInprogressHandler(e) {
     chrome.runtime.sendMessage({
@@ -73,8 +78,8 @@ function proxyInprogressHandler(e) {
 function processComparisonObject(old, next) {
     if (!old) {
         old = {
-            left: _api_const__WEBPACK_IMPORTED_MODULE_0__.TAG.VALUE_IS_EMPTY,
-            right: _api_const__WEBPACK_IMPORTED_MODULE_0__.TAG.VALUE_IS_EMPTY,
+            left: _api_const__WEBPACK_IMPORTED_MODULE_0__.TAG.EMPTY,
+            right: _api_const__WEBPACK_IMPORTED_MODULE_0__.TAG.EMPTY,
             timestamp: Date.now(),
         };
     }

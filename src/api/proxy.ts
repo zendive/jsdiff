@@ -1,10 +1,10 @@
 import { TAG } from '@/api/const';
 
-export function proxyMessageGate<T extends MessageEvent>(
-  callbackInprogress: (e: T) => void,
-  callbackCompare: (e: T) => Promise<void>
+export function proxyMessageGate(
+  callbackInprogress: (e: MessageEvent<IProgressMessage>) => void,
+  callbackCompare: (e: MessageEvent<ICompareMessage>) => Promise<void>
 ) {
-  return function (e: T) {
+  return function (e: MessageEvent) {
     if (
       e.origin === window.location.origin &&
       e.source === window &&
@@ -28,7 +28,9 @@ export async function proxyCompareHandler(
   const next = processComparisonObject(old, current);
 
   await chrome.storage.local.set({ lastApiReq: next });
-  chrome.runtime.sendMessage({ source: 'jsdiff-proxy-to-panel-compare' });
+  chrome.runtime.sendMessage({
+    source: 'jsdiff-proxy-to-panel-compare',
+  } as ICompareMessage);
 }
 
 export function proxyInprogressHandler(
@@ -37,7 +39,7 @@ export function proxyInprogressHandler(
   chrome.runtime.sendMessage({
     source: 'jsdiff-proxy-to-panel-inprogress',
     on: e.data.on,
-  });
+  } as IProgressMessage);
 }
 
 function processComparisonObject(
@@ -46,8 +48,8 @@ function processComparisonObject(
 ) {
   if (!old) {
     old = {
-      left: TAG.VALUE_IS_EMPTY,
-      right: TAG.VALUE_IS_EMPTY,
+      left: TAG.EMPTY,
+      right: TAG.EMPTY,
       timestamp: Date.now(),
     };
   }
