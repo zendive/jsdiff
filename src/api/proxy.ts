@@ -1,4 +1,4 @@
-import { TAG } from '@/api/const';
+import { ERROR, TAG } from '@/api/const';
 
 export function proxyMessageGate(
   callbackInprogress: (e: MessageEvent<IProgressMessage>) => void,
@@ -27,19 +27,40 @@ export async function proxyCompareHandler(
   const { lastApiReq: old } = await chrome.storage.local.get(['lastApiReq']);
   const next = processComparisonObject(old, current);
 
-  await chrome.storage.local.set({ lastApiReq: next });
-  chrome.runtime.sendMessage({
-    source: 'jsdiff-proxy-to-panel-compare',
-  } as ICompareMessage);
+  try {
+    // may throw
+    await chrome.storage.local.set({ lastApiReq: next, lastError: '' });
+
+    chrome.runtime.sendMessage(
+      {
+        source: 'jsdiff-proxy-to-panel-compare',
+      } as ICompareMessage,
+      handleResponse
+    );
+  } catch (error: any) {
+    if (error?.message === ERROR.QUOTA_EXCEEDED) {
+      await chrome.storage.local.set({ lastError: ERROR.QUOTA_EXCEEDED });
+
+      chrome.runtime.sendMessage(
+        { source: 'jsdiff-proxy-to-panel-error' } as IErrorMessage,
+        handleResponse
+      );
+    } else if (error?.message) {
+      console.error('Unhnadled', error.message);
+    }
+  }
 }
 
 export function proxyInprogressHandler(
   e: MessageEvent<IProgressMessage>
 ): void {
-  chrome.runtime.sendMessage({
-    source: 'jsdiff-proxy-to-panel-inprogress',
-    on: e.data.on,
-  } as IProgressMessage);
+  chrome.runtime.sendMessage(
+    {
+      source: 'jsdiff-proxy-to-panel-inprogress',
+      on: e.data.on,
+    } as IProgressMessage,
+    handleResponse
+  );
 }
 
 function processComparisonObject(
@@ -71,4 +92,18 @@ function processComparisonObject(
   rv.timestamp = next.timestamp;
 
   return rv;
+}
+
+function handleResponse(error: chrome.runtime.LastError | undefined): void {
+  if (!isIgnorable(chrome.runtime.lastError)) {
+    console.error(chrome.runtime.lastError);
+  }
+}
+
+function isIgnorable(error: chrome.runtime.LastError | undefined): boolean {
+  return (
+    !error ||
+    error.message === ERROR.NO_CONNECTION ||
+    error.message === ERROR.PORT_CLOSED
+  );
 }

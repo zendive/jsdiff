@@ -5,12 +5,12 @@ async function post(
   cloneFn: (value: unknown) => Promise<unknown>,
   payload: ICompareMessagePayload
 ): Promise<void> {
-  window.postMessage(
-    { source: 'jsdiff-console-to-proxy-inprogress', on: true },
-    window.location.origin
-  );
-
   try {
+    window.postMessage(
+      { source: 'jsdiff-console-to-proxy-inprogress', on: true },
+      window.location.origin
+    );
+
     for (const key of ['push', 'left', 'right']) {
       if (Reflect.has(payload, key)) {
         const value = payload[key];
@@ -33,19 +33,6 @@ async function post(
     window.postMessage(
       { source: 'jsdiff-console-to-proxy-inprogress', on: false },
       window.location.origin
-    );
-
-    console.error(
-      '%cconsole.diff()',
-      `
-          font-weight: 700;
-          color: #000;
-          background-color: #ffbbbb;
-          padding: 2px 4px;
-          border: 1px solid #bbb;
-          border-radius: 4px;
-        `,
-      e
     );
   }
 }
@@ -79,14 +66,4 @@ Object.assign(console, {
   },
 });
 
-console.debug(
-  '%c✚ console.diff()',
-  `
-      font-weight: 700;
-      color: #000;
-      background-color: yellow;
-      padding: 2px 4px;
-      border: 1px solid #bbb;
-      border-radius: 4px;
-    `
-);
+console.debug('✚ console.diff()');

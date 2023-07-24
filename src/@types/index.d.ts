@@ -20,6 +20,10 @@ declare global {
     payload: ICompareMessagePayload;
   }
 
+  interface IErrorMessage {
+    source: 'jsdiff-proxy-to-panel-error';
+  }
+
   interface IProgressMessage {
     source: 'jsdiff-proxy-to-panel-inprogress';
     on: boolean;
@@ -40,5 +44,6 @@ declare global {
   type TRuntimeMessageOptions =
     | ICompareMessage
     | IProgressMessage
+    | IErrorMessage
     | ISearchMessage;
 }

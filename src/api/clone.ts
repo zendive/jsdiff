@@ -14,48 +14,51 @@ export async function nativeClone(value: unknown): Promise<unknown> {
 
 type TInstanceBadgeTag = (id: string) => string;
 type TSymbolBadgeTag = (symbolName: string, symbolId: string) => string;
+interface ICatalogRecord {
+  name: string;
+  seen: boolean;
+}
 
-class Catalog {
-  #instances: Map<unknown, string>;
+class ObjectsCatalog {
+  #records: Map<unknown, ICatalogRecord>;
   #instanceCounter = 0;
 
   constructor() {
-    this.#instances = new Map();
+    this.#records = new Map();
   }
 
   clear() {
-    this.#instances.clear();
+    this.#records.clear();
   }
 
   #counterToString(counter: number): string {
     return counter.toString(16).padStart(4, '0');
   }
 
-  get(
+  lookup(
     value: unknown,
     badge: TInstanceBadgeTag | TSymbolBadgeTag
-  ): { seenBefore: boolean; name: string } {
-    let instanceId = this.#instances.get(value);
-    let seenBefore = true;
+  ): ICatalogRecord {
+    let record = this.#records.get(value);
 
-    if (!instanceId) {
-      seenBefore = false;
+    if (!record) {
       ++this.#instanceCounter;
-      instanceId = this.#counterToString(this.#instanceCounter);
-      this.#instances.set(value, instanceId);
+      const id = this.#counterToString(this.#instanceCounter);
+      record = {
+        name: isSymbol(value)
+          ? (badge as TSymbolBadgeTag)(value.toString(), id)
+          : (badge as TInstanceBadgeTag)(id),
+        seen: false,
+      };
+      this.#records.set(value, record);
     }
 
-    return {
-      seenBefore,
-      name: isSymbol(value)
-        ? (badge as TSymbolBadgeTag)(value.toString(), instanceId)
-        : (badge as TInstanceBadgeTag)(instanceId),
-    };
+    return record;
   }
 }
 
 export async function customClone(value: unknown): Promise<unknown> {
-  let catalog: Catalog | null = new Catalog();
+  let catalog: ObjectsCatalog | null = new ObjectsCatalog();
   const rv = await recursiveClone(catalog, value);
 
   catalog.clear();
@@ -65,134 +68,163 @@ export async function customClone(value: unknown): Promise<unknown> {
 }
 
 async function recursiveClone(
-  catalog: Catalog,
+  catalog: ObjectsCatalog,
   value: unknown
 ): Promise<unknown> {
   let rv = value;
 
   if (isUnserializable(value)) {
-    catalog.get(value, TAG.NON_SERIALIZABLE);
-    rv = undefined;
+    const { name } = catalog.lookup(value, TAG.UNSERIALIZABLE);
+    rv = name;
   } else if (isFunction(value)) {
-    return await serializeFunction(value);
+    rv = await serializeFunction(value);
   } else if (isSymbol(value)) {
-    const { name } = catalog.get(value, TAG.SYMBOL);
+    const { name } = catalog.lookup(value, TAG.SYMBOL);
     rv = name;
   } else if (isArray(value)) {
-    const { seenBefore, name } = catalog.get(value, TAG.RECURRING_ARRAY);
-
-    if (seenBefore) {
-      rv = name;
-    } else {
-      const arr = [];
-
-      for (const v of value) {
-        arr.push(await recursiveClone(catalog, v));
-      }
-
-      rv = arr;
-    }
+    rv = await serializeArrayAlike(catalog, value, TAG.RECURRING_ARRAY);
   } else if (isSet(value)) {
-    const { seenBefore, name } = catalog.get(value, TAG.RECURRING_SET);
-
-    if (seenBefore) {
-      rv = name;
-    } else {
-      const arr = [];
-
-      for (const v of value) {
-        arr.push(await recursiveClone(catalog, v));
-      }
-
-      rv = arr;
-    }
+    rv = await serializeArrayAlike(catalog, value, TAG.RECURRING_SET);
   } else if (isMap(value)) {
-    const { seenBefore, name } = catalog.get(value, TAG.RECURRING_MAP);
-
-    if (seenBefore) {
-      rv = name;
-    } else {
-      const obj = {} as ISerializeToObject;
-
-      for (const [k, v] of value) {
-        let newKey, newValue;
-
-        if (isUnserializable(k)) {
-          const { name } = catalog.get(k, TAG.NON_SERIALIZABLE);
-          newKey = name;
-        } else if (isFunction(k)) {
-          newKey = await serializeFunction(k);
-        } else if (isSymbol(k)) {
-          const { name } = catalog.get(k, TAG.SYMBOL);
-          newKey = name;
-        } else if (isArray(k)) {
-          const { name } = catalog.get(k, TAG.RECURRING_ARRAY);
-          newKey = name;
-        } else if (isSet(k)) {
-          const { name } = catalog.get(k, TAG.RECURRING_SET);
-          newKey = name;
-        } else if (isMap(k)) {
-          const { name } = catalog.get(k, TAG.RECURRING_MAP);
-          newKey = name;
-        } else if (isObject(k)) {
-          const { name } = catalog.get(k, TAG.RECURRING_OBJECT);
-          newKey = name;
-        } else {
-          newKey = String(k);
-        }
-
-        newValue = await recursiveClone(catalog, v);
-        obj[newKey] = newValue;
-      }
-
-      rv = obj;
-    }
+    rv = await serializeMap(catalog, value);
   } else if (isObject(value)) {
-    const { seenBefore, name } = catalog.get(value, TAG.RECURRING_OBJECT);
-
-    if (seenBefore) {
-      rv = name;
-    } else {
-      if (isSelfSerializableObject(value)) {
-        rv = serializeSelfSerializable(value);
-
-        if (typeof rv !== 'string') {
-          rv = await recursiveClone(catalog, rv);
-        }
-      } else {
-        const obj = {} as ISerializeToObject;
-        const ownKeys = Reflect.ownKeys(value);
-
-        for (const key of ownKeys) {
-          let newKey, newValue;
-
-          if (isSymbol(key)) {
-            const { name } = catalog.get(key, TAG.SYMBOL);
-            newKey = name;
-          } else {
-            newKey = key;
-          }
-
-          try {
-            // accessing value by key may throw
-            newValue = await recursiveClone(catalog, (value as any)[key]);
-          } catch (error) {
-            newValue = stringifyError(error);
-          }
-
-          obj[newKey] = newValue;
-        }
-
-        rv = obj;
-      }
-    }
+    rv = await serializeObject(catalog, value);
   } else if (value === undefined) {
+    // JsonDiffPatch has problem identifying undefined value - storing a string instead
     rv = TAG.UNDEFINED;
   }
 
   return rv;
 }
-`  `;
+
+async function serializeArrayAlike(
+  catalog: ObjectsCatalog,
+  value: unknown[] | Set<unknown>,
+  badge: TInstanceBadgeTag
+): Promise<unknown[] | string> {
+  const record = catalog.lookup(value, badge);
+  let rv;
+
+  if (record.seen) {
+    rv = record.name;
+  } else {
+    record.seen = true;
+    const arr = [];
+
+    for (const v of value) {
+      arr.push(await recursiveClone(catalog, v));
+    }
+
+    rv = arr;
+  }
+
+  return rv;
+}
+
+async function serializeMap(
+  catalog: ObjectsCatalog,
+  value: Map<unknown, unknown>
+): Promise<unknown> {
+  const record = catalog.lookup(value, TAG.RECURRING_MAP);
+  let rv;
+
+  if (record.seen) {
+    rv = record.name;
+  } else {
+    record.seen = true;
+    const obj = {} as ISerializeToObject;
+
+    for (const [k, v] of value) {
+      const newKey = await serializeMapKey(catalog, k);
+      const newValue = await recursiveClone(catalog, v);
+
+      obj[newKey] = newValue;
+    }
+
+    rv = obj;
+  }
+
+  return rv;
+}
+
+async function serializeMapKey(
+  catalog: ObjectsCatalog,
+  key: unknown
+): Promise<string> {
+  let rv;
+
+  if (isUnserializable(key)) {
+    const { name } = catalog.lookup(key, TAG.UNSERIALIZABLE);
+    rv = name;
+  } else if (isFunction(key)) {
+    rv = await serializeFunction(key);
+  } else if (isSymbol(key)) {
+    const { name } = catalog.lookup(key, TAG.SYMBOL);
+    rv = name;
+  } else if (isArray(key)) {
+    const { name } = catalog.lookup(key, TAG.RECURRING_ARRAY);
+    rv = name;
+  } else if (isSet(key)) {
+    const { name } = catalog.lookup(key, TAG.RECURRING_SET);
+    rv = name;
+  } else if (isMap(key)) {
+    const { name } = catalog.lookup(key, TAG.RECURRING_MAP);
+    rv = name;
+  } else if (isObject(key)) {
+    const { name } = catalog.lookup(key, TAG.RECURRING_OBJECT);
+    rv = name;
+  } else {
+    rv = String(key);
+  }
+
+  return rv;
+}
+
+async function serializeObject(
+  catalog: ObjectsCatalog,
+  value: object
+): Promise<unknown> {
+  const record = catalog.lookup(value, TAG.RECURRING_OBJECT);
+  let rv;
+
+  if (record.seen) {
+    rv = record.name;
+  } else {
+    record.seen = true;
+
+    if (isSelfSerializableObject(value)) {
+      const newValue = serializeSelfSerializable(value);
+      rv = await recursiveClone(catalog, newValue);
+    } else {
+      const obj = {} as ISerializeToObject;
+      const ownKeys = Reflect.ownKeys(value);
+
+      for (const key of ownKeys) {
+        let newKey, newValue;
+
+        if (isSymbol(key)) {
+          const { name } = catalog.lookup(key, TAG.SYMBOL);
+          newKey = name;
+        } else {
+          newKey = key;
+        }
+
+        try {
+          // accessing value by key may throw
+          newValue = await recursiveClone(catalog, (value as any)[key]);
+        } catch (error) {
+          newValue = stringifyError(error);
+        }
+
+        obj[newKey] = newValue;
+      }
+
+      rv = obj;
+    }
+  }
+
+  return rv;
+}
 
 async function serializeFunction(value: IHasToString): Promise<string> {
   const fnBody = value.toString();
@@ -210,7 +242,7 @@ interface ISerializeToObject {
 }
 
 function serializeSelfSerializable(value: IHasToJSON) {
-  let rv = undefined;
+  let rv;
 
   try {
     // rogue object may throw
@@ -318,5 +350,5 @@ function isSymbol(that: unknown): that is Symbol {
 }
 
 function isObject(that: unknown): that is object {
-  return that instanceof Object || (that !== null && typeof that === 'object');
+  return (that !== null && typeof that === 'object') || that instanceof Object;
 }

@@ -26,7 +26,7 @@ var __classPrivateFieldGet = (undefined && undefined.__classPrivateFieldGet) || 
     if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
     return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
 };
-var _Catalog_instances, _Catalog_instances_1, _Catalog_instanceCounter, _Catalog_counterToString;
+var _ObjectsCatalog_instances, _ObjectsCatalog_records, _ObjectsCatalog_instanceCounter, _ObjectsCatalog_counterToString;
 
 
 async function nativeClone(value) {
@@ -35,39 +35,38 @@ async function nativeClone(value) {
     set = set.clear();
     return rv;
 }
-class Catalog {
+class ObjectsCatalog {
     constructor() {
-        _Catalog_instances.add(this);
-        _Catalog_instances_1.set(this, void 0);
-        _Catalog_instanceCounter.set(this, 0);
-        __classPrivateFieldSet(this, _Catalog_instances_1, new Map(), "f");
+        _ObjectsCatalog_instances.add(this);
+        _ObjectsCatalog_records.set(this, void 0);
+        _ObjectsCatalog_instanceCounter.set(this, 0);
+        __classPrivateFieldSet(this, _ObjectsCatalog_records, new Map(), "f");
     }
     clear() {
-        __classPrivateFieldGet(this, _Catalog_instances_1, "f").clear();
+        __classPrivateFieldGet(this, _ObjectsCatalog_records, "f").clear();
     }
-    get(value, badge) {
+    lookup(value, badge) {
         var _a;
-        let instanceId = __classPrivateFieldGet(this, _Catalog_instances_1, "f").get(value);
-        let seenBefore = true;
-        if (!instanceId) {
-            seenBefore = false;
-            __classPrivateFieldSet(this, _Catalog_instanceCounter, (_a = __classPrivateFieldGet(this, _Catalog_instanceCounter, "f"), ++_a), "f");
-            instanceId = __classPrivateFieldGet(this, _Catalog_instances, "m", _Catalog_counterToString).call(this, __classPrivateFieldGet(this, _Catalog_instanceCounter, "f"));
-            __classPrivateFieldGet(this, _Catalog_instances_1, "f").set(value, instanceId);
+        let record = __classPrivateFieldGet(this, _ObjectsCatalog_records, "f").get(value);
+        if (!record) {
+            __classPrivateFieldSet(this, _ObjectsCatalog_instanceCounter, (_a = __classPrivateFieldGet(this, _ObjectsCatalog_instanceCounter, "f"), ++_a), "f");
+            const id = __classPrivateFieldGet(this, _ObjectsCatalog_instances, "m", _ObjectsCatalog_counterToString).call(this, __classPrivateFieldGet(this, _ObjectsCatalog_instanceCounter, "f"));
+            record = {
+                name: isSymbol(value)
+                    ? badge(value.toString(), id)
+                    : badge(id),
+                seen: false,
+            };
+            __classPrivateFieldGet(this, _ObjectsCatalog_records, "f").set(value, record);
         }
-        return {
-            seenBefore,
-            name: isSymbol(value)
-                ? badge(value.toString(), instanceId)
-                : badge(instanceId),
-        };
+        return record;
     }
 }
-_Catalog_instances_1 = new WeakMap(), _Catalog_instanceCounter = new WeakMap(), _Catalog_instances = new WeakSet(), _Catalog_counterToString = function _Catalog_counterToString(counter) {
+_ObjectsCatalog_records = new WeakMap(), _ObjectsCatalog_instanceCounter = new WeakMap(), _ObjectsCatalog_instances = new WeakSet(), _ObjectsCatalog_counterToString = function _ObjectsCatalog_counterToString(counter) {
     return counter.toString(16).padStart(4, '0');
 };
 async function customClone(value) {
-    let catalog = new Catalog();
+    let catalog = new ObjectsCatalog();
     const rv = await recursiveClone(catalog, value);
     catalog.clear();
     catalog = null;
@@ -76,130 +75,140 @@ async function customClone(value) {
 async function recursiveClone(catalog, value) {
     let rv = value;
     if (isUnserializable(value)) {
-        catalog.get(value, _api_const__WEBPACK_IMPORTED_MODULE_0__.TAG.NON_SERIALIZABLE);
-        rv = undefined;
+        const { name } = catalog.lookup(value, _api_const__WEBPACK_IMPORTED_MODULE_0__.TAG.UNSERIALIZABLE);
+        rv = name;
     }
     else if (isFunction(value)) {
-        return await serializeFunction(value);
+        rv = await serializeFunction(value);
     }
     else if (isSymbol(value)) {
-        const { name } = catalog.get(value, _api_const__WEBPACK_IMPORTED_MODULE_0__.TAG.SYMBOL);
+        const { name } = catalog.lookup(value, _api_const__WEBPACK_IMPORTED_MODULE_0__.TAG.SYMBOL);
         rv = name;
     }
     else if (isArray(value)) {
-        const { seenBefore, name } = catalog.get(value, _api_const__WEBPACK_IMPORTED_MODULE_0__.TAG.RECURRING_ARRAY);
-        if (seenBefore) {
-            rv = name;
-        }
-        else {
-            const arr = [];
-            for (const v of value) {
-                arr.push(await recursiveClone(catalog, v));
-            }
-            rv = arr;
-        }
+        rv = await serializeArrayAlike(catalog, value, _api_const__WEBPACK_IMPORTED_MODULE_0__.TAG.RECURRING_ARRAY);
     }
     else if (isSet(value)) {
-        const { seenBefore, name } = catalog.get(value, _api_const__WEBPACK_IMPORTED_MODULE_0__.TAG.RECURRING_SET);
-        if (seenBefore) {
-            rv = name;
-        }
-        else {
-            const arr = [];
-            for (const v of value) {
-                arr.push(await recursiveClone(catalog, v));
-            }
-            rv = arr;
-        }
+        rv = await serializeArrayAlike(catalog, value, _api_const__WEBPACK_IMPORTED_MODULE_0__.TAG.RECURRING_SET);
     }
     else if (isMap(value)) {
-        const { seenBefore, name } = catalog.get(value, _api_const__WEBPACK_IMPORTED_MODULE_0__.TAG.RECURRING_MAP);
-        if (seenBefore) {
-            rv = name;
+        rv = await serializeMap(catalog, value);
+    }
+    else if (isObject(value)) {
+        rv = await serializeObject(catalog, value);
+    }
+    else if (value === undefined) {
+        // JsonDiffPatch has problem identifying undefined value - storing a string instead
+        rv = _api_const__WEBPACK_IMPORTED_MODULE_0__.TAG.UNDEFINED;
+    }
+    return rv;
+}
+async function serializeArrayAlike(catalog, value, badge) {
+    const record = catalog.lookup(value, badge);
+    let rv;
+    if (record.seen) {
+        rv = record.name;
+    }
+    else {
+        record.seen = true;
+        const arr = [];
+        for (const v of value) {
+            arr.push(await recursiveClone(catalog, v));
+        }
+        rv = arr;
+    }
+    return rv;
+}
+async function serializeMap(catalog, value) {
+    const record = catalog.lookup(value, _api_const__WEBPACK_IMPORTED_MODULE_0__.TAG.RECURRING_MAP);
+    let rv;
+    if (record.seen) {
+        rv = record.name;
+    }
+    else {
+        record.seen = true;
+        const obj = {};
+        for (const [k, v] of value) {
+            const newKey = await serializeMapKey(catalog, k);
+            const newValue = await recursiveClone(catalog, v);
+            obj[newKey] = newValue;
+        }
+        rv = obj;
+    }
+    return rv;
+}
+async function serializeMapKey(catalog, key) {
+    let rv;
+    if (isUnserializable(key)) {
+        const { name } = catalog.lookup(key, _api_const__WEBPACK_IMPORTED_MODULE_0__.TAG.UNSERIALIZABLE);
+        rv = name;
+    }
+    else if (isFunction(key)) {
+        rv = await serializeFunction(key);
+    }
+    else if (isSymbol(key)) {
+        const { name } = catalog.lookup(key, _api_const__WEBPACK_IMPORTED_MODULE_0__.TAG.SYMBOL);
+        rv = name;
+    }
+    else if (isArray(key)) {
+        const { name } = catalog.lookup(key, _api_const__WEBPACK_IMPORTED_MODULE_0__.TAG.RECURRING_ARRAY);
+        rv = name;
+    }
+    else if (isSet(key)) {
+        const { name } = catalog.lookup(key, _api_const__WEBPACK_IMPORTED_MODULE_0__.TAG.RECURRING_SET);
+        rv = name;
+    }
+    else if (isMap(key)) {
+        const { name } = catalog.lookup(key, _api_const__WEBPACK_IMPORTED_MODULE_0__.TAG.RECURRING_MAP);
+        rv = name;
+    }
+    else if (isObject(key)) {
+        const { name } = catalog.lookup(key, _api_const__WEBPACK_IMPORTED_MODULE_0__.TAG.RECURRING_OBJECT);
+        rv = name;
+    }
+    else {
+        rv = String(key);
+    }
+    return rv;
+}
+async function serializeObject(catalog, value) {
+    const record = catalog.lookup(value, _api_const__WEBPACK_IMPORTED_MODULE_0__.TAG.RECURRING_OBJECT);
+    let rv;
+    if (record.seen) {
+        rv = record.name;
+    }
+    else {
+        record.seen = true;
+        if (isSelfSerializableObject(value)) {
+            const newValue = serializeSelfSerializable(value);
+            rv = await recursiveClone(catalog, newValue);
         }
         else {
             const obj = {};
-            for (const [k, v] of value) {
+            const ownKeys = Reflect.ownKeys(value);
+            for (const key of ownKeys) {
                 let newKey, newValue;
-                if (isUnserializable(k)) {
-                    const { name } = catalog.get(k, _api_const__WEBPACK_IMPORTED_MODULE_0__.TAG.NON_SERIALIZABLE);
-                    newKey = name;
-                }
-                else if (isFunction(k)) {
-                    newKey = await serializeFunction(k);
-                }
-                else if (isSymbol(k)) {
-                    const { name } = catalog.get(k, _api_const__WEBPACK_IMPORTED_MODULE_0__.TAG.SYMBOL);
-                    newKey = name;
-                }
-                else if (isArray(k)) {
-                    const { name } = catalog.get(k, _api_const__WEBPACK_IMPORTED_MODULE_0__.TAG.RECURRING_ARRAY);
-                    newKey = name;
-                }
-                else if (isSet(k)) {
-                    const { name } = catalog.get(k, _api_const__WEBPACK_IMPORTED_MODULE_0__.TAG.RECURRING_SET);
-                    newKey = name;
-                }
-                else if (isMap(k)) {
-                    const { name } = catalog.get(k, _api_const__WEBPACK_IMPORTED_MODULE_0__.TAG.RECURRING_MAP);
-                    newKey = name;
-                }
-                else if (isObject(k)) {
-                    const { name } = catalog.get(k, _api_const__WEBPACK_IMPORTED_MODULE_0__.TAG.RECURRING_OBJECT);
+                if (isSymbol(key)) {
+                    const { name } = catalog.lookup(key, _api_const__WEBPACK_IMPORTED_MODULE_0__.TAG.SYMBOL);
                     newKey = name;
                 }
                 else {
-                    newKey = String(k);
+                    newKey = key;
                 }
-                newValue = await recursiveClone(catalog, v);
+                try {
+                    // accessing value by key may throw
+                    newValue = await recursiveClone(catalog, value[key]);
+                }
+                catch (error) {
+                    newValue = stringifyError(error);
+                }
                 obj[newKey] = newValue;
             }
             rv = obj;
         }
     }
-    else if (isObject(value)) {
-        const { seenBefore, name } = catalog.get(value, _api_const__WEBPACK_IMPORTED_MODULE_0__.TAG.RECURRING_OBJECT);
-        if (seenBefore) {
-            rv = name;
-        }
-        else {
-            if (isSelfSerializableObject(value)) {
-                rv = serializeSelfSerializable(value);
-                if (typeof rv !== 'string') {
-                    rv = await recursiveClone(catalog, rv);
-                }
-            }
-            else {
-                const obj = {};
-                const ownKeys = Reflect.ownKeys(value);
-                for (const key of ownKeys) {
-                    let newKey, newValue;
-                    if (isSymbol(key)) {
-                        const { name } = catalog.get(key, _api_const__WEBPACK_IMPORTED_MODULE_0__.TAG.SYMBOL);
-                        newKey = name;
-                    }
-                    else {
-                        newKey = key;
-                    }
-                    try {
-                        // accessing value by key may throw
-                        newValue = await recursiveClone(catalog, value[key]);
-                    }
-                    catch (error) {
-                        newValue = stringifyError(error);
-                    }
-                    obj[newKey] = newValue;
-                }
-                rv = obj;
-            }
-        }
-    }
-    else if (value === undefined) {
-        rv = _api_const__WEBPACK_IMPORTED_MODULE_0__.TAG.UNDEFINED;
-    }
     return rv;
 }
-`  `;
 async function serializeFunction(value) {
     const fnBody = value.toString();
     if (fnBody.endsWith('{ [native code] }')) {
@@ -211,7 +220,7 @@ async function serializeFunction(value) {
     }
 }
 function serializeSelfSerializable(value) {
-    let rv = undefined;
+    let rv;
     try {
         // rogue object may throw
         rv = value.toJSON();
@@ -294,7 +303,7 @@ function isSymbol(that) {
     return typeof that === 'symbol';
 }
 function isObject(that) {
-    return that instanceof Object || (that !== null && typeof that === 'object');
+    return (that !== null && typeof that === 'object') || that instanceof Object;
 }
 
 
@@ -308,6 +317,7 @@ function isObject(that) {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   ERROR: () => (/* binding */ ERROR),
 /* harmony export */   TAG: () => (/* binding */ TAG)
 /* harmony export */ });
 const TAG = {
@@ -321,9 +331,14 @@ const TAG = {
     RECURRING_OBJECT: (id) => `0x${id}: {♻️}`,
     RECURRING_SET: (id) => `0x${id}: Set[♻️]`,
     RECURRING_MAP: (id) => `0x${id}: Map{♻️}`,
-    NON_SERIALIZABLE: (id) => `0x${id}: unserializable`,
+    UNSERIALIZABLE: (id) => `0x${id}: unserializable`,
     SYMBOL: (name, id) => `0x${id}: ${name}`,
     FUCNTION: (hash) => `𝑓(${hash})`,
+};
+const ERROR = {
+    NO_CONNECTION: 'Could not establish connection. Receiving end does not exist.',
+    PORT_CLOSED: 'The message port closed before a response was received.',
+    QUOTA_EXCEEDED: 'QUOTA_BYTES quota exceeded',
 };
 
 
@@ -424,8 +439,8 @@ __webpack_require__.r(__webpack_exports__);
 
 
 async function post(cloneFn, payload) {
-    window.postMessage({ source: 'jsdiff-console-to-proxy-inprogress', on: true }, window.location.origin);
     try {
+        window.postMessage({ source: 'jsdiff-console-to-proxy-inprogress', on: true }, window.location.origin);
         for (const key of ['push', 'left', 'right']) {
             if (Reflect.has(payload, key)) {
                 const value = payload[key];
@@ -444,14 +459,6 @@ async function post(cloneFn, payload) {
     }
     catch (e) {
         window.postMessage({ source: 'jsdiff-console-to-proxy-inprogress', on: false }, window.location.origin);
-        console.error('%cconsole.diff()', `
-          font-weight: 700;
-          color: #000;
-          background-color: #ffbbbb;
-          padding: 2px 4px;
-          border: 1px solid #bbb;
-          border-radius: 4px;
-        `, e);
     }
 }
 Object.assign(console, {
@@ -476,14 +483,7 @@ Object.assign(console, {
         post(_api_clone__WEBPACK_IMPORTED_MODULE_0__.nativeClone, { push, timestamp: Date.now() });
     },
 });
-console.debug('%c✚ console.diff()', `
-      font-weight: 700;
-      color: #000;
-      background-color: yellow;
-      padding: 2px 4px;
-      border: 1px solid #bbb;
-      border-radius: 4px;
-    `);
+console.debug('✚ console.diff()');
 
 })();
 

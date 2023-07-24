@@ -31,6 +31,13 @@
         </div>
       </div>
 
+      <div
+        v-if="state.lastError"
+        class="-last-error"
+        :title="'Last error'"
+        v-text="state.lastError"
+      />
+
       <div class="-badge">
         <div class="-version" v-text="state.version" />
         <a
@@ -68,7 +75,7 @@
 
 <script setup lang="ts">
 import packageJson from '@/../package.json';
-import { computed, nextTick, onMounted, onUnmounted, reactive, ref } from 'vue';
+import { computed, onMounted, onUnmounted, reactive, ref } from 'vue';
 import * as jsondiffpatch from 'jsondiffpatch';
 import { Delta } from 'jsondiffpatch';
 import 'jsondiffpatch/dist/formatters-styles/html.css';
@@ -91,6 +98,7 @@ const state = reactive({
   showUnchanged: true,
   now: appStartTimestamp,
   inprogress: false,
+  lastError: '',
 });
 const compare = ref<ICompareState>({
   timestamp: 0,
@@ -123,10 +131,17 @@ const deltaHtml = computed(() => {
 });
 
 onMounted(async () => {
-  const { lastApiReq } = await chrome.storage.local.get(['lastApiReq']);
+  const { lastApiReq, lastError } = await chrome.storage.local.get([
+    'lastApiReq',
+    'lastError',
+  ]);
+
   if (hasValue(lastApiReq)) {
     $_onDiffRequest(lastApiReq);
   }
+
+  state.lastError = lastError || '';
+
   chrome.runtime.onMessage.addListener($_onRuntimeMessage);
 });
 
@@ -157,16 +172,23 @@ const onClearResults = async () => {
   await chrome.storage.local.clear();
   compare.value = { left: undefined, right: undefined, timestamp: 0 };
   state.inprogress = false;
+  state.lastError = '';
 };
 
 async function $_onRuntimeMessage(req: TRuntimeMessageOptions) {
-  if (
+  if ('jsdiff-proxy-to-panel-error' === req.source) {
+    const { lastError } = await chrome.storage.local.get(['lastError']);
+    state.lastError = lastError || '';
+    state.inprogress = false;
+  } else if (
     'jsdiff-proxy-to-panel-inprogress' === req.source &&
     typeof req.on === 'boolean'
   ) {
     state.inprogress = req.on;
   } else if ('jsdiff-proxy-to-panel-compare' === req.source) {
+    state.lastError = '';
     const { lastApiReq } = await chrome.storage.local.get(['lastApiReq']);
+
     if (hasValue(lastApiReq)) {
       $_onDiffRequest(lastApiReq);
     }
@@ -260,6 +282,14 @@ body {
           font-weight: bold;
         }
       }
+    }
+
+    .-last-error {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding-left: 10px;
+      color: rgb(182, 33, 33);
     }
 
     .-badge {

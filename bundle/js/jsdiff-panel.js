@@ -11592,6 +11592,13 @@ body {
 .jsdiff-panel .-header .-toolbox .-last-updated .-value {
   font-weight: bold;
 }
+.jsdiff-panel .-header .-last-error {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-left: 10px;
+  color: rgb(182, 33, 33);
+}
 .jsdiff-panel .-header .-badge {
   position: fixed;
   top: 0;
@@ -11653,7 +11660,7 @@ body {
 50% {
     background-color: rgba(var(--colour-found), 0.2);
 }
-}`, "",{"version":3,"sources":["webpack://./src/view/panel.vue","webpack://./panel.vue"],"names":[],"mappings":"AACA;EACE,yBAAA;EACA,mBAAA;EACA,2BAAA;EACA,yBAAA;ACAF;ADGA;EACE,SAAA;EACA,UAAA;ACAF;ADGA;EACE,aAAA;EACA,0CAAA;EACA,yBAAA;ACAF;ADEE;EACE,4BAAA;EACA,eAAA;EACA,YAAA;EACA,gBAAA;EACA,aAAA;EACA,qCAAA;ACAJ;ADEI;EACE,oCAAA;ACAN;ADIE;EACE,6BAAA;EACA,4BAAA;EACA,aAAA;EACA,mBAAA;EACA,4BAAA;EACA,mBAAA;EACA,gBAAA;EACA,iBAAA;ACFJ;ADII;EACE,aAAA;EACA,uBAAA;EACA,mBAAA;EACA,kBAAA;ACFN;ADIM;EACE,aAAA;ACFR;ADKM;EACE,eAAA;EACA,iBAAA;EACA,cAAA;ACHR;ADKQ;EACE,iBAAA;ACHV;ADQI;EACE,eAAA;EACA,MAAA;EACA,QAAA;EACA,aAAA;EACA,sBAAA;EACA,mBAAA;EACA,gBAAA;ACNN;ADQM;EACE,sBAAA;ACNR;ADUQ;EACE,WAAA;ACRV;ADcE;EACE,cAAA;EACA,kBAAA;ACZJ;ADeE;EACE,aAAA;EACA,mBAAA;EACA,YAAA;ACbJ;ADeI;EACE,eAAA;EACA,WAAA;ACbN;ADiBE;EACE,aAAA;EACA,0CAAA;EACA,uBAAA;EACA,mBAAA;ACfJ;ADiBI;EACE,gBAAA;EACA,eAAA;ACfN;ADkBI;EACE,eAAA;EACA,WAAA;AChBN;ADoBE;EACE,iBAAA;AClBJ;ADoBI;EACE,iDAAA;EACA,oBAAA;AClBN;ADoBM;EACE,2CAAA;EACA,oBAAA;EACA,iCAAA;AClBR;ADqBM;AACE;IACE,6BAAA;ACnBR;ADsBM;IACE,gDAAA;ACpBR;AACF","sourcesContent":["\n:root {\n  --colour-background: #fff;\n  --colour-text: #000;\n  --colour-found: 0, 191, 255;\n  --height-header: 1.625rem;\n}\n\nbody {\n  margin: 0;\n  padding: 0;\n}\n\n.jsdiff-panel {\n  height: 100vh;\n  background-color: var(--colour-background);\n  color: var(--colour-text);\n\n  .btn {\n    height: var(--height-header);\n    cursor: pointer;\n    border: none;\n    border-radius: 0;\n    outline: none;\n    background-color: rgba(0, 0, 0, 0.03);\n\n    &:hover {\n      background-color: rgba(0, 0, 0, 0.3);\n    }\n  }\n\n  .-header {\n    border-bottom: 1px solid #bbb;\n    box-shadow: 1px 2px 5px #bbb;\n    display: flex;\n    align-items: center;\n    height: var(--height-header);\n    margin-bottom: 12px;\n    min-width: 512px;\n    user-select: none;\n\n    .-toolbox {\n      display: flex;\n      justify-content: center;\n      align-items: center;\n      padding-left: 10px;\n\n      .btn {\n        margin: 0 2px;\n      }\n\n      .-last-updated {\n        cursor: default;\n        margin-left: 10px;\n        color: #bbbbbb;\n\n        .-value {\n          font-weight: bold;\n        }\n      }\n    }\n\n    .-badge {\n      position: fixed;\n      top: 0;\n      right: 0;\n      display: flex;\n      flex-direction: column;\n      align-items: center;\n      padding: 4px 4px;\n\n      .-version {\n        font-family: monospace;\n      }\n\n      .-icon {\n        img {\n          width: 32px;\n        }\n      }\n    }\n  }\n\n  .-center {\n    margin: 0 auto;\n    text-align: center;\n  }\n\n  .-match {\n    display: flex;\n    align-items: center;\n    height: 100%;\n\n    .-center {\n      font-size: 26px;\n      color: #bbb;\n    }\n  }\n\n  .-empty {\n    display: flex;\n    height: calc(100vh - var(--height-header));\n    justify-content: center;\n    align-items: center;\n\n    .-links {\n      margin-top: 16px;\n      font-size: 11px;\n    }\n\n    .-center {\n      font-size: 26px;\n      color: #bbb;\n    }\n  }\n\n  .-delta {\n    padding-top: 10px;\n\n    .jsdiff-found {\n      outline: 1px solid rgba(var(--colour-found), 0.6);\n      outline-offset: -1px;\n\n      &.jsdiff-found-this {\n        outline: 2px solid rgb(var(--colour-found));\n        outline-offset: -2px;\n        animation: found_this 1s infinite;\n      }\n\n      @keyframes found_this {\n        0% {\n          background-color: transparent;\n        }\n\n        50% {\n          background-color: rgba(var(--colour-found), 0.2);\n        }\n      }\n    }\n  }\n}\n",":root {\n  --colour-background: #fff;\n  --colour-text: #000;\n  --colour-found: 0, 191, 255;\n  --height-header: 1.625rem;\n}\n\nbody {\n  margin: 0;\n  padding: 0;\n}\n\n.jsdiff-panel {\n  height: 100vh;\n  background-color: var(--colour-background);\n  color: var(--colour-text);\n}\n.jsdiff-panel .btn {\n  height: var(--height-header);\n  cursor: pointer;\n  border: none;\n  border-radius: 0;\n  outline: none;\n  background-color: rgba(0, 0, 0, 0.03);\n}\n.jsdiff-panel .btn:hover {\n  background-color: rgba(0, 0, 0, 0.3);\n}\n.jsdiff-panel .-header {\n  border-bottom: 1px solid #bbb;\n  box-shadow: 1px 2px 5px #bbb;\n  display: flex;\n  align-items: center;\n  height: var(--height-header);\n  margin-bottom: 12px;\n  min-width: 512px;\n  user-select: none;\n}\n.jsdiff-panel .-header .-toolbox {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  padding-left: 10px;\n}\n.jsdiff-panel .-header .-toolbox .btn {\n  margin: 0 2px;\n}\n.jsdiff-panel .-header .-toolbox .-last-updated {\n  cursor: default;\n  margin-left: 10px;\n  color: #bbbbbb;\n}\n.jsdiff-panel .-header .-toolbox .-last-updated .-value {\n  font-weight: bold;\n}\n.jsdiff-panel .-header .-badge {\n  position: fixed;\n  top: 0;\n  right: 0;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  padding: 4px 4px;\n}\n.jsdiff-panel .-header .-badge .-version {\n  font-family: monospace;\n}\n.jsdiff-panel .-header .-badge .-icon img {\n  width: 32px;\n}\n.jsdiff-panel .-center {\n  margin: 0 auto;\n  text-align: center;\n}\n.jsdiff-panel .-match {\n  display: flex;\n  align-items: center;\n  height: 100%;\n}\n.jsdiff-panel .-match .-center {\n  font-size: 26px;\n  color: #bbb;\n}\n.jsdiff-panel .-empty {\n  display: flex;\n  height: calc(100vh - var(--height-header));\n  justify-content: center;\n  align-items: center;\n}\n.jsdiff-panel .-empty .-links {\n  margin-top: 16px;\n  font-size: 11px;\n}\n.jsdiff-panel .-empty .-center {\n  font-size: 26px;\n  color: #bbb;\n}\n.jsdiff-panel .-delta {\n  padding-top: 10px;\n}\n.jsdiff-panel .-delta .jsdiff-found {\n  outline: 1px solid rgba(var(--colour-found), 0.6);\n  outline-offset: -1px;\n}\n.jsdiff-panel .-delta .jsdiff-found.jsdiff-found-this {\n  outline: 2px solid rgb(var(--colour-found));\n  outline-offset: -2px;\n  animation: found_this 1s infinite;\n}\n@keyframes found_this {\n  0% {\n    background-color: transparent;\n  }\n  50% {\n    background-color: rgba(var(--colour-found), 0.2);\n  }\n}"],"sourceRoot":""}]);
+}`, "",{"version":3,"sources":["webpack://./src/view/panel.vue","webpack://./panel.vue"],"names":[],"mappings":"AACA;EACE,yBAAA;EACA,mBAAA;EACA,2BAAA;EACA,yBAAA;ACAF;ADGA;EACE,SAAA;EACA,UAAA;ACAF;ADGA;EACE,aAAA;EACA,0CAAA;EACA,yBAAA;ACAF;ADEE;EACE,4BAAA;EACA,eAAA;EACA,YAAA;EACA,gBAAA;EACA,aAAA;EACA,qCAAA;ACAJ;ADEI;EACE,oCAAA;ACAN;ADIE;EACE,6BAAA;EACA,4BAAA;EACA,aAAA;EACA,mBAAA;EACA,4BAAA;EACA,mBAAA;EACA,gBAAA;EACA,iBAAA;ACFJ;ADII;EACE,aAAA;EACA,uBAAA;EACA,mBAAA;EACA,kBAAA;ACFN;ADIM;EACE,aAAA;ACFR;ADKM;EACE,eAAA;EACA,iBAAA;EACA,cAAA;ACHR;ADKQ;EACE,iBAAA;ACHV;ADQI;EACE,aAAA;EACA,uBAAA;EACA,mBAAA;EACA,kBAAA;EACA,uBAAA;ACNN;ADSI;EACE,eAAA;EACA,MAAA;EACA,QAAA;EACA,aAAA;EACA,sBAAA;EACA,mBAAA;EACA,gBAAA;ACPN;ADSM;EACE,sBAAA;ACPR;ADWQ;EACE,WAAA;ACTV;ADeE;EACE,cAAA;EACA,kBAAA;ACbJ;ADgBE;EACE,aAAA;EACA,mBAAA;EACA,YAAA;ACdJ;ADgBI;EACE,eAAA;EACA,WAAA;ACdN;ADkBE;EACE,aAAA;EACA,0CAAA;EACA,uBAAA;EACA,mBAAA;AChBJ;ADkBI;EACE,gBAAA;EACA,eAAA;AChBN;ADmBI;EACE,eAAA;EACA,WAAA;ACjBN;ADqBE;EACE,iBAAA;ACnBJ;ADqBI;EACE,iDAAA;EACA,oBAAA;ACnBN;ADqBM;EACE,2CAAA;EACA,oBAAA;EACA,iCAAA;ACnBR;ADsBM;AACE;IACE,6BAAA;ACpBR;ADuBM;IACE,gDAAA;ACrBR;AACF","sourcesContent":["\n:root {\n  --colour-background: #fff;\n  --colour-text: #000;\n  --colour-found: 0, 191, 255;\n  --height-header: 1.625rem;\n}\n\nbody {\n  margin: 0;\n  padding: 0;\n}\n\n.jsdiff-panel {\n  height: 100vh;\n  background-color: var(--colour-background);\n  color: var(--colour-text);\n\n  .btn {\n    height: var(--height-header);\n    cursor: pointer;\n    border: none;\n    border-radius: 0;\n    outline: none;\n    background-color: rgba(0, 0, 0, 0.03);\n\n    &:hover {\n      background-color: rgba(0, 0, 0, 0.3);\n    }\n  }\n\n  .-header {\n    border-bottom: 1px solid #bbb;\n    box-shadow: 1px 2px 5px #bbb;\n    display: flex;\n    align-items: center;\n    height: var(--height-header);\n    margin-bottom: 12px;\n    min-width: 512px;\n    user-select: none;\n\n    .-toolbox {\n      display: flex;\n      justify-content: center;\n      align-items: center;\n      padding-left: 10px;\n\n      .btn {\n        margin: 0 2px;\n      }\n\n      .-last-updated {\n        cursor: default;\n        margin-left: 10px;\n        color: #bbbbbb;\n\n        .-value {\n          font-weight: bold;\n        }\n      }\n    }\n\n    .-last-error {\n      display: flex;\n      justify-content: center;\n      align-items: center;\n      padding-left: 10px;\n      color: rgb(182, 33, 33);\n    }\n\n    .-badge {\n      position: fixed;\n      top: 0;\n      right: 0;\n      display: flex;\n      flex-direction: column;\n      align-items: center;\n      padding: 4px 4px;\n\n      .-version {\n        font-family: monospace;\n      }\n\n      .-icon {\n        img {\n          width: 32px;\n        }\n      }\n    }\n  }\n\n  .-center {\n    margin: 0 auto;\n    text-align: center;\n  }\n\n  .-match {\n    display: flex;\n    align-items: center;\n    height: 100%;\n\n    .-center {\n      font-size: 26px;\n      color: #bbb;\n    }\n  }\n\n  .-empty {\n    display: flex;\n    height: calc(100vh - var(--height-header));\n    justify-content: center;\n    align-items: center;\n\n    .-links {\n      margin-top: 16px;\n      font-size: 11px;\n    }\n\n    .-center {\n      font-size: 26px;\n      color: #bbb;\n    }\n  }\n\n  .-delta {\n    padding-top: 10px;\n\n    .jsdiff-found {\n      outline: 1px solid rgba(var(--colour-found), 0.6);\n      outline-offset: -1px;\n\n      &.jsdiff-found-this {\n        outline: 2px solid rgb(var(--colour-found));\n        outline-offset: -2px;\n        animation: found_this 1s infinite;\n      }\n\n      @keyframes found_this {\n        0% {\n          background-color: transparent;\n        }\n\n        50% {\n          background-color: rgba(var(--colour-found), 0.2);\n        }\n      }\n    }\n  }\n}\n",":root {\n  --colour-background: #fff;\n  --colour-text: #000;\n  --colour-found: 0, 191, 255;\n  --height-header: 1.625rem;\n}\n\nbody {\n  margin: 0;\n  padding: 0;\n}\n\n.jsdiff-panel {\n  height: 100vh;\n  background-color: var(--colour-background);\n  color: var(--colour-text);\n}\n.jsdiff-panel .btn {\n  height: var(--height-header);\n  cursor: pointer;\n  border: none;\n  border-radius: 0;\n  outline: none;\n  background-color: rgba(0, 0, 0, 0.03);\n}\n.jsdiff-panel .btn:hover {\n  background-color: rgba(0, 0, 0, 0.3);\n}\n.jsdiff-panel .-header {\n  border-bottom: 1px solid #bbb;\n  box-shadow: 1px 2px 5px #bbb;\n  display: flex;\n  align-items: center;\n  height: var(--height-header);\n  margin-bottom: 12px;\n  min-width: 512px;\n  user-select: none;\n}\n.jsdiff-panel .-header .-toolbox {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  padding-left: 10px;\n}\n.jsdiff-panel .-header .-toolbox .btn {\n  margin: 0 2px;\n}\n.jsdiff-panel .-header .-toolbox .-last-updated {\n  cursor: default;\n  margin-left: 10px;\n  color: #bbbbbb;\n}\n.jsdiff-panel .-header .-toolbox .-last-updated .-value {\n  font-weight: bold;\n}\n.jsdiff-panel .-header .-last-error {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  padding-left: 10px;\n  color: rgb(182, 33, 33);\n}\n.jsdiff-panel .-header .-badge {\n  position: fixed;\n  top: 0;\n  right: 0;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  padding: 4px 4px;\n}\n.jsdiff-panel .-header .-badge .-version {\n  font-family: monospace;\n}\n.jsdiff-panel .-header .-badge .-icon img {\n  width: 32px;\n}\n.jsdiff-panel .-center {\n  margin: 0 auto;\n  text-align: center;\n}\n.jsdiff-panel .-match {\n  display: flex;\n  align-items: center;\n  height: 100%;\n}\n.jsdiff-panel .-match .-center {\n  font-size: 26px;\n  color: #bbb;\n}\n.jsdiff-panel .-empty {\n  display: flex;\n  height: calc(100vh - var(--height-header));\n  justify-content: center;\n  align-items: center;\n}\n.jsdiff-panel .-empty .-links {\n  margin-top: 16px;\n  font-size: 11px;\n}\n.jsdiff-panel .-empty .-center {\n  font-size: 26px;\n  color: #bbb;\n}\n.jsdiff-panel .-delta {\n  padding-top: 10px;\n}\n.jsdiff-panel .-delta .jsdiff-found {\n  outline: 1px solid rgba(var(--colour-found), 0.6);\n  outline-offset: -1px;\n}\n.jsdiff-panel .-delta .jsdiff-found.jsdiff-found-this {\n  outline: 2px solid rgb(var(--colour-found));\n  outline-offset: -2px;\n  animation: found_this 1s infinite;\n}\n@keyframes found_this {\n  0% {\n    background-color: transparent;\n  }\n  50% {\n    background-color: rgba(var(--colour-found), 0.2);\n  }\n}"],"sourceRoot":""}]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -17266,6 +17273,7 @@ __webpack_require__.r(__webpack_exports__);
             showUnchanged: true,
             now: appStartTimestamp,
             inprogress: false,
+            lastError: '',
         });
         const compare = (0,vue__WEBPACK_IMPORTED_MODULE_0__.ref)({
             timestamp: 0,
@@ -17291,10 +17299,14 @@ __webpack_require__.r(__webpack_exports__);
             }
         });
         (0,vue__WEBPACK_IMPORTED_MODULE_0__.onMounted)(async () => {
-            const { lastApiReq } = await chrome.storage.local.get(['lastApiReq']);
+            const { lastApiReq, lastError } = await chrome.storage.local.get([
+                'lastApiReq',
+                'lastError',
+            ]);
             if ((0,_api_toolkit__WEBPACK_IMPORTED_MODULE_7__.hasValue)(lastApiReq)) {
                 $_onDiffRequest(lastApiReq);
             }
+            state.lastError = lastError || '';
             chrome.runtime.onMessage.addListener($_onRuntimeMessage);
         });
         (0,vue__WEBPACK_IMPORTED_MODULE_0__.onUnmounted)(() => {
@@ -17321,13 +17333,20 @@ __webpack_require__.r(__webpack_exports__);
             await chrome.storage.local.clear();
             compare.value = { left: undefined, right: undefined, timestamp: 0 };
             state.inprogress = false;
+            state.lastError = '';
         };
         async function $_onRuntimeMessage(req) {
-            if ('jsdiff-proxy-to-panel-inprogress' === req.source &&
+            if ('jsdiff-proxy-to-panel-error' === req.source) {
+                const { lastError } = await chrome.storage.local.get(['lastError']);
+                state.lastError = lastError || '';
+                state.inprogress = false;
+            }
+            else if ('jsdiff-proxy-to-panel-inprogress' === req.source &&
                 typeof req.on === 'boolean') {
                 state.inprogress = req.on;
             }
             else if ('jsdiff-proxy-to-panel-compare' === req.source) {
+                state.lastError = '';
                 const { lastApiReq } = await chrome.storage.local.get(['lastApiReq']);
                 if ((0,_api_toolkit__WEBPACK_IMPORTED_MODULE_7__.hasValue)(lastApiReq)) {
                     $_onDiffRequest(lastApiReq);
@@ -17390,35 +17409,36 @@ const _hoisted_5 = /*#__PURE__*/ (0,vue__WEBPACK_IMPORTED_MODULE_0__.createEleme
     title: "Last updated"
 }, null, -1 /* HOISTED */);
 const _hoisted_6 = ["textContent", "title"];
-const _hoisted_7 = { class: "-badge" };
-const _hoisted_8 = ["textContent"];
-const _hoisted_9 = ["href", "title"];
-const _hoisted_10 = /*#__PURE__*/ (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("img", {
+const _hoisted_7 = ["textContent"];
+const _hoisted_8 = { class: "-badge" };
+const _hoisted_9 = ["textContent"];
+const _hoisted_10 = ["href", "title"];
+const _hoisted_11 = /*#__PURE__*/ (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("img", {
     src: "/bundle/img/panel-icon64.png",
     alt: "JSDiff"
 }, null, -1 /* HOISTED */);
-const _hoisted_11 = [
-    _hoisted_10
+const _hoisted_12 = [
+    _hoisted_11
 ];
-const _hoisted_12 = {
+const _hoisted_13 = {
     key: 1,
     class: "-match"
 };
-const _hoisted_13 = {
+const _hoisted_14 = {
     ref: "deltaEl",
     class: "-center"
 };
-const _hoisted_14 = { key: 2 };
-const _hoisted_15 = ["innerHTML"];
-const _hoisted_16 = {
+const _hoisted_15 = { key: 2 };
+const _hoisted_16 = ["innerHTML"];
+const _hoisted_17 = {
     key: 3,
     class: "-empty"
 };
-const _hoisted_17 = { class: "-center" };
-const _hoisted_18 = ["textContent"];
-const _hoisted_19 = { class: "-links" };
-const _hoisted_20 = ["href"];
+const _hoisted_18 = { class: "-center" };
+const _hoisted_19 = ["textContent"];
+const _hoisted_20 = { class: "-links" };
 const _hoisted_21 = ["href"];
+const _hoisted_22 = ["href"];
 function render(_ctx, _cache, $props, $setup, $data, $options) {
     return ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("section", _hoisted_1, [
         ($setup.state.inprogress)
@@ -17456,50 +17476,58 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                     ])
                 ]))
                 : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true),
-            (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_7, [
+            ($setup.state.lastError)
+                ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", {
+                    key: 1,
+                    class: "-last-error",
+                    title: 'Last error',
+                    textContent: (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($setup.state.lastError)
+                }, null, 8 /* PROPS */, _hoisted_7))
+                : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true),
+            (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_8, [
                 (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
                     class: "-version",
                     textContent: (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($setup.state.version)
-                }, null, 8 /* PROPS */, _hoisted_8),
+                }, null, 8 /* PROPS */, _hoisted_9),
                 (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("a", {
                     class: "-icon",
                     href: $setup.state.git.self,
                     target: "_blank",
                     title: $setup.state.git.self
-                }, _hoisted_11, 8 /* PROPS */, _hoisted_9)
+                }, _hoisted_12, 8 /* PROPS */, _hoisted_10)
             ])
         ]),
         ($setup.hasBothSides && !$setup.deltaObj)
-            ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("section", _hoisted_12, [
-                (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_13, "match", 512 /* NEED_PATCH */)
+            ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("section", _hoisted_13, [
+                (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_14, "match", 512 /* NEED_PATCH */)
             ]))
             : ($setup.hasBothSides && $setup.deltaObj)
-                ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("section", _hoisted_14, [
+                ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("section", _hoisted_15, [
                     (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
                         ref: "deltaEl",
                         class: "-delta",
                         innerHTML: $setup.deltaHtml
-                    }, null, 8 /* PROPS */, _hoisted_15)
+                    }, null, 8 /* PROPS */, _hoisted_16)
                 ]))
                 : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true),
         (!$setup.hasBothSides)
-            ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("section", _hoisted_16, [
-                (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_17, [
+            ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("section", _hoisted_17, [
+                (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_18, [
                     (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("code", {
                         textContent: (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($setup.state.codeExample)
-                    }, null, 8 /* PROPS */, _hoisted_18),
-                    (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_19, [
+                    }, null, 8 /* PROPS */, _hoisted_19),
+                    (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_20, [
                         (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("a", {
                             href: $setup.state.git.diffApi,
                             target: "_blank",
                             textContent: 'benjamine/jsondiffpatch'
-                        }, null, 8 /* PROPS */, _hoisted_20),
+                        }, null, 8 /* PROPS */, _hoisted_21),
                         (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(", "),
                         (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("a", {
                             href: $setup.state.git.self,
                             target: "_blank",
                             textContent: 'zendive/jsdiff'
-                        }, null, 8 /* PROPS */, _hoisted_21)
+                        }, null, 8 /* PROPS */, _hoisted_22)
                     ])
                 ])
             ]))

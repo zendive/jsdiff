@@ -10,6 +10,7 @@
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   ERROR: () => (/* binding */ ERROR),
 /* harmony export */   TAG: () => (/* binding */ TAG)
 /* harmony export */ });
 const TAG = {
@@ -23,9 +24,14 @@ const TAG = {
     RECURRING_OBJECT: (id) => `0x${id}: {♻️}`,
     RECURRING_SET: (id) => `0x${id}: Set[♻️]`,
     RECURRING_MAP: (id) => `0x${id}: Map{♻️}`,
-    NON_SERIALIZABLE: (id) => `0x${id}: unserializable`,
+    UNSERIALIZABLE: (id) => `0x${id}: unserializable`,
     SYMBOL: (name, id) => `0x${id}: ${name}`,
     FUCNTION: (hash) => `𝑓(${hash})`,
+};
+const ERROR = {
+    NO_CONNECTION: 'Could not establish connection. Receiving end does not exist.',
+    PORT_CLOSED: 'The message port closed before a response was received.',
+    QUOTA_EXCEEDED: 'QUOTA_BYTES quota exceeded',
 };
 
 
@@ -64,16 +70,28 @@ async function proxyCompareHandler(e) {
     const current = e.data.payload;
     const { lastApiReq: old } = await chrome.storage.local.get(['lastApiReq']);
     const next = processComparisonObject(old, current);
-    await chrome.storage.local.set({ lastApiReq: next });
-    chrome.runtime.sendMessage({
-        source: 'jsdiff-proxy-to-panel-compare',
-    });
+    try {
+        // may throw
+        await chrome.storage.local.set({ lastApiReq: next, lastError: '' });
+        chrome.runtime.sendMessage({
+            source: 'jsdiff-proxy-to-panel-compare',
+        }, handleResponse);
+    }
+    catch (error) {
+        if (error?.message === _api_const__WEBPACK_IMPORTED_MODULE_0__.ERROR.QUOTA_EXCEEDED) {
+            await chrome.storage.local.set({ lastError: _api_const__WEBPACK_IMPORTED_MODULE_0__.ERROR.QUOTA_EXCEEDED });
+            chrome.runtime.sendMessage({ source: 'jsdiff-proxy-to-panel-error' }, handleResponse);
+        }
+        else if (error?.message) {
+            console.error('Unhnadled', error.message);
+        }
+    }
 }
 function proxyInprogressHandler(e) {
     chrome.runtime.sendMessage({
         source: 'jsdiff-proxy-to-panel-inprogress',
         on: e.data.on,
-    });
+    }, handleResponse);
 }
 function processComparisonObject(old, next) {
     if (!old) {
@@ -98,6 +116,16 @@ function processComparisonObject(old, next) {
     }
     rv.timestamp = next.timestamp;
     return rv;
+}
+function handleResponse(error) {
+    if (!isIgnorable(chrome.runtime.lastError)) {
+        console.error(chrome.runtime.lastError);
+    }
+}
+function isIgnorable(error) {
+    return (!error ||
+        error.message === _api_const__WEBPACK_IMPORTED_MODULE_0__.ERROR.NO_CONNECTION ||
+        error.message === _api_const__WEBPACK_IMPORTED_MODULE_0__.ERROR.PORT_CLOSED);
 }
 
 
