@@ -2,7 +2,7 @@ export const TAG = {
   EMPTY: '(empty)',
   UNDEFINED: '(undefined)',
   NULL: '(null)',
-  NATIVE_FUNCTION: '𝑓(native)',
+  NATIVE_FUNCTION: 'ƒ(native)',
   EXCEPTION_FALLBACK: '⁉️(exception)',
   EXCEPTION: (str: string) => `⁉️(${str})`,
   RECURRING_ARRAY: (id: string) => `0x${id}: [♻️]`,
@@ -11,7 +11,10 @@ export const TAG = {
   RECURRING_MAP: (id: string) => `0x${id}: Map{♻️}`,
   UNSERIALIZABLE: (id: string) => `0x${id}: unserializable`,
   SYMBOL: (name: string, id: string) => `0x${id}: ${name}`,
-  FUCNTION: (hash: string) => `𝑓(${hash})`,
+  FUNCTION: (name: string, hash: string) =>
+    `ƒ${name ? ` ${name}` : ''}(${hash})`,
+  NUMERIC: (value: bigint | number) =>
+    typeof value === 'bigint' ? `BigInt(${value})` : `Number(${value})`,
 };
 
 export const ERROR = {

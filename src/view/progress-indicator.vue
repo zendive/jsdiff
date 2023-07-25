@@ -20,13 +20,14 @@
     background-image: linear-gradient(
       to right,
       #b307f700 15%,
-      #00ff00ff 50%,
+      rgb(241, 14, 14) 50%,
       #b307f700 85%
     );
     color: transparent;
     height: 100%;
     width: 20%;
-    animation: wt-scanning-eye-animation 1s linear infinite alternate,
+    animation:
+      wt-scanning-eye-animation 1s linear infinite alternate,
       wt-scanning-eye-animation-blink 1.25s linear infinite alternate;
   }
 
