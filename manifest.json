@@ -28,6 +28,6 @@
     "64": "bundle/img/panel-icon64.png",
     "128": "bundle/img/panel-icon128.png"
   },
-  "permissions": ["storage", "scripting", "clipboardWrite"],
+  "permissions": ["storage"],
   "host_permissions": ["*://*/*"]
 }
