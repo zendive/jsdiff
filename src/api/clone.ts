@@ -1,60 +1,21 @@
 import { TAG } from '@/api/const';
 import { SHA256 } from './toolkit';
 
-export async function post(
-  cloneFn: (value: unknown) => Promise<unknown>,
-  payload: ICompareMessagePayload
-): Promise<void> {
-  try {
-    window.postMessage(
-      { source: 'jsdiff-console-to-proxy-inprogress', on: true },
-      window.location.origin
-    );
-
-    for (const key of ['push', 'left', 'right']) {
-      if (Reflect.has(payload, key)) {
-        const value = payload[key];
-
-        if (value === undefined) {
-          payload[key] = TAG.UNDEFINED;
-        } else if (value === null) {
-          payload[key] = TAG.NULL;
-        } else {
-          payload[key] = await cloneFn(value);
-        }
-      }
-    }
-
-    window.postMessage(
-      { source: 'jsdiff-console-to-proxy-compare', payload },
-      window.location.origin
-    );
-  } catch (error) {
-    console.error('console.diff()', error);
-
-    window.postMessage(
-      { source: 'jsdiff-console-to-proxy-inprogress', on: false },
-      window.location.origin
-    );
-  }
-}
-
-export async function nativeClone(value: unknown): Promise<unknown> {
-  let set: Set<unknown> | void = new Set();
-  const rv = JSON.parse(
-    JSON.stringify(value, nativeClonePostDataAdapter.bind(null, set))
-  );
-
-  set = set.clear();
-
-  return rv;
-}
-
 type TInstanceBadgeTag = (id: string) => string;
 type TSymbolBadgeTag = (symbolName: string, symbolId: string) => string;
 interface ICatalogRecord {
   name: string;
   seen: boolean;
+}
+interface ISerializeToObject {
+  [key: string]: any;
+}
+interface IFunction {
+  name: string;
+  toString: () => string;
+}
+interface IHasToJSON {
+  toJSON: () => unknown;
 }
 
 class ObjectsCatalog {
@@ -95,6 +56,56 @@ class ObjectsCatalog {
   }
 }
 
+export async function post(
+  cloneFn: (value: unknown) => Promise<unknown>,
+  payload: ICompareMessagePayload
+): Promise<void> {
+  try {
+    window.postMessage(
+      { source: 'jsdiff-console-to-proxy-inprogress', on: true },
+      window.location.origin
+    );
+
+    for (const key of ['push', 'left', 'right']) {
+      if (Reflect.has(payload, key)) {
+        const value = payload[key];
+
+        if (value === undefined) {
+          payload[key] = TAG.UNDEFINED;
+        } else if (value === null) {
+          payload[key] = TAG.NULL;
+        } else {
+          payload[key] = await cloneFn(value);
+        }
+      }
+    }
+
+    window.postMessage(
+      { source: 'jsdiff-console-to-proxy-compare', payload },
+      window.location.origin
+    );
+  } catch (error) {
+    console.error('console.diff()', error);
+
+    window.postMessage(
+      { source: 'jsdiff-console-to-proxy-inprogress', on: false },
+      window.location.origin
+    );
+  }
+}
+
+export async function nativeClone(value: unknown): Promise<unknown> {
+  let set: Set<unknown> | null = new Set();
+  const rv = JSON.parse(
+    JSON.stringify(value, nativeClonePostDataAdapter.bind(null, set))
+  );
+
+  set.clear();
+  set = null;
+
+  return rv;
+}
+
 export async function customClone(value: unknown): Promise<unknown> {
   let catalog: ObjectsCatalog | null = new ObjectsCatalog();
   const rv = await recursiveClone(catalog, value);
@@ -129,8 +140,9 @@ async function recursiveClone(
     rv = await serializeObject(catalog, value);
   } else if (isNumericSpecials(value)) {
     rv = TAG.NUMERIC(value);
-  } else if (isStringifieble(value)) {
-    rv = String(value);
+  } else if (value === undefined) {
+    // JsonDiffPatch has problem identifying undefined value - storing a string instead
+    rv = TAG.UNDEFINED;
   }
 
   return rv;
@@ -142,13 +154,6 @@ function isNumericSpecials(value: unknown): value is bigint | number {
     Number.isNaN(value) ||
     value === -Infinity ||
     value === Infinity
-  );
-}
-
-function isStringifieble(value: unknown): boolean {
-  return (
-    // JsonDiffPatch has problem identifying undefined value - storing a string instead
-    value === undefined
   );
 }
 
@@ -228,6 +233,10 @@ async function serializeMapKey(
   } else if (isObject(key)) {
     const { name } = catalog.lookup(key, TAG.RECURRING_OBJECT);
     rv = name;
+  } else if (isNumericSpecials(key)) {
+    rv = TAG.NUMERIC(key);
+  } else if (key === undefined) {
+    rv = TAG.UNDEFINED;
   } else {
     rv = String(key);
   }
@@ -292,10 +301,6 @@ async function serializeFunction(value: IFunction): Promise<string> {
   }
 }
 
-interface ISerializeToObject {
-  [key: string]: any;
-}
-
 function serializeSelfSerializable(value: IHasToJSON) {
   let rv;
 
@@ -354,15 +359,6 @@ function isArray(that: unknown): that is unknown[] {
     that instanceof Float32Array ||
     that instanceof Float64Array
   );
-}
-
-interface IFunction {
-  name: string;
-  toString: () => string;
-}
-
-interface IHasToJSON {
-  toJSON: () => unknown;
 }
 
 function isFunction(that: unknown): that is IFunction {
