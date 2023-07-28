@@ -1,20 +1,20 @@
 export const TAG = {
-  EMPTY: '(empty)',
-  UNDEFINED: '(undefined)',
-  NULL: '(null)',
-  NATIVE_FUNCTION: 'ƒ(native)',
-  EXCEPTION_FALLBACK: '⁉️(exception)',
-  EXCEPTION: (str: string) => `⁉️(${str})`,
+  EMPTY: '⟪empty⟫',
+  UNDEFINED: '⟪undefined⟫',
+  NULL: '⟪null⟫',
+  NATIVE_FUNCTION: 'ƒ⟪native⟫',
+  EXCEPTION_FALLBACK: '⁉️ ⟪exception⟫',
+  EXCEPTION: (str: string) => `⁉️ ⟪${str}⟫`,
   RECURRING_ARRAY: (id: string) => `0x${id}: [♻️]`,
   RECURRING_OBJECT: (id: string) => `0x${id}: {♻️}`,
   RECURRING_SET: (id: string) => `0x${id}: Set[♻️]`,
   RECURRING_MAP: (id: string) => `0x${id}: Map{♻️}`,
-  UNSERIALIZABLE: (id: string) => `0x${id}: unserializable`,
+  UNSERIALIZABLE: (id: string) => `0x${id}: ⟪unserializable⟫`,
   SYMBOL: (name: string, id: string) => `0x${id}: ${name}`,
   FUNCTION: (name: string, hash: string) =>
-    `ƒ${name ? ` ${name}` : ''}(${hash})`,
+    `ƒ${name ? ` ${name}` : ''}⟪${hash}⟫`,
   NUMERIC: (value: bigint | number) =>
-    typeof value === 'bigint' ? `BigInt(${value})` : `Number(${value})`,
+    typeof value === 'bigint' ? `BigInt⟪${value}⟫` : `Number⟪${value}⟫`,
 };
 
 export const ERROR = {
