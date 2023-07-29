@@ -64,9 +64,11 @@ Chrome extension to compare objects in memory with console.diff(old, new) devtoo
 
 - While paused in debug mode, JSDiff panel won't reflect the result until runtime is resumed (see [#10][i10]).
 
+[i10]: https://github.com/zendive/jsdiff/issues/10
+
 - Compared objects, after being serialized, and stored in `chrome.storage.local` wich has 10MB limit.
 
-[i10]: https://github.com/zendive/jsdiff/issues/10
+- Will not work on `file:///` prorocol and https://chrome.google.com/webstore site.
 
 ### API
 
