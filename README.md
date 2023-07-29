@@ -38,6 +38,8 @@ Chrome extension to compare objects in memory with console.diff(old, new) devtoo
 
   - If search query contains at least one upper-case letter - the search will be case-sensitive.
 
+- Using `console.diff` functions from within online code editors like: [codesandbox.io](https://codesandbox.io), [coderpad.io](https://coderpad.io), [flems.io](https://flems.io), [codepen.io](https://codepen.io), [jsfiddle.net](https://jsfiddle.net).
+
 - Functions are included in comparison result in order to detect possible alterations, in form of a string combined from a function name (if present) and a SHA-256 hash of a `function.toString()` body. Native functions are shown as silmply as `ƒ⟪native⟫`.
 
 - Some DOM objects like Document or Element are not worth to be shown entirely, since that is not the purpose of this extension. So if they are present anywhere, they are serialized as `0x####: ⟪unserializable⟫`.
