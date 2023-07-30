@@ -2,8 +2,7 @@
 
 [![console.diff()](https://storage.googleapis.com/web-dev-uploads/image/WlD8wC6g8khYWPJUsQceQkhXSlv1/tbyBjqi7Zu733AAKA5n4.png)](https://chrome.google.com/webstore/detail/jsdiff-devtool/iefeamoljhdcpigpnpggeiiabpnpgonb)
 
-Chrome devtools extension intended to display result of deep in-memory object
-comparisons with the help of dedicated console commands.
+Chrome extension to compare objects in memory with console.diff(old, new) devtools function.
 
 <details>
   <summary> <strong>Screenshots</strong> </summary>
@@ -23,22 +22,53 @@ comparisons with the help of dedicated console commands.
 
 ### Features
 
-- compare objects between multiple [sub]domains, chrome tabs, or single page reloads
-- function code included in comparison result in form of a string, may help to see if it was altered
-- document, dom-elements and other non-serializable objects are filtered-out from the results
-- self recurring references displayed only once, the rest of occurrences are filtered-out
-- basic integration with search functionality within devtools
-  - if search query contains upper-case letter - the search will be case-sensitive
+- Symple user interface:
 
-### Limitations and workarounds
+  - Button to hide/show unchanged properties.
+  - Button to copy changed properties in format of `jsondiffpatch` diff object.
+  - Button to clear current result.
+  - Indicator of the last update time.
+  - Indicator of a fatal error (out of storage memory).
 
-- some instances of objects may cause exception during preparations for comparison
-  - try to narrow compared contexts
-  - if it's some Browser API that causes an exception and not a framework, consider opening an issue,
-    so it will be possible to solve it on a permanent basis
-- while paused in debug mode, JSDiff panel won't reflect the result until runtime is resumed ([#10][i10])
+- Compare objects between multiple [sub]domains, chrome tabs, or single page reloads.
+
+  - JSDiff devtools panel reflects current state of comparison, regardless the tab[s] it was opened from.
+
+- Basic integration with search functionality within devtools:
+
+  - If search query contains at least one upper-case letter - the search will be case-sensitive.
+
+- Using `console.diff` functions from within online code editors like: [codesandbox.io](https://codesandbox.io), [coderpad.io](https://coderpad.io), [flems.io](https://flems.io), [codepen.io](https://codepen.io), [jsfiddle.net](https://jsfiddle.net).
+
+- Functions are included in comparison result in order to detect possible alterations, in form of a string combined from a function name (if present) and a SHA-256 hash of a `function.toString()` body. Native functions are shown as silmply as `ƒ⟪native⟫`.
+
+- Some DOM objects like Document or Element are not worth to be shown entirely, since that is not the purpose of this extension. So if they are present anywhere, they are serialized as `0x####: ⟪unserializable⟫`.
+
+- Object, Array, Map, Set - serialized only once and the rest of their ocurrances are mentioned with unique reference like: `0x####: {♻️}`, `0x####: [♻️]`, `0x####: Map{♻️}`, `0x####: Set[♻️]` respectivly.
+
+  - Map keys, unless they are primitive types, serialized by their pseudo ids.
+
+- Symbols serialized with his pseudo id like: `0x####: Symbol(name)`.
+
+- Serialization of numerics like `+/-Infinity`, `NaN`, `BigInt`, or `undefined` serialized like: `Number⟪Infinity⟫`, `Number⟪NaN⟫`, `BigInt⟪#⟫`, `⟪undefined⟫` respectivly.
+
+- Failsafe serialization of objects having security issues while accessing their properties.
+
+- Failsefe serialization of objects having `toJSON()` function (when instead of serialization of all object properties, - only toJSON() return value is serialized, similar to the way native `JSON.strigify()` works).
+
+### Legend
+
+- Pseudo id, assigned to non-primitive data types, used in order to detect reference recurrences and, in case of Symbols - symbol uniqueness. Id for an object shown in the output only if it seen more than once. It being assigned in the scope of serialization of a high level argument instance, while comparing left or right side; that means if some object, having id 0x0001 on the left side, is not guarantied to have same id on the right side.
+
+### Limitations
+
+- While paused in debug mode, JSDiff panel won't reflect the result until runtime is resumed (see [#10][i10]).
 
 [i10]: https://github.com/zendive/jsdiff/issues/10
+
+- Compared objects, after being serialized, and stored in `chrome.storage.local` wich has 10MB limit.
+
+- Will not work on `file:///` prorocol and https://chrome.google.com/webstore site.
 
 ### API
 
@@ -72,25 +102,47 @@ console.diffLeft(Date.now());
 console.diffRight(Date.now());
 ```
 
+- **console.diff\_(\*)** - deprecated, left for backward compatibility, uses `nativeClone` based of JSON.parse(JSON.stringify(...)) serialization method
+
 ### Usage basics
 
 Historically, left side represents the old state and right side the new state.
 
 - Things that are present on the left side but missing on the right side are colour-coded as red (old).
+
 - Things that are missing on the left side but present on the right side are colour-coded as green (new).
 
-To track changes of the same variable in timed manner you can push it with `diffPush` or `diff`
-with a single argument, that will shift objects from right to left, showing differences with previous push state.
+- To track changes of the same variable in timed manner you can push it with `diffPush` or `diff` with a single argument, - that will shift objects from right to left, showing differences with previous push state.
 
 ### How it works
 
-- `jsdiff-devtools.js` registers devtools panel
-  - injects `console.diff` commands into inspected window's console interface
-    - each function clones arguments and sends them via `postMessage` to `jsdiff-proxy.js` in `jsdiff-console-to-proxy` message
-  - injects `jsdiff-proxy.js` that listens on window `jsdiff-console-to-proxy` message and sends it further to chrome runtime in `jsdiff-proxy-to-devtools` message
-  - listens on `jsdiff-proxy-to-devtools` and prepares payload for `view/panel.vue` and sends it with `jsdiff-devtools-to-panel-compare` message
-  - when user invokes devtools search command - informs `view/panel.vue` with `jsdiff-devtools-to-panel-search` message
-- when `view/panel.vue` is visible in devtools
-  - reflects result of last compare request
-  - listens on `jsdiff-devtools-to-panel-compare` requests
-  - listens on `jsdiff-devtools-to-panel-search` and tries to find query in DOM
+- `manifest.json` injects content scripts to each visited site (except for chrome web store site and google-protected alike):
+  - `jsdiff-console.ts` as [MAIN](https://developer.chrome.com/docs/extensions/reference/scripting/#type-ExecutionWorld) world (has access to the target site memory)
+    - sends messages to `jsdiff-proxy.ts`.
+  - `jsdiff-proxy.ts` as `ISOLATED` world (has access to the chrome runtime)
+    - stores data from `jsdiff-console.ts` in `chrome.storage.local` and sends runtime messages to `panel.vue`.
+- `jsdiff-devtools.ts` registers `panel.vue` as a JSDiff devtools panel that reads current state of `chorme.storage.local` and listens to incomming `chrome.runtime` mesages from `jsdiff-proxy.ts`.
+
+### How to build
+
+- requires npm/nodejs
+- requires pnpm `npm i -g pnpm`
+
+```sh
+pnpm i
+pnpm dev # local development
+pnpm zip # make extension.zip
+```
+
+### Protection
+
+- How to protect your site from this extension:
+  - Well, tests show that even `Content-Security-Policy: default-src 'none';` header won't prevent injection of extension content-scripts...
+  - In general, you can incapacitate console functions:
+  ```js
+  for (const prop in console) {
+    if (typeof console[prop] === 'function' && prop !== 'error') {
+      console[prop] = function noop() {};
+    }
+  }
+  ```

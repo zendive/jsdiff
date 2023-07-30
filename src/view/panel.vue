@@ -1,5 +1,7 @@
 <template>
   <section class="jsdiff-panel">
+    <progress-indicator v-if="state.inprogress" />
+
     <section class="-header">
       <div v-if="hasBothSides" class="-toolbox">
         <button
@@ -16,11 +18,25 @@
           v-text="'Copy'"
         />
 
+        <button
+          class="btn"
+          title="Clear results"
+          @click="onClearResults"
+          v-text="'Clear'"
+        />
+
         <div class="-last-updated">
-          <span v-text="'Last updated '" />
-          <span class="-value" v-text="lastUpdated" />
+          <span v-text="'⏱️'" title="Last updated" />&nbsp;
+          <span class="-value" v-text="elapsedTime" :title="envokedTime" />
         </div>
       </div>
+
+      <div
+        v-if="state.lastError"
+        class="-last-error"
+        :title="'Last error'"
+        v-text="state.lastError"
+      />
 
       <div class="-badge">
         <div class="-version" v-text="state.version" />
@@ -30,7 +46,7 @@
           target="_blank"
           :title="state.git.self"
         >
-          <img src="/src/img/panel-icon64.png" alt="JSDiff" />
+          <img src="/bundle/img/panel-icon64.png" alt="JSDiff" />
         </a>
       </div>
     </section>
@@ -58,21 +74,16 @@
 </template>
 
 <script setup lang="ts">
-import packageJson from '../../../package.json';
+import packageJson from '@/../package.json';
 import { computed, onMounted, onUnmounted, reactive, ref } from 'vue';
 import * as jsondiffpatch from 'jsondiffpatch';
 import { Delta } from 'jsondiffpatch';
 import 'jsondiffpatch/dist/formatters-styles/html.css';
-import { SECOND, timeFromNow } from './api/time';
-import { postDiffRender } from './api/formatter-dom';
-import { searchQueryInDom, ISearchOptions } from './api/search';
-import { hasValue } from './api/toolkit';
-
-interface ICompareState {
-  timestamp?: number;
-  left?: unknown;
-  right?: unknown;
-}
+import { SECOND, timeFromNow, timeToString } from '@/api/time';
+import { postDiffRender } from '@/api/formatter-dom';
+import { searchQueryInDom } from '@/api/search';
+import { hasValue } from '@/api/toolkit';
+import progressIndicator from '@/view/progress-indicator.vue';
 
 const formatters = jsondiffpatch.formatters;
 const deltaEl = ref<HTMLElement | null>(null);
@@ -86,15 +97,20 @@ const state = reactive({
   codeExample: 'console.diff({a:1,b:1,c:3}, {a:1,b:2,d:3});',
   showUnchanged: true,
   now: appStartTimestamp,
+  inprogress: false,
+  lastError: '',
 });
 const compare = ref<ICompareState>({
-  timestamp: undefined,
+  timestamp: 0,
   left: undefined,
   right: undefined,
 });
 let timer: number;
-const lastUpdated = computed(() =>
+const elapsedTime = computed(() =>
   compare.value.timestamp ? timeFromNow(compare.value.timestamp, state.now) : ''
+);
+const envokedTime = computed(() =>
+  compare.value.timestamp ? timeToString(compare.value.timestamp) : ''
 );
 const hasBothSides = computed(
   () => hasValue(compare.value.left) && hasValue(compare.value.right)
@@ -115,10 +131,17 @@ const deltaHtml = computed(() => {
 });
 
 onMounted(async () => {
-  const { lastApiReq } = await chrome.storage.local.get(['lastApiReq']);
+  const { lastApiReq, lastError } = await chrome.storage.local.get([
+    'lastApiReq',
+    'lastError',
+  ]);
+
   if (hasValue(lastApiReq)) {
     $_onDiffRequest(lastApiReq);
   }
+
+  state.lastError = lastError || '';
+
   chrome.runtime.onMessage.addListener($_onRuntimeMessage);
 });
 
@@ -136,22 +159,49 @@ const onToggleUnchanged = () => {
 };
 
 const onCopyDelta = async () => {
-  const sDiff = JSON.stringify(deltaObj.value, null, 2);
-  await navigator.clipboard.writeText(sDiff);
+  const sDelta = JSON.stringify(deltaObj.value, null, 2);
+  document.addEventListener('copy', function onCopy(e: ClipboardEvent) {
+    e.preventDefault();
+    document.removeEventListener('copy', onCopy);
+    e.clipboardData?.setData('text', sDelta);
+  });
+  document.execCommand('copy', false);
 };
 
-function $_onRuntimeMessage(req) {
-  if ('jsdiff-devtools-to-panel-compare' === req.source && req.payload) {
-    $_onDiffRequest(req.payload);
+const onClearResults = async () => {
+  await chrome.storage.local.clear();
+  compare.value = { left: undefined, right: undefined, timestamp: 0 };
+  state.inprogress = false;
+  state.lastError = '';
+};
+
+async function $_onRuntimeMessage(req: TRuntimeMessageOptions) {
+  if ('jsdiff-proxy-to-panel-error' === req.source) {
+    const { lastError } = await chrome.storage.local.get(['lastError']);
+    state.lastError = lastError || '';
+    state.inprogress = false;
+  } else if (
+    'jsdiff-proxy-to-panel-inprogress' === req.source &&
+    typeof req.on === 'boolean'
+  ) {
+    state.inprogress = req.on;
+  } else if ('jsdiff-proxy-to-panel-compare' === req.source) {
+    state.lastError = '';
+    const { lastApiReq } = await chrome.storage.local.get(['lastApiReq']);
+
+    if (hasValue(lastApiReq)) {
+      $_onDiffRequest(lastApiReq);
+    }
   } else if (
     'jsdiff-devtools-to-panel-search' === req.source &&
-    deltaEl.value
+    deltaEl.value &&
+    req.params
   ) {
-    searchQueryInDom(<HTMLElement>deltaEl.value, <ISearchOptions>req.params);
+    searchQueryInDom(<HTMLElement>deltaEl.value, req.params);
   }
 }
 
-function $_restartLastUpdated() {
+function $_restartElapsedTime() {
   window.clearInterval(timer);
   timer = window.setInterval(() => {
     state.now = Date.now();
@@ -165,8 +215,10 @@ function $_onDiffRequest({ left, right, timestamp }: ICompareState) {
     timestamp: timestamp || Date.now(),
   };
 
-  $_restartLastUpdated();
-  postDiffRender(deltaEl.value);
+  $_restartElapsedTime();
+  postDiffRender(deltaEl.value).then(() => {
+    state.inprogress = false;
+  });
 }
 </script>
 
@@ -209,6 +261,7 @@ body {
     height: var(--height-header);
     margin-bottom: 12px;
     min-width: 512px;
+    user-select: none;
 
     .-toolbox {
       display: flex;
@@ -221,6 +274,7 @@ body {
       }
 
       .-last-updated {
+        cursor: default;
         margin-left: 10px;
         color: #bbbbbb;
 
@@ -228,6 +282,14 @@ body {
           font-weight: bold;
         }
       }
+    }
+
+    .-last-error {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding-left: 10px;
+      color: rgb(182, 33, 33);
     }
 
     .-badge {

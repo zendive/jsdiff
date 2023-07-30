@@ -16,6 +16,10 @@ const intervals = [
   { ge: 0, divisor: 1, text: 'now' },
 ];
 const rtf = new Intl.RelativeTimeFormat(undefined, { numeric: 'auto' });
+const dtf = new Intl.DateTimeFormat(undefined, {
+  dateStyle: 'full',
+  timeStyle: 'full',
+});
 
 /**
  * @param test {number}
@@ -38,4 +42,8 @@ export function timeFromNow(test: number, now: number): string {
   }
 
   return rv;
+}
+
+export function timeToString(time: number): string {
+  return dtf.format(time);
 }

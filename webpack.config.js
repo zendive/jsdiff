@@ -4,6 +4,7 @@ import { CleanWebpackPlugin } from 'clean-webpack-plugin';
 import { VueLoaderPlugin } from 'vue-loader';
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 import { fileURLToPath } from 'url';
+import TerserPlugin from 'terser-webpack-plugin';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -19,30 +20,35 @@ export default function (env, op) {
     },
 
     entry: {
-      'jsdiff-panel': './src/js/view/app.js',
+      'jsdiff-devtools': './src/jsdiff-devtools.ts',
+      'jsdiff-panel': './src/view/app.js',
+      'jsdiff-proxy': './src/jsdiff-proxy.ts',
+      'jsdiff-console': './src/jsdiff-console.ts',
     },
 
     output: {
       filename: '[name].js',
-      path: path.resolve(__dirname, 'src/js/bundle'),
+      path: path.resolve(__dirname, 'bundle/js'),
     },
 
     resolve: {
       extensions: ['.ts', '.js'],
       modules: [path.resolve(__dirname, 'src/js'), 'node_modules'],
-      alias: {},
+      alias: {
+        '@': path.resolve(__dirname, 'src'),
+      },
     },
 
     plugins: [
       new CleanWebpackPlugin(),
       new VueLoaderPlugin(),
       // http://127.0.0.1:8888
-      !isProd
-        ? new BundleAnalyzerPlugin({
+      isProd
+        ? () => {}
+        : new BundleAnalyzerPlugin({
             openAnalyzer: false,
             logLevel: 'silent',
-          })
-        : () => {},
+          }),
       new webpack.DefinePlugin({
         __VUE_OPTIONS_API__: 'true',
         __VUE_PROD_DEVTOOLS__: 'false',
@@ -69,6 +75,8 @@ export default function (env, op) {
 
     optimization: {
       splitChunks: false,
+      minimize: isProd,
+      minimizer: [new TerserPlugin()],
     },
 
     devtool: isProd ? false : 'source-map',
