@@ -138,6 +138,8 @@ pnpm zip # make extension.zip
 
 - How to protect your site from this extension:
   - Well, tests show that even `Content-Security-Policy: default-src 'none';` header won't prevent injection of extension content-scripts...
+  - Avoid assigning to `window` or `globalThis` any application object.
+    See also [accidental global variables and memory leaks](https://www.tutorialspoint.com/explain-in-detail-about-memory-leaks-in-javascript).
   - In general, you can incapacitate console functions:
   ```js
   for (const prop in console) {
