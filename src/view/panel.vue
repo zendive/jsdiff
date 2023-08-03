@@ -1,8 +1,8 @@
 <template>
   <section class="jsdiff-panel">
-    <progress-indicator v-if="state.inprogress" />
-
     <section class="-header">
+      <progress-indicator v-if="state.inprogress" />
+
       <div v-if="hasBothSides" class="-toolbox">
         <button
           class="btn"
@@ -231,7 +231,7 @@ function $_onDiffRequest({ left, right, timestamp }: ICompareState) {
 }
 
 body {
-  margin: 0;
+  margin: 1.5rem 0 0 0;
   padding: 0;
 }
 
@@ -254,6 +254,10 @@ body {
   }
 
   .-header {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    background-color: #fff;
     border-bottom: 1px solid #bbb;
     box-shadow: 1px 2px 5px #bbb;
     display: flex;
