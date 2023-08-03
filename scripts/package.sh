@@ -3,7 +3,8 @@
 ZIP_FILE="extension.zip"
 HASH_ALG="sha384"
 
-pnpm run prod > /dev/null
+pnpm lint
+pnpm run prod
 
 rm -rf $ZIP_FILE
 zip -r $ZIP_FILE ./bundle ./manifest.json > /dev/null

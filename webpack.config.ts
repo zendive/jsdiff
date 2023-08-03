@@ -76,7 +76,12 @@ export default function (
     optimization: {
       splitChunks: false,
       minimize: isProd,
-      minimizer: [new TerserPlugin()],
+      minimizer: [
+        new TerserPlugin({
+          minify: TerserPlugin.esbuildMinify,
+          terserOptions: {},
+        }),
+      ],
     },
 
     devtool: isProd ? false : 'source-map',
