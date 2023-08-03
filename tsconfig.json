@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "ES2021",
+    "target": "ES2022",
     "outDir": "./.ts-built",
     "noEmit": false,
     "allowJs": true,
