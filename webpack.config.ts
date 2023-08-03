@@ -9,15 +9,15 @@ import TerserPlugin from 'terser-webpack-plugin';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-export default function (env, op) {
+export default function (
+  env: string,
+  op: { mode: webpack.Configuration['mode'] }
+): webpack.Configuration {
   console.log('⌥', env, op.mode);
   const isProd = op.mode === 'production';
 
   return {
     mode: op.mode,
-    devServer: {
-      hot: true,
-    },
 
     entry: {
       'jsdiff-devtools': './src/jsdiff-devtools.ts',
