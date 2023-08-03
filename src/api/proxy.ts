@@ -5,12 +5,7 @@ export function proxyMessageGate(
   callbackCompare: (e: MessageEvent<ICompareMessage>) => Promise<void>
 ) {
   return function (e: MessageEvent) {
-    if (
-      e.origin === window.location.origin &&
-      e.source === window &&
-      typeof e.data === 'object' &&
-      e.data !== null
-    ) {
+    if (e.source === window && typeof e.data === 'object' && e.data !== null) {
       if ('jsdiff-console-to-proxy-inprogress' === e.data.source) {
         callbackInprogress(e);
       } else if ('jsdiff-console-to-proxy-compare' === e.data.source) {
@@ -94,7 +89,7 @@ function processComparisonObject(
   return rv;
 }
 
-function handleResponse(error: chrome.runtime.LastError | undefined): void {
+function handleResponse(): void {
   if (!isIgnorable(chrome.runtime.lastError)) {
     console.error(chrome.runtime.lastError);
   }

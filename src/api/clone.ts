@@ -1,5 +1,5 @@
 import { TAG } from '@/api/const';
-import { SHA256 } from './toolkit';
+import { SHA256 } from '@/api/toolkit';
 
 type TInstanceBadgeTag = (id: string) => string;
 type TSymbolBadgeTag = (symbolName: string, symbolId: string) => string;
@@ -63,7 +63,7 @@ export async function post(
   try {
     window.postMessage(
       { source: 'jsdiff-console-to-proxy-inprogress', on: true },
-      window.location.origin
+      '*'
     );
 
     for (const key of ['push', 'left', 'right']) {
@@ -82,14 +82,14 @@ export async function post(
 
     window.postMessage(
       { source: 'jsdiff-console-to-proxy-compare', payload },
-      window.location.origin
+      '*'
     );
   } catch (error) {
     console.error('console.diff()', error);
 
     window.postMessage(
       { source: 'jsdiff-console-to-proxy-inprogress', on: false },
-      window.location.origin
+      '*'
     );
   }
 }
