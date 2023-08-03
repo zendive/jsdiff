@@ -4,12 +4,7 @@
   "description": "Chrome extension to compare objects in memory with console.diff(old, new) devtools function",
   "private": true,
   "scripts": {
-    "test": "echo \"no test\" && exit 1",
-    "dev": "NODE_OPTIONS=\"--loader=ts-node/esm\" webpack --progress --watch --mode=development",
-    "prod": "NODE_OPTIONS=\"--loader=ts-node/esm --no-warnings\" NODE_ENV=production webpack --mode=production",
-    "lint": "tsc -noEmit",
-    "format": "prettier . --write",
-    "zip": "./scripts/package.sh"
+    "test": "echo \"no test\" && exit 1"
   },
   "repository": {
     "type": "git",

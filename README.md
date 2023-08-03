@@ -68,8 +68,6 @@ Chrome extension to compare objects in memory with console.diff(old, new) devtoo
 
 - Compared objects, after being serialized, and stored in `chrome.storage.local` wich has 10MB limit.
 
-- Will not work on `file:///` prorocol and https://chrome.google.com/webstore site.
-
 ### API
 
 - **console.diff(left, right)** - compare left and right arguments
@@ -126,12 +124,11 @@ Historically, left side represents the old state and right side the new state.
 ### How to build
 
 - requires npm/nodejs
-- requires pnpm `npm i -g pnpm`
 
 ```sh
-pnpm i
-pnpm dev # local development
-pnpm zip # make extension.zip
+make install # to install dependencies
+make all # build for prod and make extension.zip
+make dev # local development
 ```
 
 ### Protection
