@@ -59,8 +59,11 @@ export default function (
       rules: [
         {
           test: /\.tsx?$/,
-          loader: 'ts-loader',
-          options: { appendTsSuffixTo: [/\.vue$/], transpileOnly: true },
+          loader: 'esbuild-loader',
+          options: {
+            loader: 'ts',
+            target: 'es2022',
+          },
         },
         {
           test: /\.vue$/,

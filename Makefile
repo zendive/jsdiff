@@ -14,7 +14,7 @@ dev:
 	./node_modules/.bin/webpack --progress --watch --mode=development
 
 prod:
-	NODE_OPTIONS="--loader=ts-node/esm --no-warnings" \
+	NODE_OPTIONS="--loader=ts-node/esm --no-warnings=ExperimentalWarning" \
 	NODE_ENV="production" \
 	./node_modules/.bin/webpack --mode=production
 
