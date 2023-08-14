@@ -4,7 +4,7 @@ import { CleanWebpackPlugin } from 'clean-webpack-plugin';
 import { VueLoaderPlugin } from 'vue-loader';
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 import { fileURLToPath } from 'url';
-import TerserPlugin from 'terser-webpack-plugin';
+import { EsbuildPlugin } from 'esbuild-loader';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -42,10 +42,10 @@ export default function (
     plugins: [
       new CleanWebpackPlugin(),
       new VueLoaderPlugin(),
-      // http://127.0.0.1:8888
       isProd
         ? () => {}
         : new BundleAnalyzerPlugin({
+            // http://127.0.0.1:8888
             openAnalyzer: false,
             logLevel: 'silent',
           }),
@@ -79,12 +79,7 @@ export default function (
     optimization: {
       splitChunks: false,
       minimize: isProd,
-      minimizer: [
-        new TerserPlugin({
-          minify: TerserPlugin.esbuildMinify,
-          terserOptions: {},
-        }),
-      ],
+      minimizer: [new EsbuildPlugin()],
     },
 
     devtool: isProd ? false : 'source-map',

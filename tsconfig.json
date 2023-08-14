@@ -23,5 +23,5 @@
     }
   },
   "include": ["src"],
-  "exclude": [".ts-built", "bundle"]
+  "exclude": [".ts-built", "bundle", "**/~*.ts"]
 }

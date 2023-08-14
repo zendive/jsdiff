@@ -66,7 +66,7 @@ Chrome extension to compare objects in memory with console.diff(old, new) devtoo
 
 [i10]: https://github.com/zendive/jsdiff/issues/10
 
-- Compared objects, after being serialized, and stored in `chrome.storage.local` wich has 10MB limit.
+- Compared objects, after being serialized, stored in `chrome.storage.local` wich has 10MB limit (before chrome v114 was 5MB).
 
 ### API
 
@@ -100,7 +100,7 @@ console.diffLeft(Date.now());
 console.diffRight(Date.now());
 ```
 
-- **console.diff\_(\*)** - deprecated, left for backward compatibility, uses `nativeClone` based of JSON.parse(JSON.stringify(...)) serialization method
+- **console.diff\_(\*)** - uses deprecated `nativeClone` serialization method, based of JSON.parse(JSON.stringify(...)), left for backward compatibility
 
 ### Usage basics
 

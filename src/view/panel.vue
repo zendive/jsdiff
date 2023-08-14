@@ -20,7 +20,7 @@
 
         <button
           class="btn"
-          title="Clear results"
+          :title="`Clear results (${state.storagaSize})`"
           @click="onClearResults"
           v-text="'Clear'"
         />
@@ -99,6 +99,7 @@ const state = reactive({
   now: appStartTimestamp,
   inprogress: false,
   lastError: '',
+  storagaSize: 0,
 });
 const compare = ref<ICompareState>({
   timestamp: 0,
@@ -137,12 +138,16 @@ onMounted(async () => {
   ]);
 
   if (hasValue(lastApiReq)) {
-    $_onDiffRequest(lastApiReq);
+    $_onDiffRequest(lastApiReq as ICompareState);
   }
 
   state.lastError = lastError || '';
+  state.storagaSize = await chrome.storage.local.getBytesInUse();
 
   chrome.runtime.onMessage.addListener($_onRuntimeMessage);
+  chrome.storage.onChanged.addListener(async () => {
+    state.storagaSize = await chrome.storage.local.getBytesInUse();
+  });
 });
 
 onUnmounted(() => {
@@ -190,7 +195,7 @@ async function $_onRuntimeMessage(req: TRuntimeMessageOptions) {
     const { lastApiReq } = await chrome.storage.local.get(['lastApiReq']);
 
     if (hasValue(lastApiReq)) {
-      $_onDiffRequest(lastApiReq);
+      $_onDiffRequest(lastApiReq as ICompareState);
     }
   } else if (
     'jsdiff-devtools-to-panel-search' === req.source &&

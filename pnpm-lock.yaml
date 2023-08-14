@@ -9,7 +9,7 @@ devDependencies:
     specifier: 0.0.242
     version: 0.0.242
   '@types/webpack-bundle-analyzer':
-    specifier: ^4.6.0
+    specifier: 4.6.0
     version: 4.6.0(esbuild@0.18.17)(webpack-cli@5.1.4)
   '@vue/compiler-sfc':
     specifier: 3.3.4
@@ -21,10 +21,10 @@ devDependencies:
     specifier: 6.8.1
     version: 6.8.1(webpack@5.88.2)
   esbuild:
-    specifier: ^0.18.17
+    specifier: 0.18.17
     version: 0.18.17
   esbuild-loader:
-    specifier: ^3.1.0
+    specifier: 3.1.0
     version: 3.1.0(webpack@5.88.2)
   jsondiffpatch:
     specifier: 0.4.1
@@ -41,11 +41,8 @@ devDependencies:
   style-loader:
     specifier: 3.3.3
     version: 3.3.3(webpack@5.88.2)
-  terser-webpack-plugin:
-    specifier: 5.3.9
-    version: 5.3.9(esbuild@0.18.17)(webpack@5.88.2)
   ts-node:
-    specifier: ^10.9.1
+    specifier: 10.9.1
     version: 10.9.1(@types/node@20.4.6)(typescript@5.1.6)
   typescript:
     specifier: 5.1.6

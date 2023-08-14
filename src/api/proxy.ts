@@ -18,11 +18,14 @@ export function proxyMessageGate(
 export async function proxyCompareHandler(
   e: MessageEvent<ICompareMessage>
 ): Promise<void> {
-  const current = e.data.payload;
-  const { lastApiReq: old } = await chrome.storage.local.get(['lastApiReq']);
-  const next = processComparisonObject(old, current);
-
   try {
+    const current = e.data.payload;
+    const { lastApiReq: old } = await chrome.storage.local.get(['lastApiReq']);
+    const next = processComparisonObject(
+      old as ICompareMessagePayload,
+      current
+    );
+
     // may throw
     await chrome.storage.local.set({ lastApiReq: next, lastError: '' });
 
