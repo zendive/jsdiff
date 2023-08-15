@@ -1,5 +1,5 @@
 <template>
-  <section class="jsdiff-panel">
+  <section class="jsdiff-panel" :class="state.uiTheme">
     <section class="-header">
       <progress-indicator v-if="state.inprogress" />
 
@@ -50,25 +50,30 @@
         </a>
       </div>
     </section>
-
-    <section v-if="hasBothSides && !deltaObj" class="-match">
-      <div ref="deltaEl" class="-center">match</div>
-    </section>
-    <section v-else-if="hasBothSides && deltaObj">
-      <div ref="deltaEl" class="-delta" v-html="deltaHtml" />
-    </section>
-    <section v-if="!hasBothSides" class="-empty">
-      <div class="-center">
-        <code v-text="state.codeExample" />
-        <div class="-links">
-          <a
-            :href="state.git.diffApi"
-            target="_blank"
-            v-text="'benjamine/jsondiffpatch'"
-          />,
-          <a :href="state.git.self" target="_blank" v-text="'zendive/jsdiff'" />
+    <section class="-body">
+      <section v-if="hasBothSides && !deltaObj" class="-match">
+        <div ref="deltaEl" class="-center">match</div>
+      </section>
+      <section v-else-if="hasBothSides && deltaObj" class="-content">
+        <div ref="deltaEl" class="-delta" v-html="deltaHtml" />
+      </section>
+      <section v-if="!hasBothSides" class="-empty">
+        <div class="-center">
+          <code v-text="state.codeExample" />
+          <div class="-links">
+            <a
+              :href="state.git.diffApi"
+              target="_blank"
+              v-text="'benjamine/jsondiffpatch'"
+            />,
+            <a
+              :href="state.git.self"
+              target="_blank"
+              v-text="'zendive/jsdiff'"
+            />
+          </div>
         </div>
-      </div>
+      </section>
     </section>
   </section>
 </template>
@@ -100,6 +105,7 @@ const state = reactive({
   inprogress: false,
   lastError: '',
   storagaSize: 0,
+  uiTheme: 'light',
 });
 const compare = ref<ICompareState>({
   timestamp: 0,
@@ -131,6 +137,8 @@ const deltaHtml = computed(() => {
   }
 });
 
+$_initColourScheme();
+
 onMounted(async () => {
   const { lastApiReq, lastError } = await chrome.storage.local.get([
     'lastApiReq',
@@ -159,6 +167,10 @@ const onToggleUnchanged = () => {
   if (hasValue(deltaEl.value)) {
     state.showUnchanged = !state.showUnchanged;
     formatters.html.showUnchanged(state.showUnchanged, deltaEl.value);
+    searchQueryInDom(<HTMLElement>deltaEl.value, {
+      cmd: 'cancelSearch',
+      query: null,
+    });
     postDiffRender(deltaEl.value);
   }
 };
@@ -179,6 +191,23 @@ const onClearResults = async () => {
   state.inprogress = false;
   state.lastError = '';
 };
+
+/**
+ * DRAWBACK: if OS is dark but devtools is default - then theme is dark
+ * no API to listen on devtools theme change
+ */
+function $_initColourScheme() {
+  const devtoolScheme = chrome.devtools.panels.themeName;
+  const osDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+
+  if (devtoolScheme === 'dark' || osDarkScheme.matches) {
+    state.uiTheme = `dark`;
+  }
+
+  osDarkScheme.onchange = (e: MediaQueryListEvent) => {
+    state.uiTheme = e.matches ? 'dark' : 'light';
+  };
+}
 
 async function $_onRuntimeMessage(req: TRuntimeMessageOptions) {
   if ('jsdiff-proxy-to-panel-error' === req.source) {
@@ -231,44 +260,56 @@ function $_onDiffRequest({ left, right, timestamp }: ICompareState) {
 :root {
   --colour-background: #fff;
   --colour-text: #000;
+  --colour-text-diff: #000;
+  --colour-found: 0, 222, 255;
+
+  --header-height: 1.625rem;
+  --header-background: #fff;
+  --header-border: 1px solid #bbb;
+
+  --button-background: rgba(0, 0, 0, 0.05);
+  --button-hackground-hover: rgba(0, 0, 0, 0.3);
+
+  --diff-added-background: #bbffbb;
+  --diff-deleted-background: #ffbbbb;
+}
+
+.dark {
+  --colour-background: rgb(32 33 36);
+  --colour-text: rgb(189, 198, 207);
   --colour-found: 0, 191, 255;
-  --height-header: 1.625rem;
+
+  --header-background: rgb(41, 42, 45);
+  --header-border: 1px solid rgb(73, 76, 80);
+}
+
+* {
+  box-sizing: border-box;
 }
 
 body {
-  margin: 1.5rem 0 0 0;
+  margin: 0 0 0 0;
   padding: 0;
+  overflow: hidden;
+  height: 100%;
 }
 
 .jsdiff-panel {
-  height: 100vh;
   background-color: var(--colour-background);
   color: var(--colour-text);
-
-  .btn {
-    height: var(--height-header);
-    cursor: pointer;
-    border: none;
-    border-radius: 0;
-    outline: none;
-    background-color: rgba(0, 0, 0, 0.03);
-
-    &:hover {
-      background-color: rgba(0, 0, 0, 0.3);
-    }
-  }
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
 
   .-header {
-    position: fixed;
-    top: 0;
+    flex-shrink: 0;
     width: 100%;
-    background-color: #fff;
-    border-bottom: 1px solid #bbb;
-    box-shadow: 1px 2px 5px #bbb;
+    background-color: var(--header-background);
+    border-bottom: var(--header-border);
     display: flex;
     align-items: center;
-    height: var(--height-header);
-    margin-bottom: 12px;
+    height: var(--header-height);
+
     min-width: 512px;
     user-select: none;
 
@@ -279,16 +320,28 @@ body {
       padding-left: 10px;
 
       .btn {
+        height: var(--header-height);
+        cursor: pointer;
+        border: none;
+        border-radius: 0;
+        outline: none;
+        background-color: var(--button-background);
+        color: var(--colour-text);
         margin: 0 2px;
+
+        &:hover {
+          background-color: var(--button-hackground-hover);
+        }
       }
 
       .-last-updated {
         cursor: default;
         margin-left: 10px;
-        color: #bbbbbb;
 
         .-value {
           font-weight: bold;
+          color: var(--colour-text);
+          opacity: 0.5;
         }
       }
     }
@@ -304,7 +357,7 @@ body {
     .-badge {
       position: fixed;
       top: 0;
-      right: 0;
+      right: 1rem;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -322,62 +375,92 @@ body {
     }
   }
 
-  .-center {
-    margin: 0 auto;
-    text-align: center;
-  }
+  .-body {
+    flex: 1 0 0%;
+    overflow: auto;
+    overflow-wrap: break-word;
+    overflow-anchor: none;
+    transform: translateZ(0);
 
-  .-match {
-    display: flex;
-    align-items: center;
-    height: 100%;
+    .-match {
+      display: flex;
+      align-items: center;
+      height: 100%;
 
-    .-center {
-      font-size: 26px;
-      color: #bbb;
-    }
-  }
-
-  .-empty {
-    display: flex;
-    height: calc(100vh - var(--height-header));
-    justify-content: center;
-    align-items: center;
-
-    .-links {
-      margin-top: 16px;
-      font-size: 11px;
-    }
-
-    .-center {
-      font-size: 26px;
-      color: #bbb;
-    }
-  }
-
-  .-delta {
-    padding-top: 10px;
-
-    .jsdiff-found {
-      outline: 1px solid rgba(var(--colour-found), 0.6);
-      outline-offset: -1px;
-
-      &.jsdiff-found-this {
-        outline: 2px solid rgb(var(--colour-found));
-        outline-offset: -2px;
-        animation: found_this 1s infinite;
-      }
-
-      @keyframes found_this {
-        0% {
-          background-color: transparent;
-        }
-
-        50% {
-          background-color: rgba(var(--colour-found), 0.2);
-        }
+      .-center {
+        margin: 0 auto;
+        text-align: center;
+        font-size: 26px;
+        color: #bbb;
       }
     }
+
+    .-empty {
+      display: flex;
+      height: calc(100vh - var(--header-height));
+      justify-content: center;
+      align-items: center;
+
+      .-links {
+        margin-top: 16px;
+        font-size: 11px;
+      }
+
+      .-center {
+        margin: 0 auto;
+        text-align: center;
+        font-size: 26px;
+        color: #bbb;
+      }
+    }
+
+    .-content {
+      padding: 0.5rem 0;
+
+      .-delta {
+        .jsdiff-found {
+          outline: 2px solid rgba(var(--colour-found), 1);
+          outline-offset: -1px;
+
+          &.jsdiff-found-this {
+            color: var(--colour-text-diff);
+            animation: found_this 0.8s infinite alternate;
+          }
+
+          @keyframes found_this {
+            0% {
+              background-color: rgba(var(--colour-found), 0.6);
+            }
+
+            100% {
+              background-color: rgba(var(--colour-found), 1);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .jsondiffpatch-delta pre {
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+
+  .jsondiffpatch-added .jsondiffpatch-property-name,
+  .jsondiffpatch-added .jsondiffpatch-value pre,
+  .jsondiffpatch-modified .jsondiffpatch-right-value pre,
+  .jsondiffpatch-textdiff-added {
+    background: var(--diff-added-background);
+    color: var(--colour-text-diff);
+  }
+
+  .jsondiffpatch-deleted .jsondiffpatch-property-name,
+  .jsondiffpatch-deleted pre,
+  .jsondiffpatch-modified .jsondiffpatch-left-value pre,
+  .jsondiffpatch-textdiff-deleted {
+    background: var(--diff-deleted-background);
+    text-decoration: line-through;
+    color: var(--colour-text-diff);
   }
 }
 </style>

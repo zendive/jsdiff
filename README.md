@@ -29,6 +29,7 @@ Chrome extension to compare objects in memory with console.diff(old, new) devtoo
   - Button to clear current result.
   - Indicator of the last update time.
   - Indicator of a fatal error (out of storage memory).
+  - Devtools light/dark colour scheme support.
 
 - Compare objects between multiple [sub]domains, chrome tabs, or single page reloads.
 
