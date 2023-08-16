@@ -29,6 +29,7 @@ Chrome extension to compare objects in memory with console.diff(old, new) devtoo
   - Button to clear current result.
   - Indicator of the last update time.
   - Indicator of a fatal error (out of storage memory).
+  - Devtools light/dark colour scheme support.
 
 - Compare objects between multiple [sub]domains, chrome tabs, or single page reloads.
 
@@ -66,9 +67,7 @@ Chrome extension to compare objects in memory with console.diff(old, new) devtoo
 
 [i10]: https://github.com/zendive/jsdiff/issues/10
 
-- Compared objects, after being serialized, and stored in `chrome.storage.local` wich has 10MB limit.
-
-- Will not work on `file:///` prorocol and https://chrome.google.com/webstore site.
+- Compared objects, after being serialized, stored in `chrome.storage.local` wich has 10MB limit (before chrome v114 was 5MB).
 
 ### API
 
@@ -102,7 +101,7 @@ console.diffLeft(Date.now());
 console.diffRight(Date.now());
 ```
 
-- **console.diff\_(\*)** - deprecated, left for backward compatibility, uses `nativeClone` based of JSON.parse(JSON.stringify(...)) serialization method
+- **console.diff\_(\*)** - uses deprecated `nativeClone` serialization method, based of JSON.parse(JSON.stringify(...)), left for backward compatibility
 
 ### Usage basics
 
@@ -126,12 +125,11 @@ Historically, left side represents the old state and right side the new state.
 ### How to build
 
 - requires npm/nodejs
-- requires pnpm `npm i -g pnpm`
 
 ```sh
-pnpm i
-pnpm dev # local development
-pnpm zip # make extension.zip
+make install # to install dependencies
+make all # build for prod and make extension.zip
+make dev # local development
 ```
 
 ### Protection

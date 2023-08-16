@@ -5,12 +5,7 @@ export function proxyMessageGate(
   callbackCompare: (e: MessageEvent<ICompareMessage>) => Promise<void>
 ) {
   return function (e: MessageEvent) {
-    if (
-      e.origin === window.location.origin &&
-      e.source === window &&
-      typeof e.data === 'object' &&
-      e.data !== null
-    ) {
+    if (e.source === window && typeof e.data === 'object' && e.data !== null) {
       if ('jsdiff-console-to-proxy-inprogress' === e.data.source) {
         callbackInprogress(e);
       } else if ('jsdiff-console-to-proxy-compare' === e.data.source) {
@@ -23,11 +18,14 @@ export function proxyMessageGate(
 export async function proxyCompareHandler(
   e: MessageEvent<ICompareMessage>
 ): Promise<void> {
-  const current = e.data.payload;
-  const { lastApiReq: old } = await chrome.storage.local.get(['lastApiReq']);
-  const next = processComparisonObject(old, current);
-
   try {
+    const current = e.data.payload;
+    const { lastApiReq: old } = await chrome.storage.local.get(['lastApiReq']);
+    const next = processComparisonObject(
+      old as ICompareMessagePayload,
+      current
+    );
+
     // may throw
     await chrome.storage.local.set({ lastApiReq: next, lastError: '' });
 
@@ -94,7 +92,7 @@ function processComparisonObject(
   return rv;
 }
 
-function handleResponse(error: chrome.runtime.LastError | undefined): void {
+function handleResponse(): void {
   if (!isIgnorable(chrome.runtime.lastError)) {
     console.error(chrome.runtime.lastError);
   }

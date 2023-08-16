@@ -92,7 +92,7 @@ export function searchQueryInDom(
 ): void {
   query = (typeof query === 'string' && query.trim()) || '';
 
-  // console.log('🔦', cmd, query);
+  // console.debug('🔦', cmd, query);
 
   if ('performSearch' === cmd) {
     searchState.query = query;

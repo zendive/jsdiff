@@ -33,4 +33,4 @@ Object.assign(console, {
   },
 });
 
-console.debug('✚ console.diff()');
+console.debug(`✚ console.diff()`);

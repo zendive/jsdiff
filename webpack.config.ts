@@ -4,20 +4,20 @@ import { CleanWebpackPlugin } from 'clean-webpack-plugin';
 import { VueLoaderPlugin } from 'vue-loader';
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 import { fileURLToPath } from 'url';
-import TerserPlugin from 'terser-webpack-plugin';
+import { EsbuildPlugin } from 'esbuild-loader';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-export default function (env, op) {
+export default function (
+  env: string,
+  op: { mode: webpack.Configuration['mode'] }
+): webpack.Configuration {
   console.log('⌥', env, op.mode);
   const isProd = op.mode === 'production';
 
   return {
     mode: op.mode,
-    devServer: {
-      hot: true,
-    },
 
     entry: {
       'jsdiff-devtools': './src/jsdiff-devtools.ts',
@@ -42,10 +42,10 @@ export default function (env, op) {
     plugins: [
       new CleanWebpackPlugin(),
       new VueLoaderPlugin(),
-      // http://127.0.0.1:8888
       isProd
         ? () => {}
         : new BundleAnalyzerPlugin({
+            // http://127.0.0.1:8888
             openAnalyzer: false,
             logLevel: 'silent',
           }),
@@ -59,8 +59,11 @@ export default function (env, op) {
       rules: [
         {
           test: /\.tsx?$/,
-          loader: 'ts-loader',
-          options: { appendTsSuffixTo: [/\.vue$/], transpileOnly: true },
+          loader: 'esbuild-loader',
+          options: {
+            loader: 'ts',
+            target: 'es2022',
+          },
         },
         {
           test: /\.vue$/,
@@ -76,7 +79,7 @@ export default function (env, op) {
     optimization: {
       splitChunks: false,
       minimize: isProd,
-      minimizer: [new TerserPlugin()],
+      minimizer: [new EsbuildPlugin()],
     },
 
     devtool: isProd ? false : 'source-map',
