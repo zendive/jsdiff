@@ -8,10 +8,10 @@ Chrome extension to compare objects in memory with console.diff(old, new) devtoo
   <summary> <strong>Screenshots</strong> </summary>
 
 - Comparing two objects
-  ![screenshot](./src/img/screenshot-01.png)
+  ![screenshot](./doc/screenshot-01.png)
 
 - Tracking changes in localStorage (unchanged are hidden)
-  ![screenshot](./src/img/screenshot-02.png)
+  ![screenshot](./doc/screenshot-02.png)
 
 </details>
 
@@ -115,12 +115,7 @@ Historically, left side represents the old state and right side the new state.
 
 ### How it works
 
-- `manifest.json` injects content scripts to each visited site (except for chrome web store site and google-protected alike):
-  - `jsdiff-console.ts` as [MAIN](https://developer.chrome.com/docs/extensions/reference/scripting/#type-ExecutionWorld) world (has access to the target site memory)
-    - sends messages to `jsdiff-proxy.ts`.
-  - `jsdiff-proxy.ts` as `ISOLATED` world (has access to the chrome runtime)
-    - stores data from `jsdiff-console.ts` in `chrome.storage.local` and sends runtime messages to `panel.vue`.
-- `jsdiff-devtools.ts` registers `panel.vue` as a JSDiff devtools panel that reads current state of `chorme.storage.local` and listens to incomming `chrome.runtime` mesages from `jsdiff-proxy.ts`.
+![screenshot](./doc/design.png)
 
 ### How to build
 
