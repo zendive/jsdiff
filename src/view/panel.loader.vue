@@ -1,5 +1,5 @@
 <template>
-  <aside class="progress-indicator">
+  <aside class="panel-loader">
     <div class="-eye" />
   </aside>
 </template>
@@ -7,7 +7,7 @@
 <script lang="ts" setup></script>
 
 <style lang="scss" scoped>
-.progress-indicator {
+.panel-loader {
   background-color: transparent;
   height: 2px;
   width: 100%;

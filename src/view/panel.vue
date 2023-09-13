@@ -1,55 +1,18 @@
 <template>
-  <section class="jsdiff-panel" :class="state.uiTheme">
-    <section class="-header">
-      <progress-indicator v-if="state.inprogress" />
+  <main class="jsdiff-panel" :class="state.uiTheme">
+    <panel-header
+      :pending="state.inprogress"
+      :last-error="state.lastError"
+      :show-controls="hasBothSides"
+      :elapsed-time="elapsedTime"
+      :envoked-time="envokedTime"
+      :storaga-size="state.storagaSize"
+      :link-git-self="stale.git.self"
+      @toggle-unchanged="onToggleUnchanged"
+      @copy-delta="onCopyDelta"
+      @clear-results="onClearResults"
+    />
 
-      <div v-if="hasBothSides" class="-toolbox">
-        <button
-          class="btn"
-          title="Hide/Show unchanged properties"
-          @click="onToggleUnchanged"
-          v-text="'Toggle Unchanged'"
-        />
-
-        <button
-          class="btn"
-          title="Copy delta as json object"
-          @click="onCopyDelta"
-          v-text="'Copy'"
-        />
-
-        <button
-          class="btn"
-          :title="`Clear results (${state.storagaSize})`"
-          @click="onClearResults"
-          v-text="'Clear'"
-        />
-
-        <div class="-last-updated">
-          <span v-text="'⏱️'" title="Last updated" />&nbsp;
-          <span class="-value" v-text="elapsedTime" :title="envokedTime" />
-        </div>
-      </div>
-
-      <div
-        v-if="state.lastError"
-        class="-last-error"
-        :title="'Last error'"
-        v-text="state.lastError"
-      />
-
-      <div class="-badge">
-        <div class="-version" v-text="state.version" />
-        <a
-          class="-icon"
-          :href="state.git.self"
-          target="_blank"
-          :title="state.git.self"
-        >
-          <img src="/bundle/img/panel-icon64.png" alt="JSDiff" />
-        </a>
-      </div>
-    </section>
     <section class="-body">
       <section v-if="hasBothSides && !deltaObj" class="-match">
         <div ref="deltaEl" class="-center">match</div>
@@ -59,15 +22,15 @@
       </section>
       <section v-if="!hasBothSides" class="-empty">
         <div class="-center">
-          <code v-text="state.codeExample" />
+          <code v-text="stale.codeExample" />
           <div class="-links">
             <a
-              :href="state.git.diffApi"
+              :href="stale.git.diffApi"
               target="_blank"
               v-text="'benjamine/jsondiffpatch'"
             />,
             <a
-              :href="state.git.self"
+              :href="stale.git.self"
               target="_blank"
               v-text="'zendive/jsdiff'"
             />
@@ -75,31 +38,57 @@
         </div>
       </section>
     </section>
-  </section>
+  </main>
 </template>
 
 <script setup lang="ts">
-import packageJson from '@/../package.json';
 import { computed, onMounted, onUnmounted, reactive, ref } from 'vue';
 import * as jsondiffpatch from 'jsondiffpatch';
-import { Delta } from 'jsondiffpatch';
+import type { Delta } from 'jsondiffpatch';
 import 'jsondiffpatch/dist/formatters-styles/html.css';
 import { SECOND, timeFromNow, timeToString } from '@/api/time';
 import { postDiffRender } from '@/api/formatter-dom';
 import { searchQueryInDom } from '@/api/search';
 import { hasValue } from '@/api/toolkit';
-import progressIndicator from '@/view/progress-indicator.vue';
+import PanelHeader from '@/view/panel.header.vue';
 
+const diffPatcher = jsondiffpatch.create({
+  // used to match objects when diffing arrays, by default only === operator is used
+  objectHash(obj: any, index: number) {
+    // this function is used only to when objects are not equal by ref
+    const rv = hasValue(obj)
+      ? Reflect.has(obj, 'id')
+        ? obj.id
+        : Reflect.has(obj, '_id')
+        ? obj._id
+        : index
+      : index;
+
+    console.log('objectHash', rv);
+    return rv;
+  },
+  arrays: {
+    // default true, detect items moved inside the array (otherwise they will be registered as remove+add)
+    detectMove: false,
+    // default false, the value of items moved is not included in deltas
+    includeValueOnMove: true,
+  },
+  textDiff: {
+    // default 60, minimum string length (left and right sides) to use text diff algorythm: google-diff-match-patch
+    minLength: 120,
+  },
+});
 const formatters = jsondiffpatch.formatters;
 const deltaEl = ref<HTMLElement | null>(null);
 const appStartTimestamp = Date.now();
-const state = reactive({
-  version: packageJson.version,
+const stale = {
   git: {
     self: 'https://github.com/zendive/jsdiff',
     diffApi: 'https://github.com/benjamine/jsondiffpatch',
   },
   codeExample: 'console.diff({a:1,b:1,c:3}, {a:1,b:2,d:3});',
+};
+const state = reactive({
   showUnchanged: true,
   now: appStartTimestamp,
   inprogress: false,
@@ -123,7 +112,7 @@ const hasBothSides = computed(
   () => hasValue(compare.value.left) && hasValue(compare.value.right)
 );
 const deltaObj = computed(() =>
-  jsondiffpatch.diff(compare.value.left, compare.value.right)
+  diffPatcher.diff(compare.value.left, compare.value.right)
 );
 const deltaHtml = computed(() => {
   try {
@@ -300,80 +289,6 @@ body {
   display: flex;
   flex-direction: column;
   height: 100vh;
-
-  .-header {
-    flex-shrink: 0;
-    width: 100%;
-    background-color: var(--header-background);
-    border-bottom: var(--header-border);
-    display: flex;
-    align-items: center;
-    height: var(--header-height);
-
-    min-width: 512px;
-    user-select: none;
-
-    .-toolbox {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding-left: 10px;
-
-      .btn {
-        height: var(--header-height);
-        cursor: pointer;
-        border: none;
-        border-radius: 0;
-        outline: none;
-        background-color: var(--button-background);
-        color: var(--colour-text);
-        margin: 0 2px;
-
-        &:hover {
-          background-color: var(--button-hackground-hover);
-        }
-      }
-
-      .-last-updated {
-        cursor: default;
-        margin-left: 10px;
-
-        .-value {
-          font-weight: bold;
-          color: var(--colour-text);
-          opacity: 0.5;
-        }
-      }
-    }
-
-    .-last-error {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding-left: 10px;
-      color: rgb(182, 33, 33);
-    }
-
-    .-badge {
-      position: fixed;
-      top: 0;
-      right: 1rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 4px 4px;
-
-      .-version {
-        font-family: monospace;
-      }
-
-      .-icon {
-        img {
-          width: 32px;
-        }
-      }
-    }
-  }
 
   .-body {
     flex: 1 0 0%;
