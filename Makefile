@@ -1,9 +1,8 @@
 ZIP_FILE="extension.zip"
 HASH_ALG=sha384
-BIN=node_modules/.bin
 
 .PHONY:
-	install all dev prod build format lint clean
+	install all dev prod build zip print_zip_hash format lint clean
 
 install:
 	npm i -g pnpm
@@ -13,12 +12,12 @@ all: build
 
 dev:
 	NODE_OPTIONS="--loader=ts-node/esm" \
-		$(BIN)/webpack --progress --watch --mode=development
+		npx webpack --progress --watch --mode=development
 
 prod:
 	NODE_OPTIONS="--loader=ts-node/esm --no-warnings=ExperimentalWarning" \
 		NODE_ENV="production" \
-		$(BIN)/webpack --mode=production
+		npx webpack --mode=production
 
 build:
 	make lint
@@ -35,10 +34,10 @@ print_zip_hash:
 		echo "$(ZIP_FILE) $(HASH_ALG):$$FILE_HASH"
 
 format:
-	$(BIN)/prettier . --write
+	npx prettier . --write
 
 lint:
-	$(BIN)/tsc -noEmit
+	npx tsc -noEmit
 
 clean:
 	rm -rf ./node_modules
