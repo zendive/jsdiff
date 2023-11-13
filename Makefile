@@ -1,14 +1,26 @@
 ZIP_FILE="extension.zip"
-HASH_ALG=sha384
+HASH_ALG="sha384"
 
 .PHONY:
-	install all dev prod build zip print_zip_hash format lint clean
+	install clean all lint dev prod zip
 
 install:
 	npm i -g pnpm
 	pnpm i
 
-all: build
+clean:
+	rm -rf ./node_modules
+	rm -rf $(ZIP_FILE)
+	rm -rf ./bundle/js/
+
+all:
+	make lint
+	make prod
+	make zip
+
+lint:
+	npx prettier . --write
+	npx tsc -noEmit
 
 dev:
 	NODE_OPTIONS="--loader=ts-node/esm" \
@@ -19,27 +31,8 @@ prod:
 		NODE_ENV="production" \
 		npx webpack --mode=production
 
-build:
-	make lint
-	make prod
-	make zip
-	make print_zip_hash
-
 zip:
 	rm -rf $(ZIP_FILE)
 	zip -r $(ZIP_FILE) ./bundle ./manifest.json > /dev/null
-
-print_zip_hash: 
 	FILE_HASH=$$(openssl dgst -$(HASH_ALG) -binary $(ZIP_FILE) | openssl base64 -A); \
 		echo "$(ZIP_FILE) $(HASH_ALG):$$FILE_HASH"
-
-format:
-	npx prettier . --write
-
-lint:
-	npx tsc -noEmit
-
-clean:
-	rm -rf ./node_modules
-	rm -rf $(ZIP_FILE)
-	rm -rf ./bundle/js/
