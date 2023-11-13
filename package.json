@@ -1,10 +1,11 @@
 {
   "name": "jsdiff",
-  "version": "3.0.3",
+  "version": "3.0.4",
   "description": "Chrome extension to compare objects in memory with console.diff(old, new) devtools function",
   "private": true,
   "scripts": {
-    "test": "echo \"no test\" && exit 1"
+    "dev": "make dev",
+    "prod": "make all"
   },
   "repository": {
     "type": "git",
