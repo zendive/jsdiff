@@ -1,10 +1,11 @@
 {
   "name": "jsdiff",
-  "version": "3.0.3",
+  "version": "3.0.4",
   "description": "Chrome extension to compare objects in memory with console.diff(old, new) devtools function",
   "private": true,
   "scripts": {
-    "test": "echo \"no test\" && exit 1"
+    "dev": "make dev",
+    "prod": "make all"
   },
   "repository": {
     "type": "git",
@@ -23,24 +24,30 @@
   "homepage": "https://github.com/zendive/jsdiff#readme",
   "type": "module",
   "devDependencies": {
-    "@types/chrome": "0.0.245",
-    "@types/webpack-bundle-analyzer": "4.6.0",
-    "@vue/compiler-sfc": "3.3.4",
+    "@types/chrome": "0.0.251",
+    "@types/webpack-bundle-analyzer": "4.6.3",
+    "@vue/compiler-sfc": "3.3.8",
     "clean-webpack-plugin": "4.0.0",
     "css-loader": "6.8.1",
-    "esbuild": "0.19.2",
+    "esbuild": "0.19.5",
     "esbuild-loader": "4.0.2",
     "jsondiffpatch": "0.5.0",
     "prettier": "3.0.3",
-    "sass": "1.66.1",
+    "sass": "1.69.5",
     "sass-loader": "13.3.2",
     "style-loader": "3.3.3",
     "ts-node": "10.9.1",
     "typescript": "5.2.2",
-    "vue": "3.3.4",
-    "vue-loader": "17.2.2",
-    "webpack": "5.88.2",
+    "vue": "3.3.8",
+    "vue-loader": "17.3.1",
+    "webpack": "5.89.0",
     "webpack-bundle-analyzer": "4.9.1",
     "webpack-cli": "5.1.4"
+  },
+  "pnpm": {
+    "overrides": {
+      "postcss@<8.4.31": ">=8.4.31",
+      "semver@>=7.0.0 <7.5.2": ">=7.5.2"
+    }
   }
 }
