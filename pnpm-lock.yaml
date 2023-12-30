@@ -12,6 +12,9 @@ devDependencies:
   '@types/chrome':
     specifier: 0.0.251
     version: 0.0.251
+  '@types/firefox-webext-browser':
+    specifier: 120.0.0
+    version: 120.0.0
   '@types/webpack-bundle-analyzer':
     specifier: 4.6.3
     version: 4.6.3(esbuild@0.19.5)(webpack-cli@5.1.4)
@@ -407,6 +410,10 @@ packages:
 
   /@types/filewriter@0.0.29:
     resolution: {integrity: sha512-BsPXH/irW0ht0Ji6iw/jJaK8Lj3FJemon2gvEqHKpCdDCeemHa+rI3WBGq5z7cDMZgoLjY40oninGxqk+8NzNQ==}
+    dev: true
+
+  /@types/firefox-webext-browser@120.0.0:
+    resolution: {integrity: sha512-L+tDlwNeq0kQGfAYc2sNfKhRWJz9CNRvlbq9HnLibKUiJ3VTThG8sj7xrJF4CtKpEA9eBAr91Z2nnKIAy+xUJg==}
     dev: true
 
   /@types/glob@7.2.0:

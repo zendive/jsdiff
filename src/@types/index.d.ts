@@ -46,4 +46,10 @@ declare global {
     | IProgressMessage
     | IErrorMessage
     | ISearchMessage;
+
+  interface Window {
+    wrappedJSObject: { jsdiff: () => void };
+  }
+
+  type cloneInto = (...any) => any;
 }

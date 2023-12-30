@@ -128,23 +128,33 @@ const deltaHtml = computed(() => {
 
 $_initColourScheme();
 
-onMounted(async () => {
-  const { lastApiReq, lastError } = await chrome.storage.local.get([
-    'lastApiReq',
-    'lastError',
-  ]);
+onMounted(() => {
+  chrome.storage.local
+    .get(['lastApiReq', 'lastError'])
+    .then(({ lastApiReq, lastError }) => {
+      state.lastError = lastError || '';
 
-  if (hasValue(lastApiReq)) {
-    $_onDiffRequest(lastApiReq as ICompareState);
+      if (hasValue(lastApiReq)) {
+        $_onDiffRequest(lastApiReq as ICompareState);
+      }
+    });
+
+  $_updateStorageSize();
+
+  if (browser) {
+    // firefox
+    // Connect to the background script
+    const backgroundPort = chrome.runtime.connect({ name: 'devtools-page' });
+    // Listen for messages from the background script
+    backgroundPort.onMessage.addListener($_onRuntimeMessage);
+    backgroundPort.onDisconnect.addListener(() => {
+      console.log('panel port disconnected');
+    });
+  } else {
+    // chrome
+    chrome.runtime.onMessage.addListener($_onRuntimeMessage);
   }
-
-  state.lastError = lastError || '';
-  state.storagaSize = await chrome.storage.local.getBytesInUse();
-
-  chrome.runtime.onMessage.addListener($_onRuntimeMessage);
-  chrome.storage.onChanged.addListener(async () => {
-    state.storagaSize = await chrome.storage.local.getBytesInUse();
-  });
+  chrome.storage.onChanged.addListener($_updateStorageSize);
 });
 
 onUnmounted(() => {
@@ -180,6 +190,18 @@ const onClearResults = async () => {
   state.inprogress = false;
   state.lastError = '';
 };
+
+async function $_updateStorageSize() {
+  if (typeof chrome.storage.local.getBytesInUse === 'function') {
+    state.storagaSize = await chrome.storage.local.getBytesInUse();
+  } else {
+    state.storagaSize = new TextEncoder().encode(
+      Object.entries(await chrome.storage.sync.get())
+        .map(([key, value]) => key + JSON.stringify(value))
+        .join('')
+    ).length;
+  }
+}
 
 /**
  * DRAWBACK: if OS is dark but devtools is default - then theme is dark

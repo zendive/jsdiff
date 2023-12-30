@@ -1,6 +1,6 @@
 {
   "name": "jsdiff",
-  "version": "3.0.4",
+  "version": "3.0.5",
   "description": "Chrome extension to compare objects in memory with console.diff(old, new) devtools function",
   "private": true,
   "scripts": {
@@ -25,6 +25,7 @@
   "type": "module",
   "devDependencies": {
     "@types/chrome": "0.0.251",
+    "@types/firefox-webext-browser": "120.0.0",
     "@types/webpack-bundle-analyzer": "4.6.3",
     "@vue/compiler-sfc": "3.3.8",
     "clean-webpack-plugin": "4.0.0",
