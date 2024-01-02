@@ -51,5 +51,6 @@ declare global {
     wrappedJSObject: { jsdiff: () => void };
   }
 
-  type cloneInto = (...any) => any;
+  // firefox extension context
+  function cloneInto(...any): any;
 }

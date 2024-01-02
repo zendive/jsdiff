@@ -144,12 +144,11 @@ onMounted(() => {
   if (browser) {
     // firefox
     // Connect to the background script
-    const backgroundPort = chrome.runtime.connect({ name: 'devtools-page' });
+    const backgroundPort = chrome.runtime.connect({
+      name: 'jsdiff-devtools-page-connect',
+    });
     // Listen for messages from the background script
     backgroundPort.onMessage.addListener($_onRuntimeMessage);
-    backgroundPort.onDisconnect.addListener(() => {
-      console.log('panel port disconnected');
-    });
   } else {
     // chrome
     chrome.runtime.onMessage.addListener($_onRuntimeMessage);
@@ -196,7 +195,7 @@ async function $_updateStorageSize() {
     state.storagaSize = await chrome.storage.local.getBytesInUse();
   } else {
     state.storagaSize = new TextEncoder().encode(
-      Object.entries(await chrome.storage.sync.get())
+      Object.entries(await chrome.storage.local.get())
         .map(([key, value]) => key + JSON.stringify(value))
         .join('')
     ).length;

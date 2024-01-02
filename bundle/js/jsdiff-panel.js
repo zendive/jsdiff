@@ -12138,11 +12138,10 @@ __webpack_require__.r(__webpack_exports__);
       });
       $_updateStorageSize();
       if (browser) {
-        const backgroundPort = chrome.runtime.connect({ name: "devtools-page" });
-        backgroundPort.onMessage.addListener($_onRuntimeMessage);
-        backgroundPort.onDisconnect.addListener(() => {
-          console.log("panel port disconnected");
+        const backgroundPort = chrome.runtime.connect({
+          name: "jsdiff-devtools-page-connect"
         });
+        backgroundPort.onMessage.addListener($_onRuntimeMessage);
       } else {
         chrome.runtime.onMessage.addListener($_onRuntimeMessage);
       }
@@ -12183,7 +12182,7 @@ __webpack_require__.r(__webpack_exports__);
         state.storagaSize = await chrome.storage.local.getBytesInUse();
       } else {
         state.storagaSize = new TextEncoder().encode(
-          Object.entries(await chrome.storage.sync.get()).map(([key, value]) => key + JSON.stringify(value)).join("")
+          Object.entries(await chrome.storage.local.get()).map(([key, value]) => key + JSON.stringify(value)).join("")
         ).length;
       }
     }

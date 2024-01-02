@@ -1,25 +1,22 @@
-let devToolsConnection;
+// background script for firefox partial(?) MV3 implementation
 
-// Listen for messages from content scripts
-chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
-  console.log('Received message from content script:', msg);
+let ports = new Set();
 
-  // Forward the message to the DevTools page if it's open
-  if (devToolsConnection) {
-    devToolsConnection.postMessage(msg);
+// Listen for connections from DevTools pages
+chrome.runtime.onConnect.addListener((port) => {
+  if (port.name === 'jsdiff-devtools-page-connect') {
+    ports.add(port);
+
+    port.onDisconnect.addListener(() => {
+      ports.delete(port);
+    });
   }
 });
 
-// Listen for connections from DevTools page
-chrome.runtime.onConnect.addListener((port) => {
-  console.assert(port.name === 'devtools-page');
-
-  // Save the DevTools page connection for later use
-  devToolsConnection = port;
-
-  // Disconnect event (optional)
-  port.onDisconnect.addListener(() => {
-    console.log('DevTools page disconnected');
-    devToolsConnection = null;
-  });
+// Listen for messages from content scripts
+// and forward the message to the DevTools page connected ports
+chrome.runtime.onMessage.addListener((msg) => {
+  for (const port of ports) {
+    port.postMessage(msg);
+  }
 });

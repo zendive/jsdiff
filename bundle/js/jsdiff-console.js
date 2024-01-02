@@ -443,12 +443,13 @@ const consoleAPI = {
 };
 if (typeof browser === "undefined") {
   Object.assign(console, consoleAPI);
-} else {
+  console.debug(`\u271A console.diff()`);
+} else if (typeof cloneInto === "function") {
   window.wrappedJSObject.jsdiff = cloneInto(consoleAPI, window, {
     cloneFunctions: true
   });
+  console.debug(`\u271A jsdiff.diff()`);
 }
-console.debug(`\u271A console.diff()`);
 
 })();
 
