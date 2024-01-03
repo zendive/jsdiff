@@ -24,7 +24,7 @@ export default function (
       'jsdiff-panel': './src/view/app.js',
       'jsdiff-proxy': './src/jsdiff-proxy.ts',
       'jsdiff-console': './src/jsdiff-console.ts',
-      'firefox-background-script': './src/firefox-background-script.ts',
+      'firefox/jsdiff-background': './src/firefox/background-script.ts',
     },
 
     output: {

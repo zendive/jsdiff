@@ -15,7 +15,7 @@
   "permissions": ["storage", "devtools", "activeTab"],
   "host_permissions": ["<all_urls>"],
   "background": {
-    "scripts": ["bundle/js/firefox-background-script.js"]
+    "scripts": ["bundle/js/firefox/background-script.js"]
   },
   "devtools_page": "bundle/jsdiff-devtools.html",
   "icons": {
