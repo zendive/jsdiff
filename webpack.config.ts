@@ -13,8 +13,12 @@ export default function (
   env: string,
   op: { mode: webpack.Configuration['mode'] }
 ): webpack.Configuration {
-  console.log('⌥', env, op.mode);
   const isProd = op.mode === 'production';
+
+  console.log('⌥', env, op.mode);
+  if (!isProd) {
+    console.log('Bundle anayser available at:', 'http://127.0.0.1:8888');
+  }
 
   return {
     mode: op.mode,

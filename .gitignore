@@ -8,9 +8,6 @@ node_modules/
 # os
 .DS_Store
 
-# typescript output
-.ts-built
-
 # application files not for git
 *.js.map
 *.zip

@@ -1,4 +1,3 @@
 /bundle/js
-.ts-built
 *.min.js
 pnpm-lock.yaml
