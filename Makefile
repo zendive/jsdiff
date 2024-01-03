@@ -39,6 +39,7 @@ prod:
 zip_chrome:
 	rm -rf $(ZIP_CHROME_FILE)
 	zip -r $(ZIP_CHROME_FILE) ./bundle ./manifest.json > /dev/null
+	zip --delete $(ZIP_CHROME_FILE) "bundle/js/firefox*"
 	FILE_HASH=$$(openssl dgst -$(HASH_ALG) -binary $(ZIP_CHROME_FILE) | openssl base64 -A); \
 		echo "$(ZIP_CHROME_FILE) $(HASH_ALG):$$FILE_HASH"
 

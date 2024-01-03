@@ -1,6 +1,6 @@
 // background script for firefox partial(?) MV3 implementation
 
-let ports = new Set();
+let ports = new Set<chrome.runtime.Port>();
 
 // Listen for connections from DevTools pages
 chrome.runtime.onConnect.addListener((port) => {
