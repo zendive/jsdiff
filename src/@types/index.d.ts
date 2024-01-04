@@ -52,5 +52,6 @@ declare global {
   }
 
   // firefox extension context
-  function cloneInto(...any): any;
+  // currently not present in '@types/firefox-webext-browser'
+  function cloneInto(...args: any[]): any;
 }

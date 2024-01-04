@@ -1,26 +1,21 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "noEmit": false,
-    "allowJs": true,
-    "checkJs": false,
     "strict": true,
     "strictNullChecks": true,
     "noImplicitAny": true,
-    "skipLibCheck": true,
     "moduleResolution": "Node",
-    "useDefineForClassFields": true,
     "module": "ESNext",
     "lib": ["ESNext", "DOM"],
     "resolveJsonModule": true,
-    "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "typeRoots": ["node_modules/@types", "src/@types"],
+    "types": ["chrome", "firefox-webext-browser"],
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]
     }
   },
-  "include": ["src"],
+  "include": ["src/**/*", "src/**/*.vue"],
   "exclude": ["bundle", "**/~*.ts"]
 }

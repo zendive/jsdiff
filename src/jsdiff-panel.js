@@ -1,5 +1,4 @@
 import { createApp } from 'vue';
 import Panel from '@/view/panel.vue';
 
-const app = createApp(Panel);
-app.mount('#jsdiff-app');
+createApp(Panel).mount('#jsdiff-app');

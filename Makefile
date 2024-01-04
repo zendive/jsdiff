@@ -30,6 +30,7 @@ dev:
 		npx webpack --progress --watch --mode=development
 
 prod:
+	rm -rf ./bundle/js/
 	NODE_OPTIONS="--loader=ts-node/esm --no-warnings=ExperimentalWarning" \
 		NODE_ENV="production" \
 		npx webpack --mode=production
@@ -48,7 +49,6 @@ zip_firefox:
 	zip -r $(ZIP_FIREFOX_FILE) ./bundle ./manifest.json > /dev/null
 	FILE_HASH=$$(openssl dgst -$(HASH_ALG) -binary $(ZIP_FIREFOX_FILE) | openssl base64 -A); \
 		echo "$(ZIP_FIREFOX_FILE) $(HASH_ALG):$$FILE_HASH"
-
 
 tune2chrome:
 	cp manifest.chrome.json manifest.json
