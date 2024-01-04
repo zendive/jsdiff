@@ -1,4 +1,4 @@
-### ![](./src/img/panel-icon28.png) console.diff()
+### ![](./bundle/img/panel-icon28.png) console.diff()
 
 [![console.diff()](https://storage.googleapis.com/web-dev-uploads/image/WlD8wC6g8khYWPJUsQceQkhXSlv1/tbyBjqi7Zu733AAKA5n4.png)](https://chrome.google.com/webstore/detail/jsdiff-devtool/iefeamoljhdcpigpnpggeiiabpnpgonb)
 
