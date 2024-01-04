@@ -5,12 +5,14 @@ if (chrome.devtools.inspectedWindow.tabId !== null) {
     '/bundle/img/panel-icon28.png',
     '/bundle/jsdiff-panel.html',
     (panel) => {
-      panel.onSearch.addListener(async (cmd, query) => {
-        await chrome.runtime.sendMessage({
-          source: 'jsdiff-devtools-to-panel-search',
-          params: { cmd, query },
-        } as ISearchMessage);
-      });
+      if (typeof panel.onSearch?.addListener === 'function') {
+        panel.onSearch.addListener(async (cmd, query) => {
+          await chrome.runtime.sendMessage({
+            source: 'jsdiff-devtools-to-panel-search',
+            params: { cmd, query },
+          } as ISearchMessage);
+        });
+      }
     }
   );
 }

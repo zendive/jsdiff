@@ -46,4 +46,12 @@ declare global {
     | IProgressMessage
     | IErrorMessage
     | ISearchMessage;
+
+  interface Window {
+    wrappedJSObject: { jsdiff: () => void };
+  }
+
+  // firefox extension context
+  // currently not present in '@types/firefox-webext-browser'
+  function cloneInto(...args: any[]): any;
 }

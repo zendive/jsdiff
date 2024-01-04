@@ -124,6 +124,7 @@ Historically, left side represents the old state and right side the new state.
 ```sh
 make install # to install dependencies
 make all # build for prod and make extension.zip
+make tune2chrome # or tune2firefox for relevant manifest
 make dev # local development
 ```
 
