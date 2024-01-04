@@ -17,7 +17,7 @@
     "extension"
   ],
   "author": "Block Alexander",
-  "license": "proprietary",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/zendive/jsdiff/issues"
   },
