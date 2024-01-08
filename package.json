@@ -24,31 +24,29 @@
   "homepage": "https://github.com/zendive/jsdiff#readme",
   "type": "module",
   "devDependencies": {
-    "@types/chrome": "0.0.251",
+    "@types/chrome": "0.0.256",
     "@types/firefox-webext-browser": "120.0.0",
     "@types/webpack-bundle-analyzer": "4.6.3",
-    "@vue/compiler-sfc": "3.3.8",
+    "@vue/compiler-sfc": "3.4.9",
     "clean-webpack-plugin": "4.0.0",
-    "css-loader": "6.8.1",
-    "esbuild": "0.19.5",
+    "css-loader": "6.9.0",
+    "diff-match-patch": "^1.0.5",
+    "esbuild": "0.19.11",
     "esbuild-loader": "4.0.2",
     "jsondiffpatch": "0.6.0",
-    "prettier": "3.0.3",
-    "sass": "1.69.5",
-    "sass-loader": "13.3.2",
-    "style-loader": "3.3.3",
+    "prettier": "3.1.1",
+    "sass": "1.69.7",
+    "sass-loader": "13.3.3",
+    "style-loader": "3.3.4",
     "ts-node": "10.9.2",
     "typescript": "5.3.3",
-    "vue": "3.4.3",
-    "vue-loader": "17.3.1",
+    "vue": "3.4.9",
+    "vue-loader": "17.4.2",
     "webpack": "5.89.0",
-    "webpack-bundle-analyzer": "4.9.1",
+    "webpack-bundle-analyzer": "4.10.1",
     "webpack-cli": "5.1.4"
   },
   "pnpm": {
-    "overrides": {
-      "postcss@<8.4.31": ">=8.4.31",
-      "semver@>=7.0.0 <7.5.2": ">=7.5.2"
-    }
+    "overrides": {}
   }
 }
