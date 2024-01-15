@@ -12,3 +12,7 @@ export async function SHA256(data: string): Promise<string> {
 
   return digest;
 }
+
+export function isSearchKeyboardEvent(e: KeyboardEvent) {
+  return (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'f';
+}

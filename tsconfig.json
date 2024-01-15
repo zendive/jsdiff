@@ -4,8 +4,8 @@
     "strict": true,
     "strictNullChecks": true,
     "noImplicitAny": true,
-    "moduleResolution": "Node",
-    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "module": "ES2022",
     "lib": ["ESNext", "DOM"],
     "resolveJsonModule": true,
     "esModuleInterop": true,
@@ -13,9 +13,9 @@
     "types": ["chrome", "firefox-webext-browser"],
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
-    }
+      "@/*": ["src/*"],
+    },
   },
   "include": ["src/**/*", "src/**/*.vue"],
-  "exclude": ["bundle", "**/~*.ts"]
+  "exclude": ["bundle", "**/~*.ts"],
 }

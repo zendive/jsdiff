@@ -79,6 +79,10 @@ export default function (
           test: /\.(scss|css)$/,
           use: ['style-loader', 'css-loader', 'sass-loader'],
         },
+        {
+          test: /\.svg/,
+          type: 'asset/resource',
+        },
       ],
     },
 

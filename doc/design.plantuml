@@ -53,8 +53,8 @@ Panel ->o]: Display result
 deactivate Panel
 
 === Search in DevTools Panel ==
-[-> User: ctrl+F\ncmd+F
-User -> Panel: jsdiff-devtools-to-panel-search
+User -> Panel: ^+F\n⌘+F
+
 activate Panel
 Panel -> Panel: search in DOM
 Panel ->o]: Display result

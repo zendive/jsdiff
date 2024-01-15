@@ -29,23 +29,10 @@ declare global {
     on: boolean;
   }
 
-  interface ISearchMessage {
-    source: 'jsdiff-devtools-to-panel-search';
-    params: ISearchOptions;
-  }
-
-  type TSearchCommands = 'performSearch' | 'nextSearchResult' | 'cancelSearch';
-
-  interface ISearchOptions {
-    cmd: TSearchCommands;
-    query: string | null;
-  }
-
   type TRuntimeMessageOptions =
     | ICompareMessage
     | IProgressMessage
-    | IErrorMessage
-    | ISearchMessage;
+    | IErrorMessage;
 
   interface Window {
     wrappedJSObject: { jsdiff: () => void };
