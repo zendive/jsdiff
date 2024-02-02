@@ -1,0 +1,71 @@
+@startuml Design
+skinparam style strictuml
+
+box "Devtools"
+actor "User" as User
+end box
+
+box "Firefox Runtime Context"
+participant Console [
+  =Console
+  ----
+  content script
+]
+participant Proxy [
+  =Proxy
+  ----
+  content script
+]
+participant Background [
+  =Background
+]
+database Storage
+participant Panel [
+  =Panel
+  ----
+  DevTools View
+]
+end box
+
+[-> User: Open Devtools
+
+Background <- Panel: jsdiff-devtools-page-connect
+activate Background
+Background <-- Panel: keep alive
+
+=== Invoke API ==
+User -> Console: jsdiff.diff(...)
+activate Console
+  Console -> Proxy: jsdiff-console-\nto-proxy-inprogress
+  activate Proxy
+    Proxy -> Background: jsdiff-proxy-to-panel-inprogress
+  deactivate Proxy
+  Console o->o Console: clone arguments
+  Console -> Proxy: jsdiff-console-\nto-proxy-compare
+deactivate Console
+
+activate Proxy
+  Proxy o<->o Proxy: arrange payload
+  Proxy -> Storage: write payload
+  Proxy --> Background: jsdiff-proxy-to-panel-error
+  Proxy -> Background: jsdiff-proxy-to-panel-compare
+deactivate Proxy
+Background -> Panel: relay all messages
+
+deactivate Background
+
+activate Panel
+  Storage -> Panel: read payload
+  Panel -> Panel: Compare objects
+  Panel ->o]: Display result
+deactivate Panel
+
+=== Search in DevTools Panel ==
+User -> Panel: ^+F\n⌘+F
+
+activate Panel
+  Panel -> Panel: search in DOM
+  Panel ->o]: Display result
+deactivate Panel
+
+@enduml

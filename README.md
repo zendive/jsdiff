@@ -15,9 +15,12 @@ Chrome extension to compare objects in memory with console.diff(old, new) devtoo
 
 </details>
 <details>
-  <summary> <strong>How it works (in chrome mv3)</strong> </summary>
+  <summary> <strong>How it works</strong> </summary>
 
-![screenshot](./doc/design.png)
+- Chrome mv3
+  ![screenshot](./doc/design.chrome.png)
+- Firefox
+  ![screenshot](./doc/design.firefox.png)
 
 </details>
 
