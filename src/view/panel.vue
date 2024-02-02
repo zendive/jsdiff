@@ -19,12 +19,12 @@
 
 <script setup lang="ts">
 import { watch, onUnmounted, ref, watchEffect } from 'vue';
-import { useCompareStore } from '@/stores/compare.store';
-import { useSearchStore } from '@/stores/search.store';
+import { useCompareStore } from '@/stores/compare.store.ts';
+import { useSearchStore } from '@/stores/search.store.ts';
 import PanelHeader from '@/view/panel.header.vue';
 import PanelEmpty from '@/view/panel.empty.vue';
-import { onColourSchemeChange } from '@/api/onColourSchemeChange';
-import diffApi from '@/api/diffApi';
+import { onColourSchemeChange } from '@/api/onColourSchemeChange.ts';
+import diffApi from '@/api/diffApi.ts';
 
 const compareStore = useCompareStore();
 const searchStore = useSearchStore();

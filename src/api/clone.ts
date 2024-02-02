@@ -1,4 +1,4 @@
-import { SHA256 } from '@/api/toolkit';
+import { SHA256 } from '@/api/toolkit.ts';
 import {
   TAG_EXCEPTION,
   TAG_EXCEPTION_FALLBACK,
@@ -13,7 +13,7 @@ import {
   TAG_SYMBOL,
   TAG_UNDEFINED,
   TAG_UNSERIALIZABLE,
-} from './const';
+} from '@/api/const.ts';
 
 type TInstanceBadgeTag = (id: string) => string;
 type TSymbolBadgeTag = (symbolName: string, symbolId: string) => string;

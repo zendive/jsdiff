@@ -1,4 +1,4 @@
-import { post, nativeClone, customClone } from '@/api/clone';
+import { post, nativeClone, customClone } from '@/api/clone.ts';
 
 const consoleAPI = {
   diff: (...args: unknown[]) => {

@@ -1,4 +1,4 @@
-import { hasValue } from './toolkit';
+import { hasValue } from '@/api/toolkit.ts';
 import DiffMatchPatch from 'diff-match-patch';
 import * as jsondiffpatch from 'jsondiffpatch';
 export type { Delta } from 'jsondiffpatch';
@@ -40,7 +40,7 @@ export default {
   },
 
   format(delta: Delta, left: unknown) {
-    return format(delta, left);
+    return format(delta, left) || '';
   },
 
   showUnchanged(show: boolean, el: HTMLElement) {

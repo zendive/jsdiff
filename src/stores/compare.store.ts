@@ -1,10 +1,10 @@
-import diffApi from '@/api/diffApi';
-import type { Delta } from '@/api/diffApi';
-import { hasValue } from '@/api/toolkit';
+import diffApi from '@/api/diffApi.ts';
+import type { Delta } from '@/api/diffApi.ts';
+import { hasValue } from '@/api/toolkit.ts';
 import { defineStore } from 'pinia';
 import { markRaw } from 'vue';
-import { useRuntime } from '@/api/useRuntime';
-import { useSearchStore } from './search.store';
+import { useRuntime } from '@/api/useRuntime.ts';
+import { useSearchStore } from '@/stores/search.store.ts';
 
 function defaultCompareState(): ICompareState {
   return {

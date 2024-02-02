@@ -13,7 +13,7 @@
 import {
   BACKGROUND_SCRIPT_CONNECTION_NAME,
   BACKGROUND_SCRIPT_CONNECTION_INTERVAL,
-} from './const';
+} from '@/api/const.ts';
 
 type TRuntimeListener = (...args: any[]) => void;
 
