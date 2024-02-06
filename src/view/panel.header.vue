@@ -46,8 +46,8 @@
 </template>
 
 <script setup lang="ts">
-import { useCompareStore } from '@/stores/compare.store';
-import { useSearchStore } from '@/stores/search.store';
+import { useCompareStore } from '@/stores/compare.store.ts';
+import { useSearchStore } from '@/stores/search.store.ts';
 import PanelLoader from '@/view/panel.loader.vue';
 import PanelTimer from '@/view/panel.timer.vue';
 import PanelBadge from '@/view/panel.badge.vue';

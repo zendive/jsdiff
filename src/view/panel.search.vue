@@ -27,8 +27,8 @@
 
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from 'vue';
-import { useSearchStore } from '@/stores/search.store';
-import { isSearchKeyboardEvent } from '@/api/toolkit';
+import { useSearchStore } from '@/stores/search.store.ts';
+import { isSearchKeyboardEvent } from '@/api/toolkit.ts';
 
 const searchStore = useSearchStore();
 const searchEl = ref<HTMLInputElement | null>(null);
