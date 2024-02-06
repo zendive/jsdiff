@@ -126,7 +126,10 @@ Historically, left side represents the old state and right side the new state.
 
 ### How to build
 
-- requires npm/nodejs
+Requires
+
+- Linux
+- node 20.10 (LTS)
 
 ```sh
 make install # to install dependencies
