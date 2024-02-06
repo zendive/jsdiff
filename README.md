@@ -1,17 +1,26 @@
-### ![](./src/img/panel-icon28.png) console.diff()
+### ![](./bundle/img/panel-icon28.png) console.diff()
 
 [![console.diff()](https://storage.googleapis.com/web-dev-uploads/image/WlD8wC6g8khYWPJUsQceQkhXSlv1/tbyBjqi7Zu733AAKA5n4.png)](https://chrome.google.com/webstore/detail/jsdiff-devtool/iefeamoljhdcpigpnpggeiiabpnpgonb)
 
 Chrome extension to compare objects in memory with console.diff(old, new) devtools function.
 
 <details>
-  <summary> <strong>Screenshots</strong> </summary>
+  <summary> <strong>Examples</strong> </summary>
 
 - Comparing two objects
   ![screenshot](./doc/screenshot-01.png)
 
 - Tracking changes in localStorage (unchanged are hidden)
   ![screenshot](./doc/screenshot-02.png)
+
+</details>
+<details>
+  <summary> <strong>How it works</strong> </summary>
+
+- Chrome mv3
+  ![screenshot](./doc/design.chrome.png)
+- Firefox
+  ![screenshot](./doc/design.firefox.png)
 
 </details>
 
@@ -35,7 +44,7 @@ Chrome extension to compare objects in memory with console.diff(old, new) devtoo
 
   - JSDiff devtools panel reflects current state of comparison, regardless the tab[s] it was opened from.
 
-- Basic integration with search functionality within devtools:
+- Internal search inside comparison results
 
   - If search query contains at least one upper-case letter - the search will be case-sensitive.
 
@@ -68,6 +77,8 @@ Chrome extension to compare objects in memory with console.diff(old, new) devtoo
 [i10]: https://github.com/zendive/jsdiff/issues/10
 
 - Compared objects, after being serialized, stored in `chrome.storage.local` wich has 10MB limit (before chrome v114 was 5MB).
+
+- In Firefox the API is under `jsdiff` object for now, cause extension API's not fully compatible.
 
 ### API
 
@@ -113,24 +124,24 @@ Historically, left side represents the old state and right side the new state.
 
 - To track changes of the same variable in timed manner you can push it with `diffPush` or `diff` with a single argument, - that will shift objects from right to left, showing differences with previous push state.
 
-### How it works
-
-![screenshot](./doc/design.png)
-
 ### How to build
 
-- requires npm/nodejs
+Requires
+
+- Linux
+- node 20.10 (LTS)
 
 ```sh
 make install # to install dependencies
-make all # build for prod and make extension.zip
+make all # build for prod and make extension.${browser}.zip
+make tune2chrome # or tune2firefox for relevant manifest.json file
 make dev # local development
 ```
 
 ### Protection
 
 - How to protect your site from this extension:
-  - Well, tests show that even `Content-Security-Policy: default-src 'none';` header won't prevent injection of extension content-scripts...
+  - Well, tests on chrome show that even `Content-Security-Policy: default-src 'none';` header won't prevent injection of extension content-scripts...
   - Avoid assigning to `window` or `globalThis` any application object.
     See also [accidental global variables and memory leaks](https://www.tutorialspoint.com/explain-in-detail-about-memory-leaks-in-javascript).
   - In general, you can incapacitate console functions:

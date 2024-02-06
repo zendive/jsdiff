@@ -1,4 +1,9 @@
-import { ERROR, TAG } from '@/api/const';
+import {
+  ERROR_NO_CONNECTION,
+  ERROR_PORT_CLOSED,
+  ERROR_QUOTA_EXCEEDED,
+  TAG_EMPTY,
+} from '@/api/const.ts';
 
 export function proxyMessageGate(
   callbackInprogress: (e: MessageEvent<IProgressMessage>) => void,
@@ -36,8 +41,8 @@ export async function proxyCompareHandler(
       handleResponse
     );
   } catch (error: any) {
-    if (error?.message === ERROR.QUOTA_EXCEEDED) {
-      await chrome.storage.local.set({ lastError: ERROR.QUOTA_EXCEEDED });
+    if (error?.message === ERROR_QUOTA_EXCEEDED) {
+      await chrome.storage.local.set({ lastError: ERROR_QUOTA_EXCEEDED });
 
       chrome.runtime.sendMessage(
         { source: 'jsdiff-proxy-to-panel-error' } as IErrorMessage,
@@ -67,8 +72,8 @@ function processComparisonObject(
 ) {
   if (!old) {
     old = {
-      left: TAG.EMPTY,
-      right: TAG.EMPTY,
+      left: TAG_EMPTY,
+      right: TAG_EMPTY,
       timestamp: Date.now(),
     };
   }
@@ -101,7 +106,7 @@ function handleResponse(): void {
 function isIgnorable(error: chrome.runtime.LastError | undefined): boolean {
   return (
     !error ||
-    error.message === ERROR.NO_CONNECTION ||
-    error.message === ERROR.PORT_CLOSED
+    error.message === ERROR_NO_CONNECTION ||
+    error.message === ERROR_PORT_CLOSED
   );
 }

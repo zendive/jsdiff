@@ -1,5 +1,19 @@
-import { TAG } from '@/api/const';
-import { SHA256 } from '@/api/toolkit';
+import { SHA256 } from '@/api/toolkit.ts';
+import {
+  TAG_EXCEPTION,
+  TAG_EXCEPTION_FALLBACK,
+  TAG_FUNCTION,
+  TAG_NATIVE_FUNCTION,
+  TAG_NULL,
+  TAG_NUMERIC,
+  TAG_RECURRING_ARRAY,
+  TAG_RECURRING_MAP,
+  TAG_RECURRING_OBJECT,
+  TAG_RECURRING_SET,
+  TAG_SYMBOL,
+  TAG_UNDEFINED,
+  TAG_UNSERIALIZABLE,
+} from '@/api/const.ts';
 
 type TInstanceBadgeTag = (id: string) => string;
 type TSymbolBadgeTag = (symbolName: string, symbolId: string) => string;
@@ -71,9 +85,9 @@ export async function post(
         const value = payload[key];
 
         if (value === undefined) {
-          payload[key] = TAG.UNDEFINED;
+          payload[key] = TAG_UNDEFINED;
         } else if (value === null) {
-          payload[key] = TAG.NULL;
+          payload[key] = TAG_NULL;
         } else {
           payload[key] = await cloneFn(value);
         }
@@ -123,26 +137,26 @@ async function recursiveClone(
   let rv = value;
 
   if (isUnserializable(value)) {
-    const { name } = catalog.lookup(value, TAG.UNSERIALIZABLE);
+    const { name } = catalog.lookup(value, TAG_UNSERIALIZABLE);
     rv = name;
   } else if (isFunction(value)) {
     rv = await serializeFunction(value);
   } else if (isSymbol(value)) {
-    const { name } = catalog.lookup(value, TAG.SYMBOL);
+    const { name } = catalog.lookup(value, TAG_SYMBOL);
     rv = name;
   } else if (isArray(value)) {
-    rv = await serializeArrayAlike(catalog, value, TAG.RECURRING_ARRAY);
+    rv = await serializeArrayAlike(catalog, value, TAG_RECURRING_ARRAY);
   } else if (isSet(value)) {
-    rv = await serializeArrayAlike(catalog, value, TAG.RECURRING_SET);
+    rv = await serializeArrayAlike(catalog, value, TAG_RECURRING_SET);
   } else if (isMap(value)) {
     rv = await serializeMap(catalog, value);
   } else if (isObject(value)) {
     rv = await serializeObject(catalog, value);
   } else if (isNumericSpecials(value)) {
-    rv = TAG.NUMERIC(value);
+    rv = TAG_NUMERIC(value);
   } else if (value === undefined) {
     // JsonDiffPatch has problem identifying undefined value - storing a string instead
-    rv = TAG.UNDEFINED;
+    rv = TAG_UNDEFINED;
   }
 
   return rv;
@@ -185,7 +199,7 @@ async function serializeMap(
   catalog: ObjectsCatalog,
   value: Map<unknown, unknown>
 ): Promise<unknown> {
-  const record = catalog.lookup(value, TAG.RECURRING_MAP);
+  const record = catalog.lookup(value, TAG_RECURRING_MAP);
   let rv;
 
   if (record.seen) {
@@ -214,29 +228,29 @@ async function serializeMapKey(
   let rv;
 
   if (isUnserializable(key)) {
-    const { name } = catalog.lookup(key, TAG.UNSERIALIZABLE);
+    const { name } = catalog.lookup(key, TAG_UNSERIALIZABLE);
     rv = name;
   } else if (isFunction(key)) {
     rv = await serializeFunction(key);
   } else if (isSymbol(key)) {
-    const { name } = catalog.lookup(key, TAG.SYMBOL);
+    const { name } = catalog.lookup(key, TAG_SYMBOL);
     rv = name;
   } else if (isArray(key)) {
-    const { name } = catalog.lookup(key, TAG.RECURRING_ARRAY);
+    const { name } = catalog.lookup(key, TAG_RECURRING_ARRAY);
     rv = name;
   } else if (isSet(key)) {
-    const { name } = catalog.lookup(key, TAG.RECURRING_SET);
+    const { name } = catalog.lookup(key, TAG_RECURRING_SET);
     rv = name;
   } else if (isMap(key)) {
-    const { name } = catalog.lookup(key, TAG.RECURRING_MAP);
+    const { name } = catalog.lookup(key, TAG_RECURRING_MAP);
     rv = name;
   } else if (isObject(key)) {
-    const { name } = catalog.lookup(key, TAG.RECURRING_OBJECT);
+    const { name } = catalog.lookup(key, TAG_RECURRING_OBJECT);
     rv = name;
   } else if (isNumericSpecials(key)) {
-    rv = TAG.NUMERIC(key);
+    rv = TAG_NUMERIC(key);
   } else if (key === undefined) {
-    rv = TAG.UNDEFINED;
+    rv = TAG_UNDEFINED;
   } else {
     rv = String(key);
   }
@@ -248,7 +262,7 @@ async function serializeObject(
   catalog: ObjectsCatalog,
   value: object
 ): Promise<unknown> {
-  const record = catalog.lookup(value, TAG.RECURRING_OBJECT);
+  const record = catalog.lookup(value, TAG_RECURRING_OBJECT);
   let rv;
 
   if (record.seen) {
@@ -267,7 +281,7 @@ async function serializeObject(
         let newKey, newValue;
 
         if (isSymbol(key)) {
-          const { name } = catalog.lookup(key, TAG.SYMBOL);
+          const { name } = catalog.lookup(key, TAG_SYMBOL);
           newKey = name;
         } else {
           newKey = key;
@@ -294,10 +308,10 @@ async function serializeFunction(value: IFunction): Promise<string> {
   const fnBody = value.toString();
 
   if (fnBody.endsWith('{ [native code] }')) {
-    return TAG.NATIVE_FUNCTION;
+    return TAG_NATIVE_FUNCTION;
   } else {
     const hash = await SHA256(fnBody);
-    return TAG.FUNCTION(value.name, hash);
+    return TAG_FUNCTION(value.name, hash);
   }
 }
 
@@ -316,8 +330,8 @@ function serializeSelfSerializable(value: IHasToJSON) {
 
 function stringifyError(error: unknown) {
   return typeof error?.toString === 'function'
-    ? TAG.EXCEPTION(error.toString())
-    : TAG.EXCEPTION_FALLBACK;
+    ? TAG_EXCEPTION(error.toString())
+    : TAG_EXCEPTION_FALLBACK;
 }
 
 function nativeClonePostDataAdapter(
@@ -348,15 +362,15 @@ function isArray(that: unknown): that is unknown[] {
   return (
     that instanceof Array ||
     that instanceof Uint8Array ||
+    that instanceof Int8Array ||
     that instanceof Uint8ClampedArray ||
     that instanceof Uint16Array ||
-    that instanceof Uint32Array ||
-    that instanceof BigUint64Array ||
-    that instanceof Int8Array ||
     that instanceof Int16Array ||
+    that instanceof Uint32Array ||
     that instanceof Int32Array ||
-    that instanceof BigInt64Array ||
     that instanceof Float32Array ||
+    that instanceof BigUint64Array ||
+    that instanceof BigInt64Array ||
     that instanceof Float64Array
   );
 }

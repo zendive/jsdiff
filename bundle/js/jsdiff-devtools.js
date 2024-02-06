@@ -1,1 +1,0 @@
-(()=>{"use strict";var n={};chrome.devtools.inspectedWindow.tabId!==null&&chrome.devtools.panels.create("JSDiff","/bundle/img/panel-icon28.png","/bundle/jsdiff-panel.html",e=>{e.onSearch.addListener(async(s,a)=>{await chrome.runtime.sendMessage({source:"jsdiff-devtools-to-panel-search",params:{cmd:s,query:a}})})})})();

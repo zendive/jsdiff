@@ -1,6 +1,6 @@
 {
   "name": "jsdiff",
-  "version": "3.0.4",
+  "version": "3.0.5",
   "description": "Chrome extension to compare objects in memory with console.diff(old, new) devtools function",
   "private": true,
   "scripts": {
@@ -13,41 +13,43 @@
   },
   "keywords": [
     "devtools",
+    "diff",
     "chrome",
     "extension"
   ],
   "author": "Block Alexander",
-  "license": "proprietary",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/zendive/jsdiff/issues"
   },
   "homepage": "https://github.com/zendive/jsdiff#readme",
   "type": "module",
   "devDependencies": {
-    "@types/chrome": "0.0.251",
+    "@types/chrome": "0.0.259",
+    "@types/diff-match-patch": "^1.0.36",
+    "@types/firefox-webext-browser": "120.0.0",
     "@types/webpack-bundle-analyzer": "4.6.3",
-    "@vue/compiler-sfc": "3.3.8",
+    "@vue/compiler-sfc": "3.4.15",
     "clean-webpack-plugin": "4.0.0",
-    "css-loader": "6.8.1",
-    "esbuild": "0.19.5",
-    "esbuild-loader": "4.0.2",
-    "jsondiffpatch": "0.5.0",
-    "prettier": "3.0.3",
-    "sass": "1.69.5",
-    "sass-loader": "13.3.2",
-    "style-loader": "3.3.3",
-    "ts-node": "10.9.1",
-    "typescript": "5.2.2",
-    "vue": "3.3.8",
-    "vue-loader": "17.3.1",
-    "webpack": "5.89.0",
-    "webpack-bundle-analyzer": "4.9.1",
+    "css-loader": "6.10.0",
+    "diff-match-patch": "^1.0.5",
+    "esbuild": "0.20.0",
+    "esbuild-loader": "4.0.3",
+    "jsondiffpatch": "^0.6.0",
+    "pinia": "^2.1.7",
+    "prettier": "3.2.4",
+    "sass": "1.70.0",
+    "sass-loader": "14.1.0",
+    "style-loader": "3.3.4",
+    "ts-node": "10.9.2",
+    "typescript": "5.3.3",
+    "vue": "3.4.15",
+    "vue-loader": "17.4.2",
+    "webpack": "5.90.0",
+    "webpack-bundle-analyzer": "4.10.1",
     "webpack-cli": "5.1.4"
   },
   "pnpm": {
-    "overrides": {
-      "postcss@<8.4.31": ">=8.4.31",
-      "semver@>=7.0.0 <7.5.2": ">=7.5.2"
-    }
+    "overrides": {}
   }
 }

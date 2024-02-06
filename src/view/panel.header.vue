@@ -1,82 +1,68 @@
 <template>
   <header class="header">
-    <panel-loader v-if="props.pending" />
+    <panel-loader v-if="!compareStore.initialized || compareStore.inprogress" />
 
-    <div v-if="props.showControls" class="-toolbox">
+    <div v-if="compareStore.hasBothSides" class="-toolbox">
       <button
+        v-if="compareStore.deltaObj"
         class="btn"
         title="Hide/Show unchanged properties"
         @click="emit('toggleUnchanged')"
-        v-text="'Toggle Unchanged'"
-      />
+      >
+        <span
+          class="icon -toggle-unchanged"
+          :class="{
+            '-on': compareStore.showOnlyChanged,
+          }"
+        />
+      </button>
 
       <button
+        v-if="compareStore.deltaObj"
         class="btn"
         title="Copy delta as json object"
         @click="emit('copyDelta')"
-        v-text="'Copy'"
-      />
+      >
+        <span class="icon -copy" />
+      </button>
 
-      <button
-        class="btn"
-        :title="`Clear results (${props.storagaSize})`"
-        @click="emit('clearResults')"
-        v-text="'Clear'"
-      />
+      <button class="btn" title="Clear results" @click="onClearResults">
+        <span class="icon -clear" />
+      </button>
 
-      <div class="-last-updated">
-        <span v-text="'⏱️'" title="Last updated" />&nbsp;
-        <span
-          class="-value"
-          v-text="props.elapsedTime"
-          :title="props.envokedTime"
-        />
-      </div>
+      <panel-search v-if="compareStore.deltaObj" />
+      <panel-timer />
     </div>
 
     <div
-      v-if="props.lastError"
+      v-if="compareStore.lastError"
       class="-last-error"
       :title="'Last error'"
-      v-text="props.lastError"
+      v-text="compareStore.lastError"
     />
 
-    <div class="-badge">
-      <div class="-version" v-text="stale.version" />
-      <a
-        class="-icon"
-        :href="props.linkGitSelf"
-        target="_blank"
-        :title="props.linkGitSelf"
-      >
-        <img src="/bundle/img/panel-icon64.png" alt="JSDiff" />
-      </a>
-    </div>
+    <panel-badge />
   </header>
 </template>
 
 <script setup lang="ts">
-import packageJson from '@/../package.json';
+import { useCompareStore } from '@/stores/compare.store.ts';
+import { useSearchStore } from '@/stores/search.store.ts';
 import PanelLoader from '@/view/panel.loader.vue';
+import PanelTimer from '@/view/panel.timer.vue';
+import PanelBadge from '@/view/panel.badge.vue';
+import PanelSearch from '@/view/panel.search.vue';
 
-const props = defineProps<{
-  pending: boolean;
-  showControls: boolean;
-  lastError: undefined | string;
-  elapsedTime: string;
-  envokedTime: string;
-  storagaSize: number;
-  linkGitSelf: string;
-}>();
-
+const compareStore = useCompareStore();
+const searchStore = useSearchStore();
 const emit = defineEmits<{
   (e: 'toggleUnchanged'): void;
   (e: 'copyDelta'): void;
-  (e: 'clearResults'): void;
 }>();
 
-const stale = {
-  version: packageJson.version,
+const onClearResults = () => {
+  compareStore.clear();
+  searchStore.clear();
 };
 </script>
 
@@ -89,7 +75,6 @@ const stale = {
   display: flex;
   align-items: center;
   height: var(--header-height);
-
   min-width: 512px;
   user-select: none;
 
@@ -97,9 +82,11 @@ const stale = {
     display: flex;
     justify-content: center;
     align-items: center;
-    padding-left: 10px;
 
     .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
       height: var(--header-height);
       cursor: pointer;
       border: none;
@@ -107,21 +94,41 @@ const stale = {
       outline: none;
       background-color: var(--button-background);
       color: var(--colour-text);
-      margin: 0 2px;
 
       &:hover {
-        background-color: var(--button-hackground-hover);
+        background-color: var(--button-background-hover);
       }
     }
 
-    .-last-updated {
-      cursor: default;
+    .panel-timer {
       margin-left: 10px;
+    }
+  }
 
-      .-value {
-        font-weight: bold;
-        color: var(--colour-text);
-        opacity: 0.5;
+  .icon {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    background-color: var(--colour-text);
+    -webkit-mask-size: cover;
+    mask-size: cover;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+
+    &.-clear {
+      -webkit-mask-image: url(@/view/svg/clear.svg);
+      mask-image: url(@/view/svg/clear.svg);
+    }
+    &.-copy {
+      -webkit-mask-image: url(@/view/svg/copy-to-clipboard.svg);
+      mask-image: url(@/view/svg/copy-to-clipboard.svg);
+    }
+    &.-toggle-unchanged {
+      -webkit-mask-image: url(@/view/svg/filter.svg);
+      mask-image: url(@/view/svg/filter.svg);
+      &.-on {
+        -webkit-mask-image: url(@/view/svg/filter-filled.svg);
+        mask-image: url(@/view/svg/filter-filled.svg);
       }
     }
   }
@@ -132,26 +139,6 @@ const stale = {
     align-items: center;
     padding-left: 10px;
     color: rgb(182, 33, 33);
-  }
-
-  .-badge {
-    position: fixed;
-    top: 0;
-    right: 1rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 4px 4px;
-
-    .-version {
-      font-family: monospace;
-    }
-
-    .-icon {
-      img {
-        width: 32px;
-      }
-    }
   }
 }
 </style>

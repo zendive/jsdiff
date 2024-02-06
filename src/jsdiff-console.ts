@@ -1,6 +1,6 @@
-import { post, nativeClone, customClone } from '@/api/clone';
+import { post, nativeClone, customClone } from '@/api/clone.ts';
 
-Object.assign(console, {
+const consoleAPI = {
   diff: (...args: unknown[]) => {
     post(
       customClone,
@@ -31,6 +31,18 @@ Object.assign(console, {
         : { left: args[0], right: args[1], timestamp: Date.now() }
     );
   },
-});
+};
 
-console.debug(`✚ console.diff()`);
+if (typeof browser === 'undefined') {
+  // chrome
+  Object.assign(console, consoleAPI);
+  console.debug(`✚ console.diff()`);
+} else if (typeof cloneInto === 'function') {
+  // firefox
+  // the technic described in:
+  // @link: https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Sharing_objects_with_page_scripts
+  window.wrappedJSObject.jsdiff = cloneInto(consoleAPI, window, {
+    cloneFunctions: true,
+  });
+  console.debug(`✚ jsdiff.diff()`);
+}

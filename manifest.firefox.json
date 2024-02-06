@@ -1,0 +1,34 @@
+{
+  "manifest_version": 3,
+  "name": "jsdiff.diff(...)",
+  "version": "3.0.5",
+  "description": "Compare objects in memory with jsdiff.diff(old, new) devtools function",
+  "minimum_chrome_version": "100.0",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "calexblock@gmail.com",
+      "strict_min_version": "120.0"
+    }
+  },
+  "homepage_url": "https://github.com/zendive/jsdiff",
+  "author": "calexblock@gmail.com",
+  "permissions": ["storage", "devtools", "activeTab"],
+  "host_permissions": ["<all_urls>"],
+  "background": {
+    "scripts": ["bundle/js/firefox/jsdiff-background.js"]
+  },
+  "devtools_page": "bundle/jsdiff-devtools.html",
+  "icons": {
+    "28": "bundle/img/panel-icon28.png",
+    "64": "bundle/img/panel-icon64.png",
+    "128": "bundle/img/panel-icon128.png"
+  },
+  "content_scripts": [
+    {
+      "js": ["bundle/js/jsdiff-console.js", "bundle/js/jsdiff-proxy.js"],
+      "matches": ["*://*/*"],
+      "all_frames": true,
+      "run_at": "document_start"
+    }
+  ]
+}

@@ -13,17 +13,22 @@ export default function (
   env: string,
   op: { mode: webpack.Configuration['mode'] }
 ): webpack.Configuration {
-  console.log('⌥', env, op.mode);
   const isProd = op.mode === 'production';
+
+  console.log('⌥', env, op.mode);
+  if (!isProd) {
+    console.log('Bundle anayser available at:', 'http://127.0.0.1:8888');
+  }
 
   return {
     mode: op.mode,
 
     entry: {
       'jsdiff-devtools': './src/jsdiff-devtools.ts',
-      'jsdiff-panel': './src/view/app.js',
+      'jsdiff-panel': './src/jsdiff-panel.js',
       'jsdiff-proxy': './src/jsdiff-proxy.ts',
       'jsdiff-console': './src/jsdiff-console.ts',
+      'firefox/jsdiff-background': './src/firefox/background-script.ts',
     },
 
     output: {
@@ -50,8 +55,9 @@ export default function (
             logLevel: 'silent',
           }),
       new webpack.DefinePlugin({
-        __VUE_OPTIONS_API__: 'true',
+        __VUE_OPTIONS_API__: 'false',
         __VUE_PROD_DEVTOOLS__: 'false',
+        __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: 'false',
       }),
     ],
 
@@ -72,6 +78,10 @@ export default function (
         {
           test: /\.(scss|css)$/,
           use: ['style-loader', 'css-loader', 'sass-loader'],
+        },
+        {
+          test: /\.svg/,
+          type: 'asset/resource',
         },
       ],
     },

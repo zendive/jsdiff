@@ -1,25 +1,23 @@
-export const TAG = {
-  EMPTY: '⟪empty⟫',
-  UNDEFINED: '⟪undefined⟫',
-  NULL: '⟪null⟫',
-  NATIVE_FUNCTION: 'ƒ⟪native⟫',
-  EXCEPTION_FALLBACK: '⁉️ ⟪exception⟫',
-  EXCEPTION: (str: string) => `⁉️ ⟪${str}⟫`,
-  RECURRING_ARRAY: (id: string) => `0x${id}: [♻️]`,
-  RECURRING_OBJECT: (id: string) => `0x${id}: {♻️}`,
-  RECURRING_SET: (id: string) => `0x${id}: Set[♻️]`,
-  RECURRING_MAP: (id: string) => `0x${id}: Map{♻️}`,
-  UNSERIALIZABLE: (id: string) => `0x${id}: ⟪unserializable⟫`,
-  SYMBOL: (name: string, id: string) => `0x${id}: ${name}`,
-  FUNCTION: (name: string, hash: string) =>
-    `ƒ${name ? ` ${name}` : ''}⟪${hash}⟫`,
-  NUMERIC: (value: bigint | number) =>
-    typeof value === 'bigint' ? `BigInt⟪${value}⟫` : `Number⟪${value}⟫`,
-};
-
-export const ERROR = {
-  NO_CONNECTION:
-    'Could not establish connection. Receiving end does not exist.',
-  PORT_CLOSED: 'The message port closed before a response was received.',
-  QUOTA_EXCEEDED: 'QUOTA_BYTES quota exceeded',
-};
+export const TAG_EMPTY = '⟪empty⟫';
+export const TAG_UNDEFINED = '⟪undefined⟫';
+export const TAG_NULL = '⟪null⟫';
+export const TAG_NATIVE_FUNCTION = 'ƒ⟪native⟫';
+export const TAG_EXCEPTION_FALLBACK = '⁉️ ⟪exception⟫';
+export const TAG_EXCEPTION = (str: string) => `⁉️ ⟪${str}⟫`;
+export const TAG_RECURRING_ARRAY = (id: string) => `0x${id}: [♻️]`;
+export const TAG_RECURRING_OBJECT = (id: string) => `0x${id}: {♻️}`;
+export const TAG_RECURRING_SET = (id: string) => `0x${id}: Set[♻️]`;
+export const TAG_RECURRING_MAP = (id: string) => `0x${id}: Map{♻️}`;
+export const TAG_UNSERIALIZABLE = (id: string) => `0x${id}: ⟪unserializable⟫`;
+export const TAG_SYMBOL = (name: string, id: string) => `0x${id}: ${name}`;
+export const TAG_FUNCTION = (name: string, hash: string) =>
+  `ƒ${name ? ` ${name}` : ''}⟪${hash}⟫`;
+export const TAG_NUMERIC = (value: bigint | number) =>
+  typeof value === 'bigint' ? `BigInt⟪${value}⟫` : `Number⟪${value}⟫`;
+export const ERROR_NO_CONNECTION =
+  'Could not establish connection. Receiving end does not exist.';
+export const ERROR_PORT_CLOSED =
+  'The message port closed before a response was received.';
+export const ERROR_QUOTA_EXCEEDED = 'QUOTA_BYTES quota exceeded';
+export const BACKGROUND_SCRIPT_CONNECTION_INTERVAL = 30e3;
+export const BACKGROUND_SCRIPT_CONNECTION_NAME = 'jsdiff-devtools-page-connect';

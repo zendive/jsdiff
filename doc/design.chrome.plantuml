@@ -31,12 +31,12 @@ end box
 User -> Console: console.diff(...)
 
 activate Console
-Console -> Proxy: jsdiff-console-to-proxy-inprogress
+Console -> Proxy: jsdiff-console-\nto-proxy-inprogress
 activate Proxy
   Proxy -> Panel: jsdiff-proxy-to-panel-inprogress
 deactivate Proxy
 Console o->o Console: clone arguments
-Console -> Proxy: jsdiff-console-to-proxy-compare
+Console -> Proxy: jsdiff-console-\nto-proxy-compare
 deactivate Console
 
 activate Proxy
@@ -53,8 +53,8 @@ Panel ->o]: Display result
 deactivate Panel
 
 === Search in DevTools Panel ==
-[-> User: ctrl+F\ncmd+F
-User -> Panel: jsdiff-devtools-to-panel-search
+User -> Panel: ^+F\n⌘+F
+
 activate Panel
 Panel -> Panel: search in DOM
 Panel ->o]: Display result
