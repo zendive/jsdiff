@@ -1,8 +1,9 @@
-### ![](./bundle/img/panel-icon28.png) console.diff()
+### ![](./bundle/img/panel-icon28.png) JSDiff
 
-[![console.diff()](https://storage.googleapis.com/web-dev-uploads/image/WlD8wC6g8khYWPJUsQceQkhXSlv1/tbyBjqi7Zu733AAKA5n4.png)](https://chrome.google.com/webstore/detail/jsdiff-devtool/iefeamoljhdcpigpnpggeiiabpnpgonb)
+An extension for developers that enhances the console API by incorporating the ability to compare objects and adds a JSDiff tab (parallel to Elements, Network panels) within your dev-tools for viewing the results.
 
-Chrome extension to compare objects in memory with console.diff(old, new) devtools function.
+- Available in Chrome Web Store as [console.diff()](https://chromewebstore.google.com/detail/consolediff/iefeamoljhdcpigpnpggeiiabpnpgonb)
+- Available in Firefox Add-ons as [jsdiff.diff()](https://addons.mozilla.org/addon/jsdiff-diff/)
 
 <details>
   <summary> <strong>Examples</strong> </summary>
@@ -34,8 +35,9 @@ Chrome extension to compare objects in memory with console.diff(old, new) devtoo
 - Symple user interface:
 
   - Button to hide/show unchanged properties.
-  - Button to copy changed properties in format of `jsondiffpatch` diff object.
+  - Button to copy changed properties in format of `jsondiffpatch` Delta object.
   - Button to clear current result.
+  - Search input to highlight patterns
   - Indicator of the last update time.
   - Indicator of a fatal error (out of storage memory).
   - Devtools light/dark colour scheme support.
@@ -50,7 +52,7 @@ Chrome extension to compare objects in memory with console.diff(old, new) devtoo
 
 - Using `console.diff` functions from within online code editors like: [codesandbox.io](https://codesandbox.io), [coderpad.io](https://coderpad.io), [flems.io](https://flems.io), [codepen.io](https://codepen.io), [jsfiddle.net](https://jsfiddle.net).
 
-- Functions are included in comparison result in order to detect possible alterations, in form of a string combined from a function name (if present) and a SHA-256 hash of a `function.toString()` body. Native functions are shown as silmply as `ƒ⟪native⟫`.
+- Functions are included in comparison result in order to detect possible alterations, in form of a string combined from a function name (if present) and a SHA-256 hash of a `function.toString()` body. Native functions are shown as `ƒ⟪native⟫`.
 
 - Some DOM objects like Document or Element are not worth to be shown entirely, since that is not the purpose of this extension. So if they are present anywhere, they are serialized as `0x####: ⟪unserializable⟫`.
 
