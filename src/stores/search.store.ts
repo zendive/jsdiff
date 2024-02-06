@@ -127,29 +127,40 @@ function highlightAll(
 
   const containerNodes = <NodeListOf<HTMLElement>>container.childNodes;
 
-  if (containerNodes.length) {
-    const firstChild = containerNodes[0];
+  if (!containerNodes.length) {
+    return;
+  }
 
-    if (containerNodes.length === 1 && firstChild.nodeType === Node.TEXT_NODE) {
-      const text = firstChild.textContent || firstChild.innerText;
-      const found = UPPERCASE_PATTERN.test(query)
-        ? text.includes(query) // case-sensitive
-        : text.toLocaleLowerCase().includes(query); // case-insensitive
-      const isHidden =
-        container.closest('.jsondiffpatch-unchanged-hidden') &&
-        container.closest('.jsondiffpatch-unchanged');
+  const firstChild = containerNodes[0];
+  const isLeafNode =
+    containerNodes.length === 1 && firstChild.nodeType === Node.TEXT_NODE;
 
-      if (found && !isHidden) {
-        container.classList.add('jsdiff-found');
-        els.push(markRaw(container));
-      }
-    } else {
-      for (let n = 0, N = containerNodes.length; n < N; n++) {
-        const child = containerNodes[n];
+  if (isLeafNode) {
+    const text = firstChild.textContent || firstChild.innerText;
+    const hasMatch = UPPERCASE_PATTERN.test(query)
+      ? text.includes(query) // case-sensitive
+      : text.toLocaleLowerCase().includes(query); // case-insensitive
 
-        if (child.nodeType === Node.ELEMENT_NODE) {
-          highlightAll(child, query, els); // recursion
-        }
+    if (!hasMatch) {
+      return;
+    }
+
+    const isHidden =
+      container.closest('.jsondiffpatch-unchanged-hidden') &&
+      container.closest('.jsondiffpatch-unchanged');
+
+    if (isHidden) {
+      return;
+    }
+
+    container.classList.add('jsdiff-found');
+    els.push(markRaw(container));
+  } else {
+    for (let n = 0, N = containerNodes.length; n < N; n++) {
+      const child = containerNodes[n];
+
+      if (child.nodeType === Node.ELEMENT_NODE) {
+        highlightAll(child, query, els); // recursion
       }
     }
   }
