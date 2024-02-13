@@ -13,4 +13,3 @@ updates:
     allow:
       # Allow updates for dpecific dependencies
       - dependency-name: 'jsondiffpatch'
-      - dependency-name: 'vue'
