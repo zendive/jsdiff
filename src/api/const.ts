@@ -21,3 +21,4 @@ export const ERROR_PORT_CLOSED =
 export const ERROR_QUOTA_EXCEEDED = 'QUOTA_BYTES quota exceeded';
 export const BACKGROUND_SCRIPT_CONNECTION_INTERVAL = 30e3;
 export const BACKGROUND_SCRIPT_CONNECTION_NAME = 'jsdiff-devtools-page-connect';
+export const UPPERCASE_PATTERN = /\p{Lu}/u; // 'u' flag enables Unicode matching

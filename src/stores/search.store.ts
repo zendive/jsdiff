@@ -1,3 +1,4 @@
+import { UPPERCASE_PATTERN } from '@/api/const.ts';
 import { defineStore } from 'pinia';
 import { markRaw } from 'vue';
 
@@ -53,6 +54,7 @@ export const useSearchStore = defineStore('searchStore', {
           highlightAll(
             this.deltaEl,
             this.searchQuery,
+            UPPERCASE_PATTERN.test(this.searchQuery),
             /*IN/OUT*/ this.foundEls
           );
           this.currentIndex = -1;
@@ -80,7 +82,6 @@ export const useSearchStore = defineStore('searchStore', {
 
 const CLASS_FOUND = 'jsdiff-found';
 const CLASS_FOUND_THIS = 'jsdiff-found-this';
-const UPPERCASE_PATTERN = /\p{Lu}/u; // 'u' flag enables Unicode matching
 
 function indexInBound(index: number, arrayLength: number): number {
   if (index < 0) {
@@ -119,6 +120,7 @@ function highlightCurrent(el: HTMLElement) {
 function highlightAll(
   container: HTMLElement | null,
   query: string,
+  isCaseSensitive: boolean,
   /*IN/OUT*/ els: HTMLElement[]
 ) {
   if (!container) {
@@ -137,9 +139,9 @@ function highlightAll(
 
   if (isLeafNode) {
     const text = firstChild.textContent || firstChild.innerText;
-    const hasMatch = UPPERCASE_PATTERN.test(query)
-      ? text.includes(query) // case-sensitive
-      : text.toLocaleLowerCase().includes(query); // case-insensitive
+    const hasMatch = isCaseSensitive
+      ? text.includes(query)
+      : text.toLocaleLowerCase().includes(query);
 
     if (!hasMatch) {
       return;
@@ -160,7 +162,7 @@ function highlightAll(
       const child = containerNodes[n];
 
       if (child.nodeType === Node.ELEMENT_NODE) {
-        highlightAll(child, query, els); // recursion
+        highlightAll(child, query, isCaseSensitive, els); // recursion
       }
     }
   }
