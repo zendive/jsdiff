@@ -116,6 +116,21 @@ console.diffRight(Date.now());
 
 - **console.diff\_(\*)** - uses deprecated `nativeClone` serialization method, based of JSON.parse(JSON.stringify(...)), left for backward compatibility
 
+### Typescript
+
+Global Console interface declaration for quick copy/paste when used from typescript:
+
+```typescript
+declare global {
+  interface Console {
+    diff(left: unknown, right?: unknown): void;
+    diffPush(next: unknown): void;
+    diffLeft(left: unknown): void;
+    diffRight(right: unknown): void;
+  }
+}
+```
+
 ### Usage basics
 
 Historically, left side represents the old state and right side the new state.
