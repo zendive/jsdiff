@@ -114,8 +114,6 @@ console.diffLeft(Date.now());
 console.diffRight(Date.now());
 ```
 
-- **console.diff\_(\*)** - uses deprecated `nativeClone` serialization method, based of JSON.parse(JSON.stringify(...)), left for backward compatibility
-
 ### Typescript
 
 Global Console interface declaration for quick copy/paste when used from typescript:

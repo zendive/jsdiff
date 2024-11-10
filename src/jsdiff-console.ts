@@ -1,9 +1,8 @@
-import { post, nativeClone, customClone } from '@/api/clone.ts';
+import { post } from '@/api/clone.ts';
 
 const consoleAPI = {
   diff: (...args: unknown[]) => {
     post(
-      customClone,
       args.length === 1
         ? { push: args[0], timestamp: Date.now() }
         : { left: args[0], right: args[1], timestamp: Date.now() }
@@ -11,25 +10,15 @@ const consoleAPI = {
   },
 
   diffLeft: (left: unknown) => {
-    post(customClone, { left, timestamp: Date.now() });
+    post({ left, timestamp: Date.now() });
   },
 
   diffRight: (right: unknown) => {
-    post(customClone, { right, timestamp: Date.now() });
+    post({ right, timestamp: Date.now() });
   },
 
   diffPush: (push: unknown) => {
-    post(customClone, { push, timestamp: Date.now() });
-  },
-
-  /** @deprecated uses JSON.parse(JSON.stringify(...))*/
-  diff_: (...args: unknown[]) => {
-    post(
-      nativeClone,
-      args.length === 1
-        ? { push: args[0], timestamp: Date.now() }
-        : { left: args[0], right: args[1], timestamp: Date.now() }
-    );
+    post({ push, timestamp: Date.now() });
   },
 };
 

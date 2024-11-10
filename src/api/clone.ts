@@ -70,10 +70,7 @@ class ObjectsCatalog {
   }
 }
 
-export async function post(
-  cloneFn: (value: unknown) => Promise<unknown>,
-  payload: ICompareMessagePayload
-): Promise<void> {
+export async function post(payload: ICompareMessagePayload): Promise<void> {
   try {
     window.postMessage(
       { source: 'jsdiff-console-to-proxy-inprogress', on: true },
@@ -89,7 +86,7 @@ export async function post(
         } else if (value === null) {
           payload[key] = TAG_NULL;
         } else {
-          payload[key] = await cloneFn(value);
+          payload[key] = await customClone(value);
         }
       }
     }
@@ -106,18 +103,6 @@ export async function post(
       '*'
     );
   }
-}
-
-export async function nativeClone(value: unknown): Promise<unknown> {
-  let set: Set<unknown> | null = new Set();
-  const rv = JSON.parse(
-    JSON.stringify(value, nativeClonePostDataAdapter.bind(null, set))
-  );
-
-  set.clear();
-  set = null;
-
-  return rv;
 }
 
 export async function customClone(value: unknown): Promise<unknown> {
@@ -332,30 +317,6 @@ function stringifyError(error: unknown) {
   return typeof error?.toString === 'function'
     ? TAG_EXCEPTION(error.toString())
     : TAG_EXCEPTION_FALLBACK;
-}
-
-function nativeClonePostDataAdapter(
-  set: Set<unknown>,
-  key: string | Symbol,
-  value: unknown
-): unknown {
-  try {
-    if (isUnserializable(value)) {
-      return undefined;
-    } else if (isFunction(value)) {
-      return value.toString();
-    } else if (isObject(value)) {
-      if (set.has(value)) {
-        return undefined;
-      } else {
-        set.add(value);
-      }
-    }
-
-    return value;
-  } catch (error) {
-    return stringifyError(error);
-  }
 }
 
 function isArray(that: unknown): that is unknown[] {
