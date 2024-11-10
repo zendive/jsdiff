@@ -1,13 +1,8 @@
-import path from 'path';
 import webpack from 'webpack';
 import { CleanWebpackPlugin } from 'clean-webpack-plugin';
 import { VueLoaderPlugin } from 'vue-loader';
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
-import { fileURLToPath } from 'url';
 import { EsbuildPlugin } from 'esbuild-loader';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 export default function (
   env: string,
@@ -33,14 +28,14 @@ export default function (
 
     output: {
       filename: '[name].js',
-      path: path.resolve(__dirname, 'bundle/js'),
+      path: new URL('bundle/js', import.meta.url).pathname,
     },
 
     resolve: {
       extensions: ['.ts', '.js'],
-      modules: [path.resolve(__dirname, 'src/js'), 'node_modules'],
+      modules: [new URL('src/js', import.meta.url).pathname, 'node_modules'],
       alias: {
-        '@': path.resolve(__dirname, 'src'),
+        '@': new URL('src', import.meta.url).pathname,
       },
     },
 
@@ -89,7 +84,11 @@ export default function (
     optimization: {
       splitChunks: false,
       minimize: isProd,
-      minimizer: [new EsbuildPlugin()],
+      minimizer: [
+        new EsbuildPlugin({
+          target: 'esnext',
+        }),
+      ],
     },
 
     devtool: isProd ? false : 'source-map',

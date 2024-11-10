@@ -146,7 +146,7 @@ Historically, left side represents the old state and right side the new state.
 Requires
 
 - Linux
-- node 20.10 (LTS)
+- node 22.11 (LTS)
 
 ```sh
 make install # to install dependencies

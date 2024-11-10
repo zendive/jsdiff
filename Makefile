@@ -22,18 +22,18 @@ all:
 	make zip_firefox
 
 lint:
-	npx prettier . --write
-	npx tsc -noEmit
+	pnpm exec prettier . --write
+	pnpm exec tsc -noEmit
 
 dev:
-	NODE_OPTIONS="--loader=ts-node/esm" \
-		npx webpack --progress --watch --mode=development
+	NODE_OPTIONS="--import=tsx --trace-deprecation" \
+		pnpm exec webpack --progress --watch --mode=development
 
 prod:
 	rm -rf ./bundle/js/
-	NODE_OPTIONS="--loader=ts-node/esm --no-warnings=ExperimentalWarning" \
+	NODE_OPTIONS="--import=tsx" \
 		NODE_ENV="production" \
-		npx webpack --mode=production
+		time pnpm exec webpack --mode=production
 
 zip_chrome:
 	make tune2chrome
