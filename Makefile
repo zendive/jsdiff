@@ -3,7 +3,7 @@ ZIP_FIREFOX_FILE="extension.firefox.zip"
 HASH_ALG="sha384"
 
 .PHONY:
-	install clean all lint dev prod zip_chrome zip_firefox
+	install clean all lint test dev prod zip_chrome zip_firefox
 	tune2chrome tune2firefox
 
 install:
@@ -17,6 +17,7 @@ clean:
 
 all:
 	make lint
+	make test
 	make prod
 	make zip_chrome
 	make zip_firefox
@@ -24,6 +25,9 @@ all:
 lint:
 	pnpm exec prettier . --write
 	pnpm exec tsc -noEmit
+
+test:
+	pnpm exec tsx --test
 
 dev:
 	NODE_OPTIONS="--import=tsx --trace-deprecation" \
