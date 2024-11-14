@@ -1,28 +1,20 @@
 <template>
   <section class="-empty">
-    <code v-text="state.codeExample" />
+    <code v-text="APP_CODE_EXAMPLE" />
     <div class="-links">
       <a
-        :href="state.diffApi"
+        :href="APP_DIFFAPI"
         target="_blank"
         v-text="'benjamine/jsondiffpatch'"
       />,
-      <a
-        :href="packageJson.homepage"
-        target="_blank"
-        v-text="'zendive/jsdiff'"
-      />
+      <a :href="APP_HOMEPAGE" target="_blank" v-text="'zendive/jsdiff'" />
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
-import packageJson from '@/../package.json';
-
-const state = {
-  diffApi: 'https://github.com/benjamine/jsondiffpatch',
-  codeExample: `${typeof browser !== 'undefined' ? 'jsdiff' : 'console'}.diff({a:1,b:1,c:3}, {a:1,b:2,d:3});`,
-};
+import { APP_DIFFAPI, APP_CODE_EXAMPLE } from '@/api/const.ts';
+import { APP_HOMEPAGE } from '@/api/env.ts';
 </script>
 
 <style scoped lang="scss">

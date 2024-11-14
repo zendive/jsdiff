@@ -2,11 +2,11 @@ import webpack from 'webpack';
 import { CleanWebpackPlugin } from 'clean-webpack-plugin';
 import { VueLoaderPlugin } from 'vue-loader';
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
-import { EsbuildPlugin } from 'esbuild-loader';
+import manifestJson from './manifest.chrome.json';
 
 export default function (
   env: string,
-  op: { mode: webpack.Configuration['mode'] }
+  op: webpack.Configuration
 ): webpack.Configuration {
   const isProd = op.mode === 'production';
 
@@ -53,6 +53,9 @@ export default function (
         __VUE_OPTIONS_API__: 'false',
         __VUE_PROD_DEVTOOLS__: 'false',
         __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: 'false',
+        __development__: `${!isProd}`,
+        __app_version__: `"${manifestJson.version}"`,
+        __app_homepage__: `"${manifestJson.homepage_url}"`,
       }),
     ],
 
@@ -84,11 +87,6 @@ export default function (
     optimization: {
       splitChunks: false,
       minimize: isProd,
-      minimizer: [
-        new EsbuildPlugin({
-          target: 'esnext',
-        }),
-      ],
     },
 
     devtool: isProd ? false : 'source-map',
