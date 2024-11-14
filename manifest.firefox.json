@@ -10,7 +10,7 @@
       "strict_min_version": "120.0"
     }
   },
-  "homepage_url": "https://github.com/zendive/jsdiff",
+  "homepage_url": "https://github.com/zendive/jsdiff#readme",
   "author": "calexblock@gmail.com",
   "permissions": ["storage", "devtools", "activeTab"],
   "host_permissions": ["<all_urls>"],
