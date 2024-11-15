@@ -3,7 +3,7 @@ ZIP_FIREFOX_FILE="extension.firefox.zip"
 HASH_ALG="sha384"
 
 .PHONY:
-	install clean all lint dev prod zip_chrome zip_firefox
+	install clean all lint test dev prod zip_chrome zip_firefox
 	tune2chrome tune2firefox
 
 install:
@@ -17,23 +17,27 @@ clean:
 
 all:
 	make lint
+	make test
 	make prod
 	make zip_chrome
 	make zip_firefox
 
 lint:
-	npx prettier . --write
-	npx tsc -noEmit
+	pnpm exec prettier . --write
+	pnpm exec tsc -noEmit
+
+test:
+	pnpm exec tsx --test
 
 dev:
-	NODE_OPTIONS="--loader=ts-node/esm" \
-		npx webpack --progress --watch --mode=development
+	NODE_OPTIONS="--import=tsx --trace-deprecation" \
+		pnpm exec webpack --progress --watch --mode=development
 
 prod:
 	rm -rf ./bundle/js/
-	NODE_OPTIONS="--loader=ts-node/esm --no-warnings=ExperimentalWarning" \
+	NODE_OPTIONS="--import=tsx" \
 		NODE_ENV="production" \
-		npx webpack --mode=production
+		time pnpm exec webpack --mode=production
 
 zip_chrome:
 	make tune2chrome

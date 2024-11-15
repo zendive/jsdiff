@@ -1,11 +1,11 @@
 {
   "manifest_version": 3,
   "name": "console.diff(...)",
-  "version": "3.0.5",
+  "version": "3.0.6",
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAlCx2Bl0li+3idvfrH9cQL/MzphafGFqMUA2P+0vbyhwxsxWl0llOaGQbkirX5qCoAVHoUCPqu3hCjpVCv35igPbfqDs5bdLZZmXt2F0HjEQnWI/eZKd9IKcKYMplEeL2BodmpU02VrP1UnUzQHZeeMWk9ybgWOqCimkwliILVubRj5dxNB9AidLwO4Z5iGq/OvW9AJMYdxKxrLP2lF6/GGNcCBg+iCJZwlQOhFB9LbUjytT4ws3bIEX4b5zmWLqGKR1NiZfGug2eCWXt9oEKg2WkbXmBBzFKqxnM/bBUrVR29N9qNgx0f42qnyhsW3Bo4kPzE3d0asXCV5nofLTLEwIDAQAB",
   "description": "Compare objects in memory with console.diff(old, new) devtools function",
   "minimum_chrome_version": "100.0",
-  "homepage_url": "https://github.com/zendive/jsdiff",
+  "homepage_url": "https://github.com/zendive/jsdiff#readme",
   "author": "calexblock@gmail.com",
   "permissions": ["storage"],
   "host_permissions": ["*://*/*"],

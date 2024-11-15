@@ -1,6 +1,10 @@
 export {};
 
 declare global {
+  const __development__: boolean;
+  const __app_version__: string;
+  const __app_homepage__: string;
+
   interface ICompareState {
     timestamp: number;
     left?: unknown;

@@ -1,17 +1,12 @@
-import path from 'path';
 import webpack from 'webpack';
 import { CleanWebpackPlugin } from 'clean-webpack-plugin';
 import { VueLoaderPlugin } from 'vue-loader';
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
-import { fileURLToPath } from 'url';
-import { EsbuildPlugin } from 'esbuild-loader';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import manifestJson from './manifest.chrome.json';
 
 export default function (
   env: string,
-  op: { mode: webpack.Configuration['mode'] }
+  op: webpack.Configuration
 ): webpack.Configuration {
   const isProd = op.mode === 'production';
 
@@ -33,14 +28,14 @@ export default function (
 
     output: {
       filename: '[name].js',
-      path: path.resolve(__dirname, 'bundle/js'),
+      path: new URL('bundle/js', import.meta.url).pathname,
     },
 
     resolve: {
       extensions: ['.ts', '.js'],
-      modules: [path.resolve(__dirname, 'src/js'), 'node_modules'],
+      modules: [new URL('src/js', import.meta.url).pathname, 'node_modules'],
       alias: {
-        '@': path.resolve(__dirname, 'src'),
+        '@': new URL('src', import.meta.url).pathname,
       },
     },
 
@@ -58,6 +53,9 @@ export default function (
         __VUE_OPTIONS_API__: 'false',
         __VUE_PROD_DEVTOOLS__: 'false',
         __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: 'false',
+        __development__: `${!isProd}`,
+        __app_version__: `"${manifestJson.version}"`,
+        __app_homepage__: `"${manifestJson.homepage_url}"`,
       }),
     ],
 
@@ -89,7 +87,6 @@ export default function (
     optimization: {
       splitChunks: false,
       minimize: isProd,
-      minimizer: [new EsbuildPlugin()],
     },
 
     devtool: isProd ? false : 'source-map',

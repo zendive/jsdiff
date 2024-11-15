@@ -1,19 +1,14 @@
 <template>
   <div class="badge">
-    <div class="-version" v-text="packageJson.version" />
-    <a
-      class="-icon"
-      target="_blank"
-      :href="packageJson.homepage"
-      :title="packageJson.homepage"
-    >
+    <div class="-version" v-text="APP_VERSION" />
+    <a class="-icon" target="_blank" :href="APP_HOMEPAGE" :title="APP_HOMEPAGE">
       <img src="/bundle/img/panel-icon64.png" alt="JSDiff" />
     </a>
   </div>
 </template>
 
 <script lang="ts" setup>
-import packageJson from '@/../package.json';
+import { APP_HOMEPAGE, APP_VERSION } from '@/api/env.ts';
 </script>
 
 <style lang="scss" scoped>

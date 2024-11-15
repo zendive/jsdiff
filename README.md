@@ -114,8 +114,6 @@ console.diffLeft(Date.now());
 console.diffRight(Date.now());
 ```
 
-- **console.diff\_(\*)** - uses deprecated `nativeClone` serialization method, based of JSON.parse(JSON.stringify(...)), left for backward compatibility
-
 ### Typescript
 
 Global Console interface declaration for quick copy/paste when used from typescript:
@@ -146,7 +144,7 @@ Historically, left side represents the old state and right side the new state.
 Requires
 
 - Linux
-- node 20.10 (LTS)
+- node 22.11 (LTS)
 
 ```sh
 make install # to install dependencies
