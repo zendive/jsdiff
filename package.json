@@ -6,7 +6,6 @@
     "@types/firefox-webext-browser": "120.0.4",
     "@types/webpack-bundle-analyzer": "4.7.0",
     "@vue/compiler-sfc": "3.5.12",
-    "clean-webpack-plugin": "4.0.0",
     "css-loader": "7.1.2",
     "diff-match-patch": "1.0.5",
     "esbuild": "0.24.0",

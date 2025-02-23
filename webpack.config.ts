@@ -1,5 +1,4 @@
 import webpack from 'webpack';
-import { CleanWebpackPlugin } from 'clean-webpack-plugin';
 import { VueLoaderPlugin } from 'vue-loader';
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 import manifestJson from './manifest.chrome.json';
@@ -40,7 +39,6 @@ export default function (
     },
 
     plugins: [
-      new CleanWebpackPlugin(),
       new VueLoaderPlugin(),
       isProd
         ? () => {}

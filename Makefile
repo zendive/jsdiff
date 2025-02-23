@@ -30,6 +30,7 @@ test:
 	pnpm exec tsx --test
 
 dev:
+	rm -rf ./bundle/js/
 	NODE_OPTIONS="--import=tsx --trace-deprecation" \
 		pnpm exec webpack --progress --watch --mode=development
 
