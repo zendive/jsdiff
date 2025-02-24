@@ -33,16 +33,12 @@ interface IHasToJSON {
   toJSON: () => unknown;
 }
 
-class ObjectsCatalog {
-  #records: Map<unknown, ICatalogRecord>;
+class LookupCatalog {
+  #records: WeakMap<WeakKey, ICatalogRecord>;
   #instanceCounter = 0;
 
   constructor() {
-    this.#records = new Map();
-  }
-
-  clear() {
-    this.#records.clear();
+    this.#records = new WeakMap();
   }
 
   #counterToString(counter: number): string {
@@ -50,22 +46,22 @@ class ObjectsCatalog {
   }
 
   lookup(
-    value: unknown,
+    key: WeakKey,
     badge: TInstanceBadgeTag | TSymbolBadgeTag
   ): ICatalogRecord {
-    let record = this.#records.get(value);
-
-    if (!record) {
-      ++this.#instanceCounter;
-      const id = this.#counterToString(this.#instanceCounter);
-      record = {
-        name: isSymbol(value)
-          ? (badge as TSymbolBadgeTag)(value.toString(), id)
-          : (badge as TInstanceBadgeTag)(id),
-        seen: false,
-      };
-      this.#records.set(value, record);
+    let record = this.#records.get(key);
+    if (record) {
+      return record;
     }
+
+    const id = this.#counterToString(++this.#instanceCounter);
+    record = {
+      name: isSymbol(key)
+        ? badge(key.toString(), id)
+        : (badge as TInstanceBadgeTag)(id),
+      seen: false,
+    };
+    this.#records.set(key, record);
 
     return record;
   }
@@ -107,16 +103,13 @@ export function post(payload: ICompareMessagePayload) {
 }
 
 export function customClone(value: unknown) {
-  let catalog: ObjectsCatalog | null = new ObjectsCatalog();
+  let catalog: LookupCatalog | null = new LookupCatalog();
   const rv = recursiveClone(catalog, value);
-
-  catalog.clear();
   catalog = null;
-
   return rv;
 }
 
-function recursiveClone(catalog: ObjectsCatalog, value: unknown) {
+function recursiveClone(catalog: LookupCatalog, value: unknown) {
   let rv = value;
 
   if (isUnserializable(value)) {
@@ -148,7 +141,7 @@ function recursiveClone(catalog: ObjectsCatalog, value: unknown) {
 }
 
 function serializeArrayAlike(
-  catalog: ObjectsCatalog,
+  catalog: LookupCatalog,
   value: unknown[] | Set<unknown>,
   badge: TInstanceBadgeTag
 ): unknown[] | string {
@@ -171,7 +164,7 @@ function serializeArrayAlike(
   return rv;
 }
 
-function serializeMap(catalog: ObjectsCatalog, value: Map<unknown, unknown>) {
+function serializeMap(catalog: LookupCatalog, value: Map<unknown, unknown>) {
   const record = catalog.lookup(value, TAG_RECURRING_MAP);
   let rv;
 
@@ -194,7 +187,7 @@ function serializeMap(catalog: ObjectsCatalog, value: Map<unknown, unknown>) {
   return rv;
 }
 
-function serializeMapKey(catalog: ObjectsCatalog, key: unknown): string {
+function serializeMapKey(catalog: LookupCatalog, key: unknown): string {
   let rv;
 
   if (isUnserializable(key)) {
@@ -230,7 +223,7 @@ function serializeMapKey(catalog: ObjectsCatalog, key: unknown): string {
   return rv;
 }
 
-function serializeObject(catalog: ObjectsCatalog, value: object) {
+function serializeObject(catalog: LookupCatalog, value: object) {
   const record = catalog.lookup(value, TAG_RECURRING_OBJECT);
   let rv;
 
@@ -361,7 +354,7 @@ function isSelfSerializableObject(that: unknown): that is IHasToJSON {
   return rv;
 }
 
-function isUnserializable(that: unknown): boolean {
+function isUnserializable(that: unknown): that is Element | Document {
   return that instanceof Element || that instanceof Document;
 }
 
