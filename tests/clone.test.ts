@@ -8,9 +8,9 @@ Object.assign(globalThis, {
   Document: class Document {},
 });
 
-test('clone unserializable', async () => {
+test('clone unserializable', () => {
   assert.deepEqual(
-    await customClone({
+    customClone({
       el: new Element(),
       doc: new Document(),
     }),
@@ -21,33 +21,39 @@ test('clone unserializable', async () => {
   );
 });
 
-test('clone functions', async () => {
+test('clone functions', () => {
   assert.deepEqual(
-    await customClone({
+    customClone({
       fn0: function Fn0() {},
       fn1: function () {},
       fn2: () => {},
     }),
     {
-      fn0: 'ƒ Fn0⟪8A5F41BBB08DE4034EDBB5A85E3F08635659641049AD882791C00B571368ED7B⟫',
-      fn1: 'ƒ fn1⟪5EF5D1AC865D5989C69073DAFA4C847FA199F1777C72DFB16A5D61104B6BC6F3⟫',
-      fn2: 'ƒ fn2⟪DEC7A076DEC41531DA7F2D40BD4B896E27D45DD09ECD541190941BF88E6DE894⟫',
+      fn0: 'ƒ Fn0⟪8a5f41bbb08de4034edbb5a85e3f08635659641049ad882791c00b571368ed7b⟫',
+      fn1: 'ƒ fn1⟪5ef5d1ac865d5989c69073dafa4c847fa199f1777c72dfb16a5d61104b6bc6f3⟫',
+      fn2: 'ƒ fn2⟪dec7a076dec41531da7f2d40bd4b896e27d45dd09ecd541190941bf88e6de894⟫',
     }
   );
 
   assert.deepEqual(
-    await customClone([function Fn0() {}, function () {}, () => {}]),
-    [
-      'ƒ Fn0⟪8A5F41BBB08DE4034EDBB5A85E3F08635659641049AD882791C00B571368ED7B⟫',
-      'ƒ⟪5EF5D1AC865D5989C69073DAFA4C847FA199F1777C72DFB16A5D61104B6BC6F3⟫',
-      'ƒ⟪DEC7A076DEC41531DA7F2D40BD4B896E27D45DD09ECD541190941BF88E6DE894⟫',
-    ]
+    customClone(
+      new Map([
+        [function Fn0() {}, 0],
+        [function () {}, 1],
+        [() => {}, 2],
+      ])
+    ),
+    {
+      'ƒ Fn0⟪8a5f41bbb08de4034edbb5a85e3f08635659641049ad882791c00b571368ed7b⟫': 0,
+      'ƒ⟪5ef5d1ac865d5989c69073dafa4c847fa199f1777c72dfb16a5d61104b6bc6f3⟫': 1,
+      'ƒ⟪dec7a076dec41531da7f2d40bd4b896e27d45dd09ecd541190941bf88e6de894⟫': 2,
+    }
   );
 });
 
-test('clone symbols', async () => {
+test('clone symbols', () => {
   assert.deepEqual(
-    await customClone({
+    customClone({
       s0: Symbol(),
       s1: Symbol('named'),
     }),
@@ -58,7 +64,7 @@ test('clone symbols', async () => {
   );
 });
 
-test('clone array alike', async () => {
+test('clone array alike', () => {
   const arrays = [
     new Array(0, 1),
     new Uint8Array([0, 1]),
@@ -76,16 +82,16 @@ test('clone array alike', async () => {
 
   for (const array of arrays) {
     if (typeof array[0] === 'bigint') {
-      assert.deepEqual(await customClone(array), ['BigInt⟪0⟫', 'BigInt⟪1⟫']);
+      assert.deepEqual(customClone(array), ['BigInt⟪0⟫', 'BigInt⟪1⟫']);
     } else {
-      assert.deepEqual(await customClone(array), [0, 1]);
+      assert.deepEqual(customClone(array), [0, 1]);
     }
   }
 });
 
-test('clone set', async () => {
+test('clone set', () => {
   assert.deepEqual(
-    await customClone({
+    customClone({
       set: new Set<any>([0, 1]),
     }),
     {
@@ -94,9 +100,9 @@ test('clone set', async () => {
   );
 });
 
-test('clone map', async () => {
+test('clone map', () => {
   assert.deepEqual(
-    await customClone({
+    customClone({
       map: new Map<any, any>([
         [0, 1],
         ['key1', 1],
@@ -115,11 +121,11 @@ test('clone map', async () => {
   );
 });
 
-test('clone object', async () => {
+test('clone object', () => {
   const obj0 = { obj: {} };
 
   assert.deepEqual(
-    await customClone({
+    customClone({
       obj0: obj0,
       obj1: {
         obj0: obj0,
@@ -136,9 +142,9 @@ test('clone object', async () => {
   );
 });
 
-test('clone special numerics', async () => {
+test('clone special numerics', () => {
   assert.deepEqual(
-    await customClone({
+    customClone({
       bigint: 0n,
       nan: NaN,
       negativeInf: -Infinity,
@@ -153,13 +159,13 @@ test('clone special numerics', async () => {
   );
 });
 
-test('clone undefined', async () => {
-  assert.deepEqual(await customClone(undefined), '⟪undefined⟫');
+test('clone undefined', () => {
+  assert.deepEqual(customClone(undefined), '⟪undefined⟫');
 });
 
-test('clone RegExp', async () => {
+test('clone RegExp', () => {
   assert.deepEqual(
-    await customClone({
+    customClone({
       test1: new RegExp('test1', 'gim'),
       test2: /test2/gim,
       map: new Map<any, any>([[/test3/gim, 'map-key-value']]),

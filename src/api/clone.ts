@@ -1,4 +1,4 @@
-import { SHA256 } from '@/api/toolkit.ts';
+import { hashString } from '@/api/toolkit.ts';
 import {
   TAG_EXCEPTION,
   TAG_EXCEPTION_FALLBACK,
@@ -71,7 +71,7 @@ class ObjectsCatalog {
   }
 }
 
-export async function post(payload: ICompareMessagePayload): Promise<void> {
+export function post(payload: ICompareMessagePayload) {
   try {
     window.postMessage(
       { source: 'jsdiff-console-to-proxy-inprogress', on: true },
@@ -87,7 +87,7 @@ export async function post(payload: ICompareMessagePayload): Promise<void> {
         } else if (value === null) {
           payload[key] = TAG_NULL;
         } else {
-          payload[key] = await customClone(value);
+          payload[key] = customClone(value);
         }
       }
     }
@@ -106,9 +106,9 @@ export async function post(payload: ICompareMessagePayload): Promise<void> {
   }
 }
 
-export async function customClone(value: unknown): Promise<unknown> {
+export function customClone(value: unknown) {
   let catalog: ObjectsCatalog | null = new ObjectsCatalog();
-  const rv = await recursiveClone(catalog, value);
+  const rv = recursiveClone(catalog, value);
 
   catalog.clear();
   catalog = null;
@@ -116,45 +116,42 @@ export async function customClone(value: unknown): Promise<unknown> {
   return rv;
 }
 
-async function recursiveClone(
-  catalog: ObjectsCatalog,
-  value: unknown
-): Promise<unknown> {
+function recursiveClone(catalog: ObjectsCatalog, value: unknown) {
   let rv = value;
 
   if (isUnserializable(value)) {
     const { name } = catalog.lookup(value, TAG_UNSERIALIZABLE);
     rv = name;
   } else if (isFunction(value)) {
-    rv = await serializeFunction(value);
+    rv = serializeFunction(value);
   } else if (isSymbol(value)) {
     const { name } = catalog.lookup(value, TAG_SYMBOL);
     rv = name;
   } else if (isRegExp(value)) {
     rv = TAG_REGEXP(value);
   } else if (isArray(value)) {
-    rv = await serializeArrayAlike(catalog, value, TAG_RECURRING_ARRAY);
+    rv = serializeArrayAlike(catalog, value, TAG_RECURRING_ARRAY);
   } else if (isSet(value)) {
-    rv = await serializeArrayAlike(catalog, value, TAG_RECURRING_SET);
+    rv = serializeArrayAlike(catalog, value, TAG_RECURRING_SET);
   } else if (isMap(value)) {
-    rv = await serializeMap(catalog, value);
+    rv = serializeMap(catalog, value);
   } else if (isObject(value)) {
-    rv = await serializeObject(catalog, value);
+    rv = serializeObject(catalog, value);
   } else if (isNumericSpecials(value)) {
     rv = TAG_NUMERIC(value);
   } else if (value === undefined) {
-    // JsonDiffPatch has problem identifying undefined value - storing a string instead
+    // JsonDiffPatch has a problem comparing with undefined value - storing a string instead
     rv = TAG_UNDEFINED;
   }
 
   return rv;
 }
 
-async function serializeArrayAlike(
+function serializeArrayAlike(
   catalog: ObjectsCatalog,
   value: unknown[] | Set<unknown>,
   badge: TInstanceBadgeTag
-): Promise<unknown[] | string> {
+): unknown[] | string {
   const record = catalog.lookup(value, badge);
   let rv;
 
@@ -165,7 +162,7 @@ async function serializeArrayAlike(
     const arr = [];
 
     for (const v of value) {
-      arr.push(await recursiveClone(catalog, v));
+      arr.push(recursiveClone(catalog, v));
     }
 
     rv = arr;
@@ -174,10 +171,7 @@ async function serializeArrayAlike(
   return rv;
 }
 
-async function serializeMap(
-  catalog: ObjectsCatalog,
-  value: Map<unknown, unknown>
-): Promise<unknown> {
+function serializeMap(catalog: ObjectsCatalog, value: Map<unknown, unknown>) {
   const record = catalog.lookup(value, TAG_RECURRING_MAP);
   let rv;
 
@@ -188,8 +182,8 @@ async function serializeMap(
     const obj = {} as ISerializeToObject;
 
     for (const [k, v] of value) {
-      const newKey = await serializeMapKey(catalog, k);
-      const newValue = await recursiveClone(catalog, v);
+      const newKey = serializeMapKey(catalog, k);
+      const newValue = recursiveClone(catalog, v);
 
       obj[newKey] = newValue;
     }
@@ -200,17 +194,14 @@ async function serializeMap(
   return rv;
 }
 
-async function serializeMapKey(
-  catalog: ObjectsCatalog,
-  key: unknown
-): Promise<string> {
+function serializeMapKey(catalog: ObjectsCatalog, key: unknown): string {
   let rv;
 
   if (isUnserializable(key)) {
     const { name } = catalog.lookup(key, TAG_UNSERIALIZABLE);
     rv = name;
   } else if (isFunction(key)) {
-    rv = await serializeFunction(key);
+    rv = serializeFunction(key);
   } else if (isSymbol(key)) {
     const { name } = catalog.lookup(key, TAG_SYMBOL);
     rv = name;
@@ -239,10 +230,7 @@ async function serializeMapKey(
   return rv;
 }
 
-async function serializeObject(
-  catalog: ObjectsCatalog,
-  value: object
-): Promise<unknown> {
+function serializeObject(catalog: ObjectsCatalog, value: object) {
   const record = catalog.lookup(value, TAG_RECURRING_OBJECT);
   let rv;
 
@@ -253,7 +241,7 @@ async function serializeObject(
 
     if (isSelfSerializableObject(value)) {
       const newValue = serializeSelfSerializable(value);
-      rv = await recursiveClone(catalog, newValue);
+      rv = recursiveClone(catalog, newValue);
     } else {
       const obj = {} as ISerializeToObject;
       const ownKeys = Reflect.ownKeys(value);
@@ -270,7 +258,7 @@ async function serializeObject(
 
         try {
           // accessing value by key may throw
-          newValue = await recursiveClone(catalog, (value as any)[key]);
+          newValue = recursiveClone(catalog, (value as any)[key]);
         } catch (error) {
           newValue = stringifyError(error);
         }
@@ -285,13 +273,13 @@ async function serializeObject(
   return rv;
 }
 
-async function serializeFunction(value: IFunction): Promise<string> {
+function serializeFunction(value: IFunction): string {
   const fnBody = value.toString();
 
   if (fnBody.endsWith('{ [native code] }')) {
     return TAG_NATIVE_FUNCTION;
   } else {
-    const hash = await SHA256(fnBody);
+    const hash = hashString(fnBody);
     return TAG_FUNCTION(value.name, hash);
   }
 }
