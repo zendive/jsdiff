@@ -19,8 +19,8 @@ all:
 	make lint
 	make test
 	make prod
-	make zip_chrome
 	make zip_firefox
+	make zip_chrome
 
 lint:
 	pnpm exec prettier . --write
