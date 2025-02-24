@@ -55,15 +55,17 @@ An extension for developers that enhances the console API by incorporating the a
 
 - Functions are included in comparison result in order to detect possible alterations, in form of a string combined from a function name (if present) and a hash of a `function.toString()` body. Native functions are shown as `ƒ⟪native⟫`.
 
-- Some DOM objects like Document or Element are not worth to be shown entirely, since that is not the purpose of this extension. So if they are present anywhere, they are serialized as `0x####: ⟪DOM⟫`.
+- Some DOM objects like `Document` or `Element` are not worth to be shown entirely, since that is not the purpose of this extension. So if they are present anywhere, they are serialized as `0x####: ⟪DOM⟫`.
 
-- Object, Array, Map, Set - serialized only once and the rest of their occurrences are mentioned with unique reference like: `0x####: {♻️}`, `0x####: [♻️]`, `0x####: Map{♻️}`, `0x####: Set[♻️]` respectively.
+- `Object`, `Array`, `Map`, `Set` - serialized only once and the rest of their occurrences are mentioned with unique reference like: `0x####: {♻️}`, `0x####: [♻️]`, `0x####: Map{♻️}`, `0x####: Set[♻️]` respectively.
 
-  - Map keys, unless they are primitive types, serialized by their pseudo ids.
+  - `Map` keys, unless they are primitive types, serialized by their pseudo ids.
 
-- Symbols serialized with his pseudo `id` like: `0x####: Symbol(name)`.
+- `Symbol` serialized with his pseudo `id` like: `0x####: Symbol(name)`.
 
-- Serialization of numerics like `+/-Infinity`, `NaN`, `BigInt`, or `undefined` serialized like: `Number⟪Infinity⟫`, `Number⟪NaN⟫`, `BigInt⟪#⟫`, `⟪undefined⟫` respectively.
+- `RegExp` serialized as `RegExp⟪/example/i⟫`.
+
+- Serialization of numerics like `±Infinity`, `NaN`, `BigInt`, or `undefined` serialized like: `Number⟪±Infinity⟫`, `Number⟪NaN⟫`, `BigInt⟪#⟫`, `⟪undefined⟫` respectively.
 
 - Fail-safe serialization of objects having security issues while accessing their properties.
 
@@ -79,7 +81,7 @@ An extension for developers that enhances the console API by incorporating the a
 
 [i10]: https://github.com/zendive/jsdiff/issues/10
 
-- Compared objects, after being serialized, stored in `chrome.storage.local` which has 10 MB limit (before Chrome v114 was 5 MB).
+- Compared objects, after being serialized, stored in `chrome.storage.local` which has 10 MB limit.
 
 - In Firefox the API is under `jsdiff` object for now, cause extension API's not fully compatible.
 
@@ -140,18 +142,16 @@ Historically, left side represents the old state and right side the new state.
 
 - To track changes of the same variable in timed manner you can push it with `diffPush` or `diff` with a single argument, - that will shift objects from right to left, showing differences with previous push state.
 
-### How to build
-
-Requires
+### Build instructions
 
 - Linux
 - node 22.14 (LTS)
 
 ```sh
-make install # install dependencies
-make all # build for prod and make extension.${browser}.zip
-make tune2chrome # or tune2firefox for relevant manifest.json file
-make dev # local development
+make install      # install dependencies
+make all          # build for prod and make extension.${browser}.zip
+make tune2chrome  # or tune2firefox for relevant manifest.json file
+make dev          # local development
 ```
 
 ### Protection
