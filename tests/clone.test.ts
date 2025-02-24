@@ -15,8 +15,8 @@ test('clone unserializable', () => {
       doc: new Document(),
     }),
     {
-      el: '0x0002: ⟪unserializable⟫',
-      doc: '0x0003: ⟪unserializable⟫',
+      el: '0x0002: ⟪DOM⟫',
+      doc: '0x0003: ⟪DOM⟫',
     }
   );
 });

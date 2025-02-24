@@ -13,7 +13,7 @@ import {
   TAG_REGEXP,
   TAG_SYMBOL,
   TAG_UNDEFINED,
-  TAG_UNSERIALIZABLE,
+  TAG_DOM_ELEMENT,
 } from '@/api/const.ts';
 
 type TInstanceBadgeTag = (id: string) => string;
@@ -112,8 +112,8 @@ export function customClone(value: unknown) {
 function recursiveClone(catalog: LookupCatalog, value: unknown) {
   let rv = value;
 
-  if (isUnserializable(value)) {
-    const { name } = catalog.lookup(value, TAG_UNSERIALIZABLE);
+  if (isDOM(value)) {
+    const { name } = catalog.lookup(value, TAG_DOM_ELEMENT);
     rv = name;
   } else if (isFunction(value)) {
     rv = serializeFunction(value);
@@ -190,8 +190,8 @@ function serializeMap(catalog: LookupCatalog, value: Map<unknown, unknown>) {
 function serializeMapKey(catalog: LookupCatalog, key: unknown): string {
   let rv;
 
-  if (isUnserializable(key)) {
-    const { name } = catalog.lookup(key, TAG_UNSERIALIZABLE);
+  if (isDOM(key)) {
+    const { name } = catalog.lookup(key, TAG_DOM_ELEMENT);
     rv = name;
   } else if (isFunction(key)) {
     rv = serializeFunction(key);
@@ -354,7 +354,7 @@ function isSelfSerializableObject(that: unknown): that is IHasToJSON {
   return rv;
 }
 
-function isUnserializable(that: unknown): that is Element | Document {
+function isDOM(that: unknown): that is Element | Document {
   return that instanceof Element || that instanceof Document;
 }
 
