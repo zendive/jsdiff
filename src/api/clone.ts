@@ -10,6 +10,7 @@ import {
   TAG_RECURRING_MAP,
   TAG_RECURRING_OBJECT,
   TAG_RECURRING_SET,
+  TAG_REGEXP,
   TAG_SYMBOL,
   TAG_UNDEFINED,
   TAG_UNSERIALIZABLE,
@@ -129,6 +130,8 @@ async function recursiveClone(
   } else if (isSymbol(value)) {
     const { name } = catalog.lookup(value, TAG_SYMBOL);
     rv = name;
+  } else if (isRegExp(value)) {
+    rv = TAG_REGEXP(value);
   } else if (isArray(value)) {
     rv = await serializeArrayAlike(catalog, value, TAG_RECURRING_ARRAY);
   } else if (isSet(value)) {
@@ -145,15 +148,6 @@ async function recursiveClone(
   }
 
   return rv;
-}
-
-function isNumericSpecials(value: unknown): value is bigint | number {
-  return (
-    typeof value === 'bigint' ||
-    Number.isNaN(value) ||
-    value === -Infinity ||
-    value === Infinity
-  );
 }
 
 async function serializeArrayAlike(
@@ -220,6 +214,8 @@ async function serializeMapKey(
   } else if (isSymbol(key)) {
     const { name } = catalog.lookup(key, TAG_SYMBOL);
     rv = name;
+  } else if (isRegExp(key)) {
+    rv = TAG_REGEXP(key);
   } else if (isArray(key)) {
     const { name } = catalog.lookup(key, TAG_RECURRING_ARRAY);
     rv = name;
@@ -319,6 +315,15 @@ function stringifyError(error: unknown) {
     : TAG_EXCEPTION_FALLBACK;
 }
 
+function isNumericSpecials(value: unknown): value is bigint | number {
+  return (
+    typeof value === 'bigint' ||
+    Number.isNaN(value) ||
+    value === -Infinity ||
+    value === Infinity
+  );
+}
+
 function isArray(that: unknown): that is unknown[] {
   return (
     that instanceof Array ||
@@ -378,4 +383,8 @@ function isSymbol(that: unknown): that is Symbol {
 
 function isObject(that: unknown): that is object {
   return (that !== null && typeof that === 'object') || that instanceof Object;
+}
+
+function isRegExp(that: unknown): that is RegExp {
+  return that instanceof RegExp;
 }

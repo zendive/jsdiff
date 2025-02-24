@@ -16,6 +16,7 @@ export const TAG_FUNCTION = (name: string, hash: string) =>
   `ƒ${name ? ` ${name}` : ''}⟪${hash}⟫`;
 export const TAG_NUMERIC = (value: bigint | number) =>
   typeof value === 'bigint' ? `BigInt⟪${value}⟫` : `Number⟪${value}⟫`;
+export const TAG_REGEXP = (value: RegExp) => `RegExp⟪${value}⟫`;
 export const ERROR_NO_CONNECTION =
   'Could not establish connection. Receiving end does not exist.';
 export const ERROR_PORT_CLOSED =

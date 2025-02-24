@@ -156,3 +156,18 @@ test('clone special numerics', async () => {
 test('clone undefined', async () => {
   assert.deepEqual(await customClone(undefined), '⟪undefined⟫');
 });
+
+test('clone RegExp', async () => {
+  assert.deepEqual(
+    await customClone({
+      test1: new RegExp('test1', 'gim'),
+      test2: /test2/gim,
+      map: new Map<any, any>([[/test3/gim, 'map-key-value']]),
+    }),
+    {
+      test1: 'RegExp⟪/test1/gim⟫',
+      test2: 'RegExp⟪/test2/gim⟫',
+      map: { 'RegExp⟪/test3/gim⟫': 'map-key-value' },
+    }
+  );
+});
