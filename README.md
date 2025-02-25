@@ -61,7 +61,9 @@ An extension for developers that enhances the console API by incorporating the a
 
   - `Map` keys, unless they are primitive types, serialized by their pseudo ids.
 
-- `Symbol` serialized with his pseudo `id` like: `0x####: Symbol(name)`.
+- Unique `Symbol` serialized with his pseudo `id` like: `0x####: Symbol(name)`.
+
+- Global `Symbol` (registered like `Symbol.for('example')`) serialized just by its name: `Symbol(example)`.
 
 - `RegExp` serialized as `RegExp⟪/example/i⟫`.
 

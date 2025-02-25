@@ -56,10 +56,14 @@ test('clone symbols', () => {
     customClone({
       s0: Symbol(),
       s1: Symbol('named'),
+      s2: Symbol.for('global'),
+      [Symbol('א')]: 1,
     }),
     {
       s0: '0x0002: Symbol()',
       s1: '0x0003: Symbol(named)',
+      s2: 'Symbol(global)',
+      '0x0004: Symbol(א)': 1,
     }
   );
 });
@@ -108,6 +112,8 @@ test('clone map', () => {
         ['key1', 1],
         [{}, 1],
         [undefined, 1],
+        [Symbol('א'), 1],
+        [Symbol.for('global'), 1],
       ]),
     }),
     {
@@ -116,6 +122,8 @@ test('clone map', () => {
         key1: 1,
         '0x0003: {♻️}': 1,
         '⟪undefined⟫': 1,
+        '0x0004: Symbol(א)': 1,
+        'Symbol(global)': 1,
       },
     }
   );

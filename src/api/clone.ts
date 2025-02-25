@@ -11,13 +11,14 @@ import {
   TAG_RECURRING_OBJECT,
   TAG_RECURRING_SET,
   TAG_REGEXP,
-  TAG_SYMBOL,
+  TAG_UNIQUE_SYMBOL,
   TAG_UNDEFINED,
   TAG_DOM_ELEMENT,
+  TAG_GLOBAL_SYMBOL,
 } from '@/api/const.ts';
 
 type TInstanceBadgeTag = (id: string) => string;
-type TSymbolBadgeTag = (symbolName: string, symbolId: string) => string;
+type TUniqueSymbolBadgeTag = (smbl: symbol, id: string) => string;
 interface ICatalogRecord {
   name: string;
   seen: boolean;
@@ -47,7 +48,7 @@ class LookupCatalog {
 
   lookup(
     key: WeakKey,
-    badge: TInstanceBadgeTag | TSymbolBadgeTag
+    badge: TInstanceBadgeTag | TUniqueSymbolBadgeTag
   ): ICatalogRecord {
     let record = this.#records.get(key);
     if (record) {
@@ -57,7 +58,7 @@ class LookupCatalog {
     const id = this.#counterToString(++this.#instanceCounter);
     record = {
       name: isSymbol(key)
-        ? badge(key.toString(), id)
+        ? (badge as TUniqueSymbolBadgeTag)(key, id)
         : (badge as TInstanceBadgeTag)(id),
       seen: false,
     };
@@ -118,8 +119,12 @@ function recursiveClone(catalog: LookupCatalog, value: unknown) {
   } else if (isFunction(value)) {
     rv = serializeFunction(value);
   } else if (isSymbol(value)) {
-    const { name } = catalog.lookup(value, TAG_SYMBOL);
-    rv = name;
+    if (isGlobalSymbol(value)) {
+      rv = TAG_GLOBAL_SYMBOL(value);
+    } else {
+      const { name } = catalog.lookup(value, TAG_UNIQUE_SYMBOL);
+      rv = name;
+    }
   } else if (isRegExp(value)) {
     rv = TAG_REGEXP(value);
   } else if (isArray(value)) {
@@ -196,8 +201,12 @@ function serializeMapKey(catalog: LookupCatalog, key: unknown): string {
   } else if (isFunction(key)) {
     rv = serializeFunction(key);
   } else if (isSymbol(key)) {
-    const { name } = catalog.lookup(key, TAG_SYMBOL);
-    rv = name;
+    if (isGlobalSymbol(key)) {
+      rv = TAG_GLOBAL_SYMBOL(key);
+    } else {
+      const { name } = catalog.lookup(key, TAG_UNIQUE_SYMBOL);
+      rv = name;
+    }
   } else if (isRegExp(key)) {
     rv = TAG_REGEXP(key);
   } else if (isArray(key)) {
@@ -243,8 +252,12 @@ function serializeObject(catalog: LookupCatalog, value: object) {
         let newKey, newValue;
 
         if (isSymbol(key)) {
-          const { name } = catalog.lookup(key, TAG_SYMBOL);
-          newKey = name;
+          if (isGlobalSymbol(key)) {
+            newKey = TAG_GLOBAL_SYMBOL(key);
+          } else {
+            const { name } = catalog.lookup(key, TAG_UNIQUE_SYMBOL);
+            newKey = name;
+          }
         } else {
           newKey = key;
         }
@@ -358,8 +371,12 @@ function isDOM(that: unknown): that is Element | Document {
   return that instanceof Element || that instanceof Document;
 }
 
-function isSymbol(that: unknown): that is Symbol {
+function isSymbol(that: unknown): that is symbol {
   return typeof that === 'symbol';
+}
+
+function isGlobalSymbol(that: symbol): that is symbol {
+  return Symbol.keyFor(that) !== undefined;
 }
 
 function isObject(that: unknown): that is object {

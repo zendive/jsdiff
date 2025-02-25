@@ -11,7 +11,9 @@ export const TAG_RECURRING_OBJECT = (id: string) => `0x${id}: {♻️}`;
 export const TAG_RECURRING_SET = (id: string) => `0x${id}: Set[♻️]`;
 export const TAG_RECURRING_MAP = (id: string) => `0x${id}: Map{♻️}`;
 export const TAG_DOM_ELEMENT = (id: string) => `0x${id}: ⟪DOM⟫`;
-export const TAG_SYMBOL = (name: string, id: string) => `0x${id}: ${name}`;
+export const TAG_UNIQUE_SYMBOL = (smbl: symbol, id: string) =>
+  `0x${id}: ${smbl.toString()}`;
+export const TAG_GLOBAL_SYMBOL = (smbl: symbol) => `${smbl.toString()}`;
 export const TAG_FUNCTION = (name: string, hash: string) =>
   `ƒ${name ? ` ${name}` : ''}⟪${hash}⟫`;
 export const TAG_NUMERIC = (value: bigint | number) =>
