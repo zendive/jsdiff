@@ -14,3 +14,5 @@ node_modules/
 *.crx
 manifest.json
 bundle/js
+*.log
+
