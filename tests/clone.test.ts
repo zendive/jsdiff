@@ -4,19 +4,23 @@ import { customClone } from '../src/api/clone.ts';
 
 // mock DOM in node environment
 Object.assign(globalThis, {
-  Element: class Element {},
-  Document: class Document {},
+  Element: class Element {
+    nodeName = 'stub-element';
+  },
+  Document: class Document {
+    nodeName = 'stub-document';
+  },
 });
 
-test('clone unserializable', () => {
+test('clone DOM', () => {
   assert.deepEqual(
     customClone({
       el: new Element(),
       doc: new Document(),
     }),
     {
-      el: '0x0002: ⟪DOM⟫',
-      doc: '0x0003: ⟪DOM⟫',
+      el: '0x0002: DOM⟪stub-element⟫',
+      doc: '0x0003: DOM⟪stub-document⟫',
     }
   );
 });

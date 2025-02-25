@@ -10,8 +10,9 @@ export const TAG_RECURRING_ARRAY = (id: string) => `0x${id}: [♻️]`;
 export const TAG_RECURRING_OBJECT = (id: string) => `0x${id}: {♻️}`;
 export const TAG_RECURRING_SET = (id: string) => `0x${id}: Set[♻️]`;
 export const TAG_RECURRING_MAP = (id: string) => `0x${id}: Map{♻️}`;
-export const TAG_DOM_ELEMENT = (id: string) => `0x${id}: ⟪DOM⟫`;
-export const TAG_UNIQUE_SYMBOL = (smbl: symbol, id: string) =>
+export const TAG_DOM_ELEMENT = (id: string, value: Document | Element) =>
+  `0x${id}: DOM⟪${value.nodeName}⟫`;
+export const TAG_UNIQUE_SYMBOL = (id: string, smbl: symbol) =>
   `0x${id}: ${smbl.toString()}`;
 export const TAG_GLOBAL_SYMBOL = (smbl: symbol) => `${smbl.toString()}`;
 export const TAG_FUNCTION = (name: string, hash: string) =>

@@ -18,9 +18,10 @@ import {
   TAG_URL,
 } from '@/api/const.ts';
 
-type TInstanceBadgeTag = (id: string) => string;
-type TUniqueSymbolBadgeTag = (smbl: symbol, id: string) => string;
-interface ICatalogRecord {
+type TCommonInstanceTag = (id: string) => string;
+type TUniqueInstanceTag = (id: string, value: any) => string;
+type ICatalogUniqueRecord = string;
+interface ICatalogCommonRecord {
   name: string;
   seen: boolean;
 }
@@ -36,7 +37,7 @@ interface IHasToJSON {
 }
 
 class LookupCatalog {
-  #records: WeakMap<WeakKey, ICatalogRecord>;
+  #records: WeakMap<WeakKey, ICatalogCommonRecord | ICatalogUniqueRecord>;
   #instanceCounter = 0;
 
   constructor() {
@@ -47,20 +48,28 @@ class LookupCatalog {
     return counter.toString(16).padStart(4, '0');
   }
 
-  lookup(
-    key: WeakKey,
-    badge: TInstanceBadgeTag | TUniqueSymbolBadgeTag
-  ): ICatalogRecord {
-    let record = this.#records.get(key);
+  lookupUnique(key: WeakKey, tag: TUniqueInstanceTag): ICatalogUniqueRecord {
+    let record = <ICatalogUniqueRecord>this.#records.get(key);
+    if (record) {
+      return record;
+    }
+
+    const id = this.#counterToString(++this.#instanceCounter);
+    record = tag(id, key);
+    this.#records.set(key, record);
+
+    return record;
+  }
+
+  lookupCommon(key: WeakKey, tag: TCommonInstanceTag): ICatalogCommonRecord {
+    let record = <ICatalogCommonRecord>this.#records.get(key);
     if (record) {
       return record;
     }
 
     const id = this.#counterToString(++this.#instanceCounter);
     record = {
-      name: isSymbol(key)
-        ? (badge as TUniqueSymbolBadgeTag)(key, id)
-        : (badge as TInstanceBadgeTag)(id),
+      name: tag(id),
       seen: false,
     };
     this.#records.set(key, record);
@@ -115,16 +124,14 @@ function recursiveClone(catalog: LookupCatalog, value: unknown) {
   let rv = value;
 
   if (isDOM(value)) {
-    const { name } = catalog.lookup(value, TAG_DOM_ELEMENT);
-    rv = name;
+    rv = catalog.lookupUnique(value, TAG_DOM_ELEMENT);
   } else if (isFunction(value)) {
     rv = serializeFunction(value);
   } else if (isSymbol(value)) {
     if (isGlobalSymbol(value)) {
       rv = TAG_GLOBAL_SYMBOL(value);
     } else {
-      const { name } = catalog.lookup(value, TAG_UNIQUE_SYMBOL);
-      rv = name;
+      rv = catalog.lookupUnique(value, TAG_UNIQUE_SYMBOL);
     }
   } else if (isRegExp(value)) {
     rv = TAG_REGEXP(value);
@@ -151,9 +158,9 @@ function recursiveClone(catalog: LookupCatalog, value: unknown) {
 function serializeArrayAlike(
   catalog: LookupCatalog,
   value: unknown[] | Set<unknown>,
-  badge: TInstanceBadgeTag
+  badge: TCommonInstanceTag
 ): unknown[] | string {
-  const record = catalog.lookup(value, badge);
+  const record = catalog.lookupCommon(value, badge);
   let rv;
 
   if (record.seen) {
@@ -173,7 +180,7 @@ function serializeArrayAlike(
 }
 
 function serializeMap(catalog: LookupCatalog, value: Map<unknown, unknown>) {
-  const record = catalog.lookup(value, TAG_RECURRING_MAP);
+  const record = catalog.lookupCommon(value, TAG_RECURRING_MAP);
   let rv;
 
   if (record.seen) {
@@ -199,32 +206,30 @@ function serializeMapKey(catalog: LookupCatalog, key: unknown): string {
   let rv;
 
   if (isDOM(key)) {
-    const { name } = catalog.lookup(key, TAG_DOM_ELEMENT);
-    rv = name;
+    rv = catalog.lookupUnique(key, TAG_DOM_ELEMENT);
   } else if (isFunction(key)) {
     rv = serializeFunction(key);
   } else if (isSymbol(key)) {
     if (isGlobalSymbol(key)) {
       rv = TAG_GLOBAL_SYMBOL(key);
     } else {
-      const { name } = catalog.lookup(key, TAG_UNIQUE_SYMBOL);
-      rv = name;
+      rv = catalog.lookupUnique(key, TAG_UNIQUE_SYMBOL);
     }
   } else if (isRegExp(key)) {
     rv = TAG_REGEXP(key);
   } else if (isURL(key)) {
     rv = TAG_URL(key);
   } else if (isArray(key)) {
-    const { name } = catalog.lookup(key, TAG_RECURRING_ARRAY);
+    const { name } = catalog.lookupCommon(key, TAG_RECURRING_ARRAY);
     rv = name;
   } else if (isSet(key)) {
-    const { name } = catalog.lookup(key, TAG_RECURRING_SET);
+    const { name } = catalog.lookupCommon(key, TAG_RECURRING_SET);
     rv = name;
   } else if (isMap(key)) {
-    const { name } = catalog.lookup(key, TAG_RECURRING_MAP);
+    const { name } = catalog.lookupCommon(key, TAG_RECURRING_MAP);
     rv = name;
   } else if (isObject(key)) {
-    const { name } = catalog.lookup(key, TAG_RECURRING_OBJECT);
+    const { name } = catalog.lookupCommon(key, TAG_RECURRING_OBJECT);
     rv = name;
   } else if (isNumericSpecials(key)) {
     rv = TAG_NUMERIC(key);
@@ -238,7 +243,7 @@ function serializeMapKey(catalog: LookupCatalog, key: unknown): string {
 }
 
 function serializeObject(catalog: LookupCatalog, value: object) {
-  const record = catalog.lookup(value, TAG_RECURRING_OBJECT);
+  const record = catalog.lookupCommon(value, TAG_RECURRING_OBJECT);
   let rv;
 
   if (record.seen) {
@@ -260,8 +265,7 @@ function serializeObject(catalog: LookupCatalog, value: object) {
           if (isGlobalSymbol(key)) {
             newKey = TAG_GLOBAL_SYMBOL(key);
           } else {
-            const { name } = catalog.lookup(key, TAG_UNIQUE_SYMBOL);
-            newKey = name;
+            newKey = catalog.lookupUnique(key, TAG_UNIQUE_SYMBOL);
           }
         } else {
           newKey = key;

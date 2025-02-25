@@ -55,7 +55,7 @@ An extension for developers that enhances the console API by incorporating the a
 
 - Functions are included in comparison result in order to detect possible alterations, in form of a string combined from a function name (if present) and a hash of a `function.toString()` body. Native functions are shown as `ƒ⟪native⟫`.
 
-- Some DOM objects like `Document` or `Element` are not worth to be shown entirely, since that is not the purpose of this extension. So if they are present anywhere, they are serialized as `0x####: ⟪DOM⟫`.
+- Some DOM objects like `Document` or `Element` are not worth to be shown entirely, since that is not the purpose of this extension. So if they are present anywhere, they are serialized as `0x####: DOM⟪nodeName⟫`.
 
 - `Object`, `Array`, `Map`, `Set` - serialized only once and the rest of their occurrences are mentioned with unique reference like: `0x####: {♻️}`, `0x####: [♻️]`, `0x####: Map{♻️}`, `0x####: Set[♻️]` respectively.
 
