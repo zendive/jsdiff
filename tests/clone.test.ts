@@ -110,6 +110,8 @@ test('clone map', () => {
       map: new Map<any, any>([
         [0, 1],
         ['key1', 1],
+        ['key2', new URL('x:</script>')],
+        [new URL('x:</script>'), 1],
         [{}, 1],
         [undefined, 1],
         [Symbol('א'), 1],
@@ -120,6 +122,8 @@ test('clone map', () => {
       map: {
         '0': 1,
         key1: 1,
+        key2: 'URL⟪x:</script>⟫',
+        'URL⟪x:</script>⟫': 1,
         '0x0003: {♻️}': 1,
         '⟪undefined⟫': 1,
         '0x0004: Symbol(א)': 1,

@@ -15,6 +15,7 @@ import {
   TAG_UNDEFINED,
   TAG_DOM_ELEMENT,
   TAG_GLOBAL_SYMBOL,
+  TAG_URL,
 } from '@/api/const.ts';
 
 type TInstanceBadgeTag = (id: string) => string;
@@ -127,6 +128,8 @@ function recursiveClone(catalog: LookupCatalog, value: unknown) {
     }
   } else if (isRegExp(value)) {
     rv = TAG_REGEXP(value);
+  } else if (isURL(value)) {
+    rv = TAG_URL(value);
   } else if (isArray(value)) {
     rv = serializeArrayAlike(catalog, value, TAG_RECURRING_ARRAY);
   } else if (isSet(value)) {
@@ -209,6 +212,8 @@ function serializeMapKey(catalog: LookupCatalog, key: unknown): string {
     }
   } else if (isRegExp(key)) {
     rv = TAG_REGEXP(key);
+  } else if (isURL(key)) {
+    rv = TAG_URL(key);
   } else if (isArray(key)) {
     const { name } = catalog.lookup(key, TAG_RECURRING_ARRAY);
     rv = name;
@@ -385,4 +390,8 @@ function isObject(that: unknown): that is object {
 
 function isRegExp(that: unknown): that is RegExp {
   return that instanceof RegExp;
+}
+
+function isURL(that: unknown): that is URL {
+  return that instanceof URL;
 }

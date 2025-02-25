@@ -60,12 +60,15 @@ An extension for developers that enhances the console API by incorporating the a
 - `Object`, `Array`, `Map`, `Set` - serialized only once and the rest of their occurrences are mentioned with unique reference like: `0x####: {♻️}`, `0x####: [♻️]`, `0x####: Map{♻️}`, `0x####: Set[♻️]` respectively.
 
   - `Map` keys, unless they are primitive types, serialized by their pseudo ids.
+  - Keys like `0` and `'0'` would be merged due to `Map to Object` conversion.
 
 - Unique `Symbol` serialized with his pseudo `id` like: `0x####: Symbol(name)`.
 
 - Global `Symbol` (registered like `Symbol.for('example')`) serialized just by its name: `Symbol(example)`.
 
 - `RegExp` serialized as `RegExp⟪/example/i⟫`.
+
+- `URL` serialized as `URL⟪https://example.com/⟫`.
 
 - Serialization of numerics like `±Infinity`, `NaN`, `BigInt`, or `undefined` serialized like: `Number⟪±Infinity⟫`, `Number⟪NaN⟫`, `BigInt⟪#⟫`, `⟪undefined⟫` respectively.
 
