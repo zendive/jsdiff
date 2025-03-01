@@ -12,3 +12,17 @@ export function hashString(str: string) {
 export function isSearchKeyboardEvent(e: KeyboardEvent) {
   return (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'f';
 }
+
+export function escapeHTML(str: string) {
+  return str.replace(
+    /[&<>"']/g,
+    (match) =>
+      (<Record<string, string>>{
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;',
+      })[match]
+  );
+}

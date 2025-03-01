@@ -24,7 +24,7 @@ import { useSearchStore } from '@/stores/search.store.ts';
 import PanelHeader from '@/view/panel.header.vue';
 import PanelEmpty from '@/view/panel.empty.vue';
 import { onColourSchemeChange } from '@/api/onColourSchemeChange.ts';
-import diffApi from '@/api/diffApi.ts';
+import { buildDeltaElement, hideUnchanged } from '@/api/deltaHtml/api';
 
 const compareStore = useCompareStore();
 const searchStore = useSearchStore();
@@ -35,12 +35,12 @@ watch(
   () => compareStore.deltaObj,
   () => {
     if (deltaEl.value) {
-      const tmpEl = document.createElement('div');
-      tmpEl.innerHTML = diffApi.format(
+      const tmpEl = buildDeltaElement(
         compareStore.deltaObj,
-        compareStore.compare.left
+        compareStore.compare.left,
+        compareStore.showOnlyChanged
       );
-      deltaEl.value.replaceChildren(<Node>tmpEl.firstChild);
+      tmpEl && deltaEl.value.replaceChildren(tmpEl);
     }
   },
   { flush: 'post' }
@@ -61,7 +61,10 @@ const onToggleUnchanged = () => {
   if (deltaEl.value) {
     searchStore.searchCancel();
     compareStore.showOnlyChanged = !compareStore.showOnlyChanged;
-    diffApi.showUnchanged(!compareStore.showOnlyChanged, deltaEl.value);
+    hideUnchanged(
+      compareStore.showOnlyChanged,
+      deltaEl.value.firstElementChild
+    );
   }
 };
 
