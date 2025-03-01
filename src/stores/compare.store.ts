@@ -1,5 +1,4 @@
-import diffApi from '@/api/diffApi.ts';
-import type { Delta } from '@/api/diffApi.ts';
+import { diff, type Delta } from '@/api/diffApi.ts';
 import { hasValue } from '@/api/toolkit.ts';
 import { defineStore } from 'pinia';
 import { markRaw } from 'vue';
@@ -19,7 +18,9 @@ export const useCompareStore = defineStore('compareStore', {
     initialized: false,
     inprogress: false,
     compare: defaultCompareState(),
-    showOnlyChanged: false,
+    showOnlyChanged: JSON.parse(
+      localStorage.getItem('showOnlyChanged') || 'false'
+    ),
     lastError: '',
   }),
 
@@ -29,7 +30,7 @@ export const useCompareStore = defineStore('compareStore', {
     },
 
     deltaObj(): Delta {
-      return diffApi.diff(this.compare.left, this.compare.right);
+      return diff(this.compare.left, this.compare.right);
     },
   },
 
@@ -95,6 +96,10 @@ export const compareStoreRuntimeService = {
           searchStore.searchCancel();
         }
       }
+    });
+
+    compareStore.$subscribe((mut, state) => {
+      localStorage.setItem('showOnlyChanged', String(state.showOnlyChanged));
     });
   },
 };
