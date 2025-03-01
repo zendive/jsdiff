@@ -19,8 +19,8 @@ test('clone DOM', () => {
       doc: new Document(),
     }),
     {
-      el: '0x0002: DOM⟪stub-element⟫',
-      doc: '0x0003: DOM⟪stub-document⟫',
+      el: '{0001} DOM⟪stub-element⟫',
+      doc: '{0002} DOM⟪stub-document⟫',
     }
   );
 });
@@ -64,10 +64,10 @@ test('clone symbols', () => {
       [Symbol('א')]: 1,
     }),
     {
-      s0: '0x0002: Symbol()',
-      s1: '0x0003: Symbol(named)',
+      s0: '{0003} Symbol()',
+      s1: '{0004} Symbol(named)',
       s2: 'Symbol(global)',
-      '0x0004: Symbol(א)': 1,
+      '{0005} Symbol(א)': 1,
     }
   );
 });
@@ -128,9 +128,9 @@ test('clone map', () => {
         key1: 1,
         key2: 'URL⟪x:</script>⟫',
         'URL⟪x:</script>⟫': 1,
-        '0x0003: {♻️}': 1,
+        '[0003] Object⟪♻️⟫': 1,
         '⟪undefined⟫': 1,
-        '0x0004: Symbol(א)': 1,
+        '{0006} Symbol(א)': 1,
         'Symbol(global)': 1,
       },
     }
@@ -138,21 +138,28 @@ test('clone map', () => {
 });
 
 test('clone object', () => {
-  const obj0 = { obj: {} };
+  const obj = { k: 1 };
+  const arr = [1];
+  const map = new Map([[0, 1]]);
+  const set = new Set([1]);
 
   assert.deepEqual(
     customClone({
-      obj0: obj0,
-      obj1: {
-        obj0: obj0,
-      },
+      originals: { arr, map, obj, set },
+      copies: { arr, map, obj, set },
     }),
     {
-      obj0: {
-        obj: {},
+      originals: {
+        arr: [1],
+        map: { '0': 1 },
+        obj: { k: 1 },
+        set: [1],
       },
-      obj1: {
-        obj0: '0x0002: {♻️}',
+      copies: {
+        arr: '[0003] Array⟪♻️⟫',
+        map: '[0004] Map⟪♻️⟫',
+        obj: '[0005] Object⟪♻️⟫',
+        set: '[0006] Set⟪♻️⟫',
       },
     }
   );

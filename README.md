@@ -6,7 +6,7 @@ An extension for developers that enhances the console API by incorporating the a
 - Available in Firefox Add-ons as [jsdiff.diff()](https://addons.mozilla.org/addon/jsdiff-diff/)
 
 <details>
-  <summary> <strong>Examples</strong> </summary>
+  <summary> <strong>Screenshots</strong> </summary>
 
 - Comparing two objects
   ![screenshot](./doc/screenshot-01.png)
@@ -15,30 +15,20 @@ An extension for developers that enhances the console API by incorporating the a
   ![screenshot](./doc/screenshot-02.png)
 
 </details>
-<details>
-  <summary> <strong>How it works</strong> </summary>
 
-- Chrome mv3
-  ![screenshot](./doc/design.chrome.png)
-- Firefox
-  ![screenshot](./doc/design.firefox.png)
+### Motivation
 
-</details>
-
-### Based on
-
-- [jsondiffpatch](https://github.com/benjamine/jsondiffpatch) by Benjamín Eidelman
-- [vuejs](https://github.com/vuejs) by Evan You
+- Track object mutations during runtime and/or while debugging with intention to find expected or unexpected changes.
 
 ### Features
 
 - User interface:
 
-  - Buttons:
-    - hide / show unchanged properties.
-    - Copy changed properties in format of `jsondiffpatch` Delta object.
-    - Clear current result.
+  - Hide / show unchanged properties.
+  - Copy changed properties in format of `jsondiffpatch` Delta object.
+  - Clear current result.
   - Search input to highlight patterns.
+    - If search query contains at least one upper-case letter - the search will be case-sensitive.
   - Indicator of the last update time.
   - Indicator of a fatal error (out of storage memory).
   - DevTools light/dark color scheme support.
@@ -47,40 +37,13 @@ An extension for developers that enhances the console API by incorporating the a
 
   - `JSDiff` DevTools panel reflects current state of comparison, regardless the tab[s] it was opened from.
 
-- Internal search inside comparison results
+- Fail-safe serialization of objects having security issues while accessing their properties or objects having `toJSON()` function; when instead of serialization of all object properties, - only `toJSON()` return value is serialized, like `JSON.strigify()` does.
 
-  - If search query contains at least one upper-case letter - the search will be case-sensitive.
+- Can be used from within online code editors like: [codesandbox.io](https://codesandbox.io), [coderpad.io](https://coderpad.io), [flems.io](https://flems.io), [codepen.io](https://codepen.io), [jsfiddle.net](https://jsfiddle.net), [mdn playground](https://developer.mozilla.org/play).
 
-- Using `console.diff` functions from within online code editors like: [codesandbox.io](https://codesandbox.io), [coderpad.io](https://coderpad.io), [flems.io](https://flems.io), [codepen.io](https://codepen.io), [jsfiddle.net](https://jsfiddle.net), [mdn playground](https://developer.mozilla.org/play).
+#### Limitations
 
-- Functions are included in comparison result in order to detect possible alterations, in form of a string combined from a function name (if present) and a hash of a `function.toString()` body. Native functions are shown as `ƒ⟪native⟫`.
-
-- Some DOM objects like `Document` or `Element` are not worth to be shown entirely, since that is not the purpose of this extension. So if they are present anywhere, they are serialized as `0x####: DOM⟪nodeName⟫`.
-
-- `Object`, `Array`, `Map`, `Set` - serialized only once and the rest of their occurrences are mentioned with unique reference like: `0x####: {♻️}`, `0x####: [♻️]`, `0x####: Map{♻️}`, `0x####: Set[♻️]` respectively.
-
-  - `Map` keys, unless they are primitive types, serialized by their pseudo ids.
-  - Keys like `0` and `'0'` would be merged due to `Map to Object` conversion.
-
-- Unique `Symbol` serialized with his pseudo `id` like: `0x####: Symbol(name)`.
-
-- Global `Symbol` (registered like `Symbol.for('example')`) serialized just by its name: `Symbol(example)`.
-
-- `RegExp` serialized as `RegExp⟪/example/i⟫`.
-
-- `URL` serialized as `URL⟪https://example.com/⟫`.
-
-- Serialization of numerics like `±Infinity`, `NaN`, `BigInt`, or `undefined` serialized like: `Number⟪±Infinity⟫`, `Number⟪NaN⟫`, `BigInt⟪#⟫`, `⟪undefined⟫` respectively.
-
-- Fail-safe serialization of objects having security issues while accessing their properties.
-
-- Fail-safe serialization of objects having `toJSON()` function (when instead of serialization of all object properties, - only `toJSON()` return value is serialized, similar to the way native `JSON.strigify()` works).
-
-### Legend
-
-- Pseudo `id`, assigned to non-primitive data types, used in order to detect reference recurrences and, in case of Symbols - symbol uniqueness. `id` for an object shown in the output only if it had been seen more than once. It's being assigned in the scope of serialization of a high level argument instance, while comparing left or right side; that means - if some object, having `id` of 0x0001 on the left side, is not guarantied to have same `id` on the right side.
-
-### Limitations
+- Map keys like `0` and `'0'` would be merged due to `Map to Object` conversion.
 
 - While paused in debug mode, `JSDiff` panel won't reflect the result until runtime is resumed (see [#10][i10]).
 
@@ -122,7 +85,37 @@ console.diffLeft(Date.now());
 console.diffRight(Date.now());
 ```
 
-### Typescript
+### Serialization by types
+
+| Input                                                                           | Output                                                                                                   |
+| ------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| XMLHttpRequest<sup>[1]</sup>                                                    | ƒ XMLHttpRequest⟪native⟫                                                                                 |
+| function test(){}<sup>[1]</sup>                                                 | ƒ test⟪1374b28d22b674e53a044425556a9cd48b82fd5aba3bf19e3545d51704227b10⟫                                 |
+| document.body                                                                   | {0001}<sup>[2,3]</sup> DOM⟪BODY⟫                                                                         |
+| ±Infinity                                                                       | Number⟪±Infinity⟫                                                                                        |
+| NaN                                                                             | Number⟪NaN⟫                                                                                              |
+| 98765432109876543210n                                                           | BigInt⟪98765432109876543210⟫                                                                             |
+| void 0                                                                          | ⟪undefined⟫                                                                                              |
+| /example/i                                                                      | RegExp⟪/example/i⟫                                                                                       |
+| new URL('https:\//example.com/')                                                | URL⟪https:\//example.com/⟫                                                                               |
+| Symbol('example')                                                               | {0001}<sup>[3]</sup> Symbol(example)                                                                     |
+| Symbol.for('global')                                                            | Symbol(global)                                                                                           |
+| (obj = {key: 1}, {first: obj, second: obj})                                     | {"first": {"key": 1}, "second": "[0002]<sup>[4]</sup> Object⟪♻️⟫"}                                       |
+| (key2= {}, map = new Map(\[['key1', 1], [key2, 2]]), {first: map, second: map}) | {"first": {"[0003]<sup>[4,5]</sup> Object⟪♻️⟫": 2, "key1": 1}, "second": "[0002]<sup>[4]</sup> Map⟪♻️⟫"} |
+| (arr = [1], {first: arr, second: arr})                                          | {"first": [1], "second": "[0002]<sup>[4]</sup> Array⟪♻️⟫"}                                               |
+| (set = new Set([1]), {first: set, second: set})                                 | {"first: [1], "second": "[0002]<sup>[4]</sup> Set⟪♻️⟫"}                                                  |
+
+<sup>1</sup> Functions included in comparison result in order to detect possible alterations, in form of a string combined from a function name (if present) and a hash of a `function.toString()` body.
+
+<sup>2</sup> DOM element serialized by pseudo `id` and `nodeName`.
+
+<sup>3</sup> Notation `{}` denotes pseudo `id` from a Set of unique instances, which is assigned during serialization of compared sides and remains inside internal `WeakMap` lookup catalog until its garbage collected or page is reloaded.
+
+<sup>4</sup> Notation `[]` denotes pseudo `id` from a [Multiset](https://en.wikipedia.org/wiki/Multiset) of recurring instances, which is assigned in the scope of serialization of a high level argument instance, while comparing left or right side; that means - if some object, having `id` of `[0001]` on the left side, is not guarantied to have same `id` on the right side.
+
+<sup>5</sup> `Map` key, unless it's a primitive type, serialized by his pseudo `id`.
+
+#### Typescript
 
 Global Console interface declaration for quick copy/paste when used from typescript:
 
@@ -137,33 +130,11 @@ declare global {
 }
 ```
 
-### Usage basics
-
-Historically, left side represents the old state and right side the new state.
-
-- Things that are present on the left side and missing on the right side are color-coded as red (old).
-
-- Things that are missing on the left side and present on the right side are color-coded as green (new).
-
-- To track changes of the same variable in timed manner you can push it with `diffPush` or `diff` with a single argument, - that will shift objects from right to left, showing differences with previous push state.
-
-### Build instructions
-
-- Linux
-- node 22.14 (LTS)
-
-```sh
-make install      # install dependencies
-make all          # build for prod and make extension.${browser}.zip
-make tune2chrome  # or tune2firefox for relevant manifest.json file
-make dev          # local development
-```
-
 ### Protection
 
 - How to protect your site from this extension:
 
-  - Well, tests in Chrome show that even `Content-Security-Policy: default-src 'none';` header won't prevent injection of extension content-scripts...
+  - Tests in Chrome show that even `Content-Security-Policy: default-src 'none';` header won't prevent injection of extension content-scripts...
 
   - Avoid assigning to `window` or `globalThis` any application object.
     See also [accidental global variables and memory leaks](https://www.tutorialspoint.com/explain-in-detail-about-memory-leaks-in-javascript).
@@ -177,3 +148,30 @@ make dev          # local development
     }
   }
   ```
+
+### Build instructions
+
+- Linux
+- node 22.14 (LTS)
+
+```sh
+make install      # install dependencies
+make all          # build for prod and make extension.${browser}.zip
+make tune2chrome  # or tune2firefox for relevant manifest.json file
+make dev          # local development
+```
+
+#### Based on
+
+- [jsondiffpatch](https://github.com/benjamine/jsondiffpatch) by Benjamín Eidelman
+- [vuejs](https://github.com/vuejs) by Evan You
+
+<details>
+  <summary> <strong>Communication schemes between Content-script and DevTools panel</strong> </summary>
+
+- Chrome mv3
+  ![screenshot](./doc/design.chrome.png)
+- Firefox
+  ![screenshot](./doc/design.firefox.png)
+
+</details>

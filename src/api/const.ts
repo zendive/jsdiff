@@ -3,18 +3,19 @@ export const APP_CODE_EXAMPLE = `${typeof browser !== 'undefined' ? 'jsdiff' : '
 export const TAG_EMPTY = '⟪empty⟫';
 export const TAG_UNDEFINED = '⟪undefined⟫';
 export const TAG_NULL = '⟪null⟫';
-export const TAG_NATIVE_FUNCTION = 'ƒ⟪native⟫';
 export const TAG_EXCEPTION_FALLBACK = '⁉️ ⟪exception⟫';
 export const TAG_EXCEPTION = (str: string) => `⁉️ ⟪${str}⟫`;
-export const TAG_RECURRING_ARRAY = (id: string) => `0x${id}: [♻️]`;
-export const TAG_RECURRING_OBJECT = (id: string) => `0x${id}: {♻️}`;
-export const TAG_RECURRING_SET = (id: string) => `0x${id}: Set[♻️]`;
-export const TAG_RECURRING_MAP = (id: string) => `0x${id}: Map{♻️}`;
+export const TAG_RECURRING_ARRAY = (id: string) => `[${id}] Array⟪♻️⟫`;
+export const TAG_RECURRING_OBJECT = (id: string) => `[${id}] Object⟪♻️⟫`;
+export const TAG_RECURRING_SET = (id: string) => `[${id}] Set⟪♻️⟫`;
+export const TAG_RECURRING_MAP = (id: string) => `[${id}] Map⟪♻️⟫`;
 export const TAG_DOM_ELEMENT = (id: string, value: Document | Element) =>
-  `0x${id}: DOM⟪${value.nodeName}⟫`;
+  `{${id}} DOM⟪${value.nodeName}⟫`;
 export const TAG_UNIQUE_SYMBOL = (id: string, smbl: symbol) =>
-  `0x${id}: ${smbl.toString()}`;
+  `{${id}} ${smbl.toString()}`;
 export const TAG_GLOBAL_SYMBOL = (smbl: symbol) => `${smbl.toString()}`;
+export const TAG_NATIVE_FUNCTION = (name: string) =>
+  `ƒ${name ? ` ${name}` : ''}⟪native⟫`;
 export const TAG_FUNCTION = (name: string, hash: string) =>
   `ƒ${name ? ` ${name}` : ''}⟪${hash}⟫`;
 export const TAG_NUMERIC = (value: bigint | number) =>
