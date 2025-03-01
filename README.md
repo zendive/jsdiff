@@ -45,9 +45,7 @@ An extension for developers that enhances the console API by incorporating the a
 
 - Map keys like `0` and `'0'` would be merged due to `Map to Object` conversion.
 
-- While paused in debug mode, `JSDiff` panel won't reflect the result until runtime is resumed (see [#10][i10]).
-
-[i10]: https://github.com/zendive/jsdiff/issues/10
+- While paused in debug mode, `JSDiff` panel won't reflect the result until runtime is resumed (see [#10](https://github.com/zendive/jsdiff/issues/10)).
 
 - Compared objects, after being serialized, stored in `chrome.storage.local` which has 10 MB limit.
 
@@ -85,6 +83,21 @@ console.diffLeft(Date.now());
 console.diffRight(Date.now());
 ```
 
+#### Typescript
+
+Global Console interface declaration for quick copy/paste when used from typescript:
+
+```typescript
+declare global {
+  interface Console {
+    diff(left: unknown, right?: unknown): void;
+    diffPush(next: unknown): void;
+    diffLeft(left: unknown): void;
+    diffRight(right: unknown): void;
+  }
+}
+```
+
 ### Serialization by types
 
 | Input                                                                           | Output                                                                                                   |
@@ -114,21 +127,6 @@ console.diffRight(Date.now());
 <sup>4</sup> Notation `[]` denotes pseudo `id` from a [Multiset](https://en.wikipedia.org/wiki/Multiset) of recurring instances, which is assigned in the scope of serialization of a high level argument instance, while comparing left or right side; that means - if some object, having `id` of `[0001]` on the left side, is not guarantied to have same `id` on the right side.
 
 <sup>5</sup> `Map` key, unless it's a primitive type, serialized by his pseudo `id`.
-
-#### Typescript
-
-Global Console interface declaration for quick copy/paste when used from typescript:
-
-```typescript
-declare global {
-  interface Console {
-    diff(left: unknown, right?: unknown): void;
-    diffPush(next: unknown): void;
-    diffLeft(left: unknown): void;
-    diffRight(right: unknown): void;
-  }
-}
-```
 
 ### Protection
 
