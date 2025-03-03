@@ -2,12 +2,18 @@
   <section class="-empty">
     <code v-text="APP_CODE_EXAMPLE" />
     <div class="-links">
-      <a
-        :href="APP_DIFFAPI"
-        target="_blank"
-        v-text="'benjamine/jsondiffpatch'"
-      />,
-      <a :href="APP_HOMEPAGE" target="_blank" v-text="'zendive/jsdiff'" />
+      <div>
+        Source code on GitHub
+        <a :href="APP_HOMEPAGE" target="_blank" v-text="'zendive/jsdiff'" />
+      </div>
+      <div>
+        Based on
+        <a
+          :href="APP_DIFFAPI"
+          target="_blank"
+          v-text="'benjamine/jsondiffpatch'"
+        />
+      </div>
     </div>
   </section>
 </template>
@@ -23,6 +29,7 @@ import { APP_HOMEPAGE } from '@/api/env.ts';
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  text-align: center;
   height: calc(100vh - var(--header-height));
   margin: 0 auto;
   font-size: 26px;

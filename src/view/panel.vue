@@ -87,6 +87,7 @@ onUnmounted(() => {
 :root {
   --colour-background: #fff;
   --colour-text: #000;
+  --colour-error: rgb(182, 33, 33);
   --colour-text-diff: #000;
 
   --colour-found-outline: 0, 0, 0;
@@ -110,6 +111,7 @@ onUnmounted(() => {
 .dark {
   --colour-background: rgb(32 33 36);
   --colour-text: rgb(189, 198, 207);
+  --colour-error: rgb(211, 231, 26);
 
   --colour-found-outline: 255, 255, 255;
   --colour-found-this-background: 255, 255, 255;
@@ -131,6 +133,10 @@ body {
   padding: 0;
   overflow: hidden;
   height: 100%;
+}
+
+a {
+  color: var(--colour-text);
 }
 
 .jsdiff-panel {
