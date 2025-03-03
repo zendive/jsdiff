@@ -2,7 +2,7 @@
   "type": "module",
   "devDependencies": {
     "@noble/hashes": "1.7.1",
-    "@types/chrome": "0.0.306",
+    "@types/chrome": "0.0.307",
     "@types/diff-match-patch": "1.0.36",
     "@types/firefox-webext-browser": "120.0.4",
     "@types/webpack-bundle-analyzer": "4.7.0",
@@ -13,12 +13,12 @@
     "esbuild-loader": "4.3.0",
     "jsondiffpatch": "0.6.0",
     "pinia": "3.0.1",
-    "prettier": "3.5.2",
-    "sass": "1.85.0",
+    "prettier": "3.5.3",
+    "sass": "1.85.1",
     "sass-loader": "16.0.5",
     "style-loader": "4.0.0",
     "tsx": "4.19.3",
-    "typescript": "5.7.3",
+    "typescript": "5.8.2",
     "vue": "3.5.13",
     "vue-loader": "17.4.2",
     "webpack": "5.98.0",
@@ -26,6 +26,9 @@
     "webpack-cli": "6.0.1"
   },
   "pnpm": {
-    "overrides": {}
+    "overrides": {},
+    "onlyBuiltDependencies": [
+      "sass"
+    ]
   }
 }
