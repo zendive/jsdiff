@@ -2,6 +2,13 @@ import { test } from 'node:test';
 import assert from 'node:assert';
 import { customClone } from '../src/api/clone.ts';
 
+const symbol = {
+  named1: Symbol('א'),
+  named2: Symbol('named'),
+  unnamed: Symbol(),
+  global: Symbol.for('global'),
+};
+
 // mock DOM in node environment
 Object.assign(globalThis, {
   Element: class Element {
@@ -58,16 +65,16 @@ test('clone functions', () => {
 test('clone symbols', () => {
   assert.deepEqual(
     customClone({
-      s0: Symbol(),
-      s1: Symbol('named'),
-      s2: Symbol.for('global'),
-      [Symbol('א')]: 1,
+      s0: symbol.unnamed,
+      s1: symbol.named2,
+      [symbol.named1]: 1,
+      s2: symbol.global,
     }),
     {
-      s0: '{0003} Symbol()',
-      s1: '{0004} Symbol(named)',
+      s0: '{0001} Symbol()',
+      s1: '{0002} Symbol(named)',
+      '{0003} Symbol(א)': 1,
       s2: 'Symbol(global)',
-      '{0005} Symbol(א)': 1,
     }
   );
 });
@@ -118,8 +125,8 @@ test('clone map', () => {
         [new URL('x:</script>'), 1],
         [{}, 1],
         [undefined, 1],
-        [Symbol('א'), 1],
-        [Symbol.for('global'), 1],
+        [symbol.named1, 1],
+        [symbol.global, 1],
       ]),
     }),
     {
@@ -130,7 +137,7 @@ test('clone map', () => {
         'URL⟪x:</script>⟫': 1,
         '[0003] Object⟪♻️⟫': 1,
         '⟪undefined⟫': 1,
-        '{0006} Symbol(א)': 1,
+        '{0003} Symbol(א)': 1,
         'Symbol(global)': 1,
       },
     }
