@@ -1,4 +1,4 @@
-import { SHA256 } from '@/api/toolkit.ts';
+import { hashString } from '@/api/toolkit.ts';
 import {
   TAG_EXCEPTION,
   TAG_EXCEPTION_FALLBACK,
@@ -10,17 +10,19 @@ import {
   TAG_RECURRING_MAP,
   TAG_RECURRING_OBJECT,
   TAG_RECURRING_SET,
-  TAG_SYMBOL,
+  TAG_REGEXP,
+  TAG_UNIQUE_SYMBOL,
   TAG_UNDEFINED,
-  TAG_UNSERIALIZABLE,
+  TAG_DOM_ELEMENT,
+  TAG_GLOBAL_SYMBOL,
+  TAG_URL,
 } from '@/api/const.ts';
+import {
+  UniqueLookupCatalog,
+  CommonLookupCatalog,
+  type TCommonInstanceTag,
+} from '@/api/cloneCatalog.ts';
 
-type TInstanceBadgeTag = (id: string) => string;
-type TSymbolBadgeTag = (symbolName: string, symbolId: string) => string;
-interface ICatalogRecord {
-  name: string;
-  seen: boolean;
-}
 interface ISerializeToObject {
   [key: string]: any;
 }
@@ -32,45 +34,10 @@ interface IHasToJSON {
   toJSON: () => unknown;
 }
 
-class ObjectsCatalog {
-  #records: Map<unknown, ICatalogRecord>;
-  #instanceCounter = 0;
+const symbolCatalog = new UniqueLookupCatalog();
+const domCatalog = new UniqueLookupCatalog();
 
-  constructor() {
-    this.#records = new Map();
-  }
-
-  clear() {
-    this.#records.clear();
-  }
-
-  #counterToString(counter: number): string {
-    return counter.toString(16).padStart(4, '0');
-  }
-
-  lookup(
-    value: unknown,
-    badge: TInstanceBadgeTag | TSymbolBadgeTag
-  ): ICatalogRecord {
-    let record = this.#records.get(value);
-
-    if (!record) {
-      ++this.#instanceCounter;
-      const id = this.#counterToString(this.#instanceCounter);
-      record = {
-        name: isSymbol(value)
-          ? (badge as TSymbolBadgeTag)(value.toString(), id)
-          : (badge as TInstanceBadgeTag)(id),
-        seen: false,
-      };
-      this.#records.set(value, record);
-    }
-
-    return record;
-  }
-}
-
-export async function post(payload: ICompareMessagePayload): Promise<void> {
+export function post(payload: ICompareMessagePayload) {
   try {
     window.postMessage(
       { source: 'jsdiff-console-to-proxy-inprogress', on: true },
@@ -86,7 +53,7 @@ export async function post(payload: ICompareMessagePayload): Promise<void> {
         } else if (value === null) {
           payload[key] = TAG_NULL;
         } else {
-          payload[key] = await customClone(value);
+          payload[key] = customClone(value);
         }
       }
     }
@@ -105,132 +72,120 @@ export async function post(payload: ICompareMessagePayload): Promise<void> {
   }
 }
 
-export async function customClone(value: unknown): Promise<unknown> {
-  let catalog: ObjectsCatalog | null = new ObjectsCatalog();
-  const rv = await recursiveClone(catalog, value);
-
-  catalog.clear();
-  catalog = null;
-
+export function customClone(value: unknown) {
+  let commonCatalog: CommonLookupCatalog | null = new CommonLookupCatalog();
+  const rv = recursiveClone(commonCatalog, value);
+  commonCatalog = null;
   return rv;
 }
 
-async function recursiveClone(
-  catalog: ObjectsCatalog,
-  value: unknown
-): Promise<unknown> {
+function recursiveClone(commonCatalog: CommonLookupCatalog, value: unknown) {
   let rv = value;
 
-  if (isUnserializable(value)) {
-    const { name } = catalog.lookup(value, TAG_UNSERIALIZABLE);
-    rv = name;
+  if (isDOM(value)) {
+    rv = domCatalog.lookup(value, TAG_DOM_ELEMENT);
   } else if (isFunction(value)) {
-    rv = await serializeFunction(value);
+    rv = serializeFunction(value);
   } else if (isSymbol(value)) {
-    const { name } = catalog.lookup(value, TAG_SYMBOL);
-    rv = name;
+    if (isGlobalSymbol(value)) {
+      rv = TAG_GLOBAL_SYMBOL(value);
+    } else {
+      rv = symbolCatalog.lookup(value, TAG_UNIQUE_SYMBOL);
+    }
+  } else if (isRegExp(value)) {
+    rv = TAG_REGEXP(value);
+  } else if (isURL(value)) {
+    rv = TAG_URL(value);
   } else if (isArray(value)) {
-    rv = await serializeArrayAlike(catalog, value, TAG_RECURRING_ARRAY);
+    rv = serializeArrayAlike(commonCatalog, value, TAG_RECURRING_ARRAY);
   } else if (isSet(value)) {
-    rv = await serializeArrayAlike(catalog, value, TAG_RECURRING_SET);
+    rv = serializeArrayAlike(commonCatalog, value, TAG_RECURRING_SET);
   } else if (isMap(value)) {
-    rv = await serializeMap(catalog, value);
+    rv = serializeMap(commonCatalog, value);
   } else if (isObject(value)) {
-    rv = await serializeObject(catalog, value);
+    rv = serializeObject(commonCatalog, value);
   } else if (isNumericSpecials(value)) {
     rv = TAG_NUMERIC(value);
   } else if (value === undefined) {
-    // JsonDiffPatch has problem identifying undefined value - storing a string instead
+    // JsonDiffPatch has a problem comparing with undefined value - storing a string instead
     rv = TAG_UNDEFINED;
   }
 
   return rv;
 }
 
-function isNumericSpecials(value: unknown): value is bigint | number {
-  return (
-    typeof value === 'bigint' ||
-    Number.isNaN(value) ||
-    value === -Infinity ||
-    value === Infinity
-  );
-}
-
-async function serializeArrayAlike(
-  catalog: ObjectsCatalog,
-  value: unknown[] | Set<unknown>,
-  badge: TInstanceBadgeTag
-): Promise<unknown[] | string> {
-  const record = catalog.lookup(value, badge);
-  let rv;
-
+function serializeArrayAlike(
+  commonCatalog: CommonLookupCatalog,
+  array: unknown[] | Set<unknown>,
+  badge: TCommonInstanceTag
+): unknown[] | string {
+  const record = commonCatalog.lookup(array, badge);
   if (record.seen) {
-    rv = record.name;
-  } else {
-    record.seen = true;
-    const arr = [];
-
-    for (const v of value) {
-      arr.push(await recursiveClone(catalog, v));
-    }
-
-    rv = arr;
+    return record.name;
   }
 
-  return rv;
+  record.seen = true;
+
+  const arr = [];
+  for (const v of array) {
+    arr.push(recursiveClone(commonCatalog, v));
+  }
+
+  return arr;
 }
 
-async function serializeMap(
-  catalog: ObjectsCatalog,
+function serializeMap(
+  commonCatalog: CommonLookupCatalog,
   value: Map<unknown, unknown>
-): Promise<unknown> {
-  const record = catalog.lookup(value, TAG_RECURRING_MAP);
-  let rv;
+) {
+  const record = commonCatalog.lookup(value, TAG_RECURRING_MAP);
 
   if (record.seen) {
-    rv = record.name;
-  } else {
-    record.seen = true;
-    const obj = {} as ISerializeToObject;
-
-    for (const [k, v] of value) {
-      const newKey = await serializeMapKey(catalog, k);
-      const newValue = await recursiveClone(catalog, v);
-
-      obj[newKey] = newValue;
-    }
-
-    rv = obj;
+    return record.name;
   }
 
-  return rv;
+  record.seen = true;
+
+  const obj: ISerializeToObject = {};
+  for (const [k, v] of value) {
+    const newKey = serializeMapKey(commonCatalog, k);
+    const newValue = recursiveClone(commonCatalog, v);
+
+    obj[newKey] = newValue;
+  }
+
+  return obj;
 }
 
-async function serializeMapKey(
-  catalog: ObjectsCatalog,
+function serializeMapKey(
+  commonCatalog: CommonLookupCatalog,
   key: unknown
-): Promise<string> {
+): string {
   let rv;
 
-  if (isUnserializable(key)) {
-    const { name } = catalog.lookup(key, TAG_UNSERIALIZABLE);
-    rv = name;
+  if (isDOM(key)) {
+    rv = domCatalog.lookup(key, TAG_DOM_ELEMENT);
   } else if (isFunction(key)) {
-    rv = await serializeFunction(key);
+    rv = serializeFunction(key);
   } else if (isSymbol(key)) {
-    const { name } = catalog.lookup(key, TAG_SYMBOL);
-    rv = name;
+    rv = isGlobalSymbol(key)
+      ? TAG_GLOBAL_SYMBOL(key)
+      : symbolCatalog.lookup(key, TAG_UNIQUE_SYMBOL);
+  } else if (isRegExp(key)) {
+    rv = TAG_REGEXP(key);
+  } else if (isURL(key)) {
+    rv = TAG_URL(key);
   } else if (isArray(key)) {
-    const { name } = catalog.lookup(key, TAG_RECURRING_ARRAY);
+    const { name } = commonCatalog.lookup(key, TAG_RECURRING_ARRAY);
     rv = name;
   } else if (isSet(key)) {
-    const { name } = catalog.lookup(key, TAG_RECURRING_SET);
+    const { name } = commonCatalog.lookup(key, TAG_RECURRING_SET);
     rv = name;
   } else if (isMap(key)) {
-    const { name } = catalog.lookup(key, TAG_RECURRING_MAP);
+    const { name } = commonCatalog.lookup(key, TAG_RECURRING_MAP);
     rv = name;
   } else if (isObject(key)) {
-    const { name } = catalog.lookup(key, TAG_RECURRING_OBJECT);
+    const { name } = commonCatalog.lookup(key, TAG_RECURRING_OBJECT);
     rv = name;
   } else if (isNumericSpecials(key)) {
     rv = TAG_NUMERIC(key);
@@ -243,80 +198,85 @@ async function serializeMapKey(
   return rv;
 }
 
-async function serializeObject(
-  catalog: ObjectsCatalog,
-  value: object
-): Promise<unknown> {
-  const record = catalog.lookup(value, TAG_RECURRING_OBJECT);
-  let rv;
-
+function serializeObject(commonCatalog: CommonLookupCatalog, value: object) {
+  const record = commonCatalog.lookup(value, TAG_RECURRING_OBJECT);
   if (record.seen) {
-    rv = record.name;
-  } else {
-    record.seen = true;
+    return record.name;
+  }
 
-    if (isSelfSerializableObject(value)) {
-      const newValue = serializeSelfSerializable(value);
-      rv = await recursiveClone(catalog, newValue);
-    } else {
-      const obj = {} as ISerializeToObject;
-      const ownKeys = Reflect.ownKeys(value);
+  record.seen = true;
 
-      for (const key of ownKeys) {
-        let newKey, newValue;
+  if (isSelfSerializableObject(value)) {
+    const toJsonValue = serializeSelfSerializable(value);
+    return recursiveClone(commonCatalog, toJsonValue);
+  }
 
-        if (isSymbol(key)) {
-          const { name } = catalog.lookup(key, TAG_SYMBOL);
-          newKey = name;
-        } else {
-          newKey = key;
-        }
-
-        try {
-          // accessing value by key may throw
-          newValue = await recursiveClone(catalog, (value as any)[key]);
-        } catch (error) {
-          newValue = stringifyError(error);
-        }
-
-        obj[newKey] = newValue;
-      }
-
-      rv = obj;
-    }
+  const rv: ISerializeToObject = {};
+  for (const key of Reflect.ownKeys(value)) {
+    const { newKey, newValue } = serializeObjectKey(commonCatalog, key, value);
+    rv[newKey] = newValue;
   }
 
   return rv;
 }
 
-async function serializeFunction(value: IFunction): Promise<string> {
+function serializeObjectKey(
+  commonCatalog: CommonLookupCatalog,
+  key: string | symbol,
+  value: object
+) {
+  let newKey: string, newValue: unknown;
+
+  if (isSymbol(key)) {
+    newKey = isGlobalSymbol(key)
+      ? TAG_GLOBAL_SYMBOL(key)
+      : symbolCatalog.lookup(key, TAG_UNIQUE_SYMBOL);
+  } else {
+    newKey = key;
+  }
+
+  try {
+    // accessing value by key may throw
+    newValue = recursiveClone(commonCatalog, (value as any)[key]);
+  } catch (error) {
+    newValue = stringifyError(error);
+  }
+
+  return { newKey, newValue };
+}
+
+function serializeFunction(value: IFunction): string {
   const fnBody = value.toString();
 
   if (fnBody.endsWith('{ [native code] }')) {
-    return TAG_NATIVE_FUNCTION;
-  } else {
-    const hash = await SHA256(fnBody);
-    return TAG_FUNCTION(value.name, hash);
+    return TAG_NATIVE_FUNCTION(value.name);
   }
+
+  return TAG_FUNCTION(value.name, hashString(fnBody));
 }
 
 function serializeSelfSerializable(value: IHasToJSON) {
-  let rv;
-
   try {
     // rogue object may throw
-    rv = value.toJSON();
+    return value.toJSON();
   } catch (error) {
-    rv = stringifyError(error);
+    return stringifyError(error);
   }
-
-  return rv;
 }
 
 function stringifyError(error: unknown) {
   return typeof error?.toString === 'function'
     ? TAG_EXCEPTION(error.toString())
     : TAG_EXCEPTION_FALLBACK;
+}
+
+function isNumericSpecials(value: unknown): value is bigint | number {
+  return (
+    typeof value === 'bigint' ||
+    Number.isNaN(value) ||
+    value === -Infinity ||
+    value === Infinity
+  );
 }
 
 function isArray(that: unknown): that is unknown[] {
@@ -368,14 +328,26 @@ function isSelfSerializableObject(that: unknown): that is IHasToJSON {
   return rv;
 }
 
-function isUnserializable(that: unknown): boolean {
+function isDOM(that: unknown): that is Element | Document {
   return that instanceof Element || that instanceof Document;
 }
 
-function isSymbol(that: unknown): that is Symbol {
+function isSymbol(that: unknown): that is symbol {
   return typeof that === 'symbol';
+}
+
+function isGlobalSymbol(that: symbol): that is symbol {
+  return Symbol.keyFor(that) !== undefined;
 }
 
 function isObject(that: unknown): that is object {
   return (that !== null && typeof that === 'object') || that instanceof Object;
+}
+
+function isRegExp(that: unknown): that is RegExp {
+  return that instanceof RegExp;
+}
+
+function isURL(that: unknown): that is URL {
+  return that instanceof URL;
 }

@@ -24,7 +24,7 @@ import { useSearchStore } from '@/stores/search.store.ts';
 import PanelHeader from '@/view/panel.header.vue';
 import PanelEmpty from '@/view/panel.empty.vue';
 import { onColourSchemeChange } from '@/api/onColourSchemeChange.ts';
-import diffApi from '@/api/diffApi.ts';
+import { buildDeltaElement, hideUnchanged } from '@/api/deltaHtml/api';
 
 const compareStore = useCompareStore();
 const searchStore = useSearchStore();
@@ -35,12 +35,12 @@ watch(
   () => compareStore.deltaObj,
   () => {
     if (deltaEl.value) {
-      const tmpEl = document.createElement('div');
-      tmpEl.innerHTML = diffApi.format(
+      const tmpEl = buildDeltaElement(
         compareStore.deltaObj,
-        compareStore.compare.left
+        compareStore.compare.left,
+        compareStore.showOnlyChanged
       );
-      deltaEl.value.replaceChildren(<Node>tmpEl.firstChild);
+      tmpEl && deltaEl.value.replaceChildren(tmpEl);
     }
   },
   { flush: 'post' }
@@ -61,7 +61,10 @@ const onToggleUnchanged = () => {
   if (deltaEl.value) {
     searchStore.searchCancel();
     compareStore.showOnlyChanged = !compareStore.showOnlyChanged;
-    diffApi.showUnchanged(!compareStore.showOnlyChanged, deltaEl.value);
+    hideUnchanged(
+      compareStore.showOnlyChanged,
+      deltaEl.value.firstElementChild
+    );
   }
 };
 
@@ -84,6 +87,7 @@ onUnmounted(() => {
 :root {
   --colour-background: #fff;
   --colour-text: #000;
+  --colour-error: rgb(182, 33, 33);
   --colour-text-diff: #000;
 
   --colour-found-outline: 0, 0, 0;
@@ -107,6 +111,7 @@ onUnmounted(() => {
 .dark {
   --colour-background: rgb(32 33 36);
   --colour-text: rgb(189, 198, 207);
+  --colour-error: rgb(211, 231, 26);
 
   --colour-found-outline: 255, 255, 255;
   --colour-found-this-background: 255, 255, 255;
@@ -128,6 +133,10 @@ body {
   padding: 0;
   overflow: hidden;
   height: 100%;
+}
+
+a {
+  color: var(--colour-text);
 }
 
 .jsdiff-panel {

@@ -138,7 +138,7 @@ const onClearResults = () => {
     justify-content: center;
     align-items: center;
     padding-left: 10px;
-    color: rgb(182, 33, 33);
+    color: var(--colour-error);
   }
 }
 </style>

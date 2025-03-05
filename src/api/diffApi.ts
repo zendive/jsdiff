@@ -2,8 +2,6 @@ import { hasValue } from '@/api/toolkit.ts';
 import DiffMatchPatch from 'diff-match-patch';
 import * as jsondiffpatch from 'jsondiffpatch';
 export type { Delta } from 'jsondiffpatch';
-import type { Delta } from 'jsondiffpatch';
-import { format, showUnchanged } from 'jsondiffpatch/formatters/html';
 
 const patcher = jsondiffpatch.create({
   // used to match objects when diffing arrays, by default only === operator is used
@@ -34,16 +32,6 @@ const patcher = jsondiffpatch.create({
   },
 });
 
-export default {
-  diff(left: unknown, right: unknown) {
-    return patcher.diff(left, right);
-  },
-
-  format(delta: Delta, left: unknown) {
-    return format(delta, left) || '';
-  },
-
-  showUnchanged(show: boolean, el: HTMLElement) {
-    showUnchanged(show, el);
-  },
-};
+export function diff(left: unknown, right: unknown) {
+  return patcher.diff(left, right);
+}
