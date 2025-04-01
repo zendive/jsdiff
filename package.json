@@ -11,7 +11,7 @@
     "diff-match-patch": "1.0.5",
     "esbuild": "0.25.0",
     "esbuild-loader": "4.3.0",
-    "jsondiffpatch": "0.6.0",
+    "jsondiffpatch": "0.7.3",
     "pinia": "3.0.1",
     "prettier": "3.5.3",
     "sass": "1.85.1",
