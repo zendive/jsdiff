@@ -13,10 +13,7 @@
     "lib": ["ESNext", "DOM"],
     "types": ["chrome", "firefox-webext-browser"],
     "typeRoots": ["node_modules/@types", "src/@types"],
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["src/*"]
-    }
+    "baseUrl": "."
   },
   "include": ["src/**/*", "src/**/*.vue"],
   "exclude": ["bundle", "**/~*.ts"]

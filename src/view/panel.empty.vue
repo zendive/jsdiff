@@ -19,8 +19,8 @@
 </template>
 
 <script setup lang="ts">
-import { APP_DIFFAPI, APP_CODE_EXAMPLE } from '@/api/const.ts';
-import { APP_HOMEPAGE } from '@/api/env.ts';
+import { APP_DIFFAPI, APP_CODE_EXAMPLE } from '../api/const.ts';
+import { APP_HOMEPAGE } from '../api/env.ts';
 </script>
 
 <style scoped lang="scss">

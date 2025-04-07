@@ -33,9 +33,6 @@ export default function (
     resolve: {
       extensions: ['.ts', '.js'],
       modules: [new URL('src/js', import.meta.url).pathname, 'node_modules'],
-      alias: {
-        '@': new URL('src', import.meta.url).pathname,
-      },
     },
 
     plugins: [

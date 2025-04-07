@@ -1,4 +1,4 @@
-import { UPPERCASE_PATTERN } from '@/api/const.ts';
+import { UPPERCASE_PATTERN } from '../api/const.ts';
 import { defineStore } from 'pinia';
 import { markRaw } from 'vue';
 

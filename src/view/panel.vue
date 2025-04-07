@@ -19,12 +19,12 @@
 
 <script setup lang="ts">
 import { watch, onUnmounted, ref, watchEffect } from 'vue';
-import { useCompareStore } from '@/stores/compare.store.ts';
-import { useSearchStore } from '@/stores/search.store.ts';
-import PanelHeader from '@/view/panel.header.vue';
-import PanelEmpty from '@/view/panel.empty.vue';
-import { onColourSchemeChange } from '@/api/onColourSchemeChange.ts';
-import { buildDeltaElement, hideUnchanged } from '@/api/deltaHtml/api';
+import { useCompareStore } from '../stores/compare.store.ts';
+import { useSearchStore } from '../stores/search.store.ts';
+import PanelHeader from './panel.header.vue';
+import PanelEmpty from './panel.empty.vue';
+import { onColourSchemeChange } from '../api/onColourSchemeChange.ts';
+import { buildDeltaElement, hideUnchanged } from '../api/deltaHtml/api';
 
 const compareStore = useCompareStore();
 const searchStore = useSearchStore();

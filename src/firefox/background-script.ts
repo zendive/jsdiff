@@ -1,6 +1,6 @@
 // background script for firefox's partial(?) MV3 implementation
 
-import { BACKGROUND_SCRIPT_CONNECTION_NAME } from '@/api/const.ts';
+import { BACKGROUND_SCRIPT_CONNECTION_NAME } from '../api/const.ts';
 
 const ports = new Map<number, browser.runtime.Port>();
 

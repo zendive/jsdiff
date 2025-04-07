@@ -8,7 +8,7 @@
 </template>
 
 <script lang="ts" setup>
-import { APP_HOMEPAGE, APP_VERSION } from '@/api/env.ts';
+import { APP_HOMEPAGE, APP_VERSION } from '../api/env.ts';
 </script>
 
 <style lang="scss" scoped>

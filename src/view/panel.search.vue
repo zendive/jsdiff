@@ -27,8 +27,8 @@
 
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from 'vue';
-import { useSearchStore } from '@/stores/search.store.ts';
-import { isSearchKeyboardEvent } from '@/api/toolkit.ts';
+import { useSearchStore } from '../stores/search.store.ts';
+import { isSearchKeyboardEvent } from '../api/toolkit.ts';
 
 const searchStore = useSearchStore();
 const searchEl = ref<HTMLInputElement | null>(null);
@@ -107,13 +107,13 @@ const onNextSearch = () => {
 
   .icon {
     &.-arrow-up {
-      -webkit-mask-image: url(@/view/svg/arrow-up.svg);
-      mask-image: url(@/view/svg/arrow-up.svg);
+      -webkit-mask-image: url(./svg/arrow-up.svg);
+      mask-image: url(./svg/arrow-up.svg);
     }
 
     &.-arrow-down {
-      -webkit-mask-image: url(@/view/svg/arrow-down.svg);
-      mask-image: url(@/view/svg/arrow-down.svg);
+      -webkit-mask-image: url(./svg/arrow-down.svg);
+      mask-image: url(./svg/arrow-down.svg);
     }
   }
 

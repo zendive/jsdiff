@@ -1,7 +1,7 @@
 import { createApp } from 'vue';
-import Panel from '@/view/panel.vue';
+import Panel from './view/panel.vue';
 import { createPinia } from 'pinia';
-import { compareStoreRuntimeService } from '@/stores/compare.store.ts';
+import { compareStoreRuntimeService } from './stores/compare.store.ts';
 import 'jsondiffpatch/formatters/styles/html.css';
 
 createApp(Panel)

@@ -3,7 +3,7 @@ import {
   ERROR_PORT_CLOSED,
   ERROR_QUOTA_EXCEEDED,
   TAG_EMPTY,
-} from '@/api/const.ts';
+} from './const.ts';
 
 export function proxyMessageGate(
   callbackInprogress: (e: MessageEvent<IProgressMessage>) => void,

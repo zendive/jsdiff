@@ -1,4 +1,4 @@
-import { hashString } from '@/api/toolkit.ts';
+import { hashString } from './toolkit.ts';
 import {
   TAG_EXCEPTION,
   TAG_EXCEPTION_FALLBACK,
@@ -16,12 +16,12 @@ import {
   TAG_DOM_ELEMENT,
   TAG_GLOBAL_SYMBOL,
   TAG_URL,
-} from '@/api/const.ts';
+} from './const.ts';
 import {
   UniqueLookupCatalog,
   CommonLookupCatalog,
   type TCommonInstanceTag,
-} from '@/api/cloneCatalog.ts';
+} from './cloneCatalog.ts';
 
 interface ISerializeToObject {
   [key: string]: any;

@@ -46,12 +46,12 @@
 </template>
 
 <script setup lang="ts">
-import { useCompareStore } from '@/stores/compare.store.ts';
-import { useSearchStore } from '@/stores/search.store.ts';
-import PanelLoader from '@/view/panel.loader.vue';
-import PanelTimer from '@/view/panel.timer.vue';
-import PanelBadge from '@/view/panel.badge.vue';
-import PanelSearch from '@/view/panel.search.vue';
+import { useCompareStore } from '../stores/compare.store.ts';
+import { useSearchStore } from '../stores/search.store.ts';
+import PanelLoader from '../view/panel.loader.vue';
+import PanelTimer from '../view/panel.timer.vue';
+import PanelBadge from '../view/panel.badge.vue';
+import PanelSearch from '../view/panel.search.vue';
 
 const compareStore = useCompareStore();
 const searchStore = useSearchStore();
@@ -116,19 +116,19 @@ const onClearResults = () => {
     mask-repeat: no-repeat;
 
     &.-clear {
-      -webkit-mask-image: url(@/view/svg/clear.svg);
-      mask-image: url(@/view/svg/clear.svg);
+      -webkit-mask-image: url(./svg/clear.svg);
+      mask-image: url(./svg/clear.svg);
     }
     &.-copy {
-      -webkit-mask-image: url(@/view/svg/copy-to-clipboard.svg);
-      mask-image: url(@/view/svg/copy-to-clipboard.svg);
+      -webkit-mask-image: url(./svg/copy-to-clipboard.svg);
+      mask-image: url(./svg/copy-to-clipboard.svg);
     }
     &.-toggle-unchanged {
-      -webkit-mask-image: url(@/view/svg/filter.svg);
-      mask-image: url(@/view/svg/filter.svg);
+      -webkit-mask-image: url(./svg/filter.svg);
+      mask-image: url(./svg/filter.svg);
       &.-on {
-        -webkit-mask-image: url(@/view/svg/filter-filled.svg);
-        mask-image: url(@/view/svg/filter-filled.svg);
+        -webkit-mask-image: url(./svg/filter-filled.svg);
+        mask-image: url(./svg/filter-filled.svg);
       }
     }
   }

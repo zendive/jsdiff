@@ -1,4 +1,4 @@
-import { hasValue } from '@/api/toolkit.ts';
+import { hasValue } from './toolkit.ts';
 import DiffMatchPatch from 'diff-match-patch';
 import * as jsondiffpatch from 'jsondiffpatch';
 export type { Delta } from 'jsondiffpatch';

@@ -1,9 +1,9 @@
-import { diff, type Delta } from '@/api/diffApi.ts';
-import { hasValue } from '@/api/toolkit.ts';
+import { diff, type Delta } from '../api/diffApi.ts';
+import { hasValue } from '../api/toolkit.ts';
 import { defineStore } from 'pinia';
 import { markRaw } from 'vue';
-import { useRuntime } from '@/api/useRuntime.ts';
-import { useSearchStore } from '@/stores/search.store.ts';
+import { useRuntime } from '../api/useRuntime.ts';
+import { useSearchStore } from './search.store.ts';
 
 function defaultCompareState(): ICompareState {
   return {
