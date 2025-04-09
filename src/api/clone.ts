@@ -247,16 +247,17 @@ function isArray(that: unknown): that is unknown[] {
   return (
     that instanceof Array ||
     that instanceof Uint8Array ||
-    that instanceof Int8Array ||
     that instanceof Uint8ClampedArray ||
     that instanceof Uint16Array ||
-    that instanceof Int16Array ||
     that instanceof Uint32Array ||
+    that instanceof Int8Array ||
+    that instanceof Int16Array ||
     that instanceof Int32Array ||
+    that instanceof Float16Array ||
     that instanceof Float32Array ||
+    that instanceof Float64Array ||
     that instanceof BigUint64Array ||
-    that instanceof BigInt64Array ||
-    that instanceof Float64Array
+    that instanceof BigInt64Array
   );
 }
 

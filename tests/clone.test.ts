@@ -76,16 +76,17 @@ describe('clone', () => {
     const arrays = [
       new Array(...[0, 1]),
       new Uint8Array([0, 1]),
-      new Int8Array([0, 1]),
       new Uint8ClampedArray([0, 1]),
       new Uint16Array([0, 1]),
-      new Int16Array([0, 1]),
       new Uint32Array([0, 1]),
+      new Int8Array([0, 1]),
+      new Int16Array([0, 1]),
       new Int32Array([0, 1]),
+      new Float16Array([0, 1]),
       new Float32Array([0, 1]),
+      new Float64Array([0, 1]),
       new BigUint64Array([0n, 1n]),
       new BigInt64Array([0n, 1n]),
-      new Float64Array([0, 1]),
     ];
 
     for (const array of arrays) {
