@@ -18,13 +18,13 @@
 </template>
 
 <script setup lang="ts">
-import { watch, onUnmounted, ref, watchEffect } from 'vue';
-import { useCompareStore } from '@/stores/compare.store.ts';
-import { useSearchStore } from '@/stores/search.store.ts';
-import PanelHeader from '@/view/panel.header.vue';
-import PanelEmpty from '@/view/panel.empty.vue';
-import { onColourSchemeChange } from '@/api/onColourSchemeChange.ts';
-import { buildDeltaElement, hideUnchanged } from '@/api/deltaHtml/api';
+import { onUnmounted, ref, watch, watchEffect } from 'vue';
+import { useCompareStore } from '../stores/compare.store.ts';
+import { useSearchStore } from '../stores/search.store.ts';
+import PanelHeader from './panel.header.vue';
+import PanelEmpty from './panel.empty.vue';
+import { onColourSchemeChange } from '../api/onColourSchemeChange.ts';
+import { buildDeltaElement, hideUnchanged } from '../api/deltaHtml/api';
 
 const compareStore = useCompareStore();
 const searchStore = useSearchStore();
@@ -38,19 +38,19 @@ watch(
       const tmpEl = buildDeltaElement(
         compareStore.deltaObj,
         compareStore.compare.left,
-        compareStore.showOnlyChanged
+        compareStore.showOnlyChanged,
       );
       tmpEl && deltaEl.value.replaceChildren(tmpEl);
     }
   },
-  { flush: 'post' }
+  { flush: 'post' },
 );
 
 watchEffect(
   () => {
     searchStore.assignDeltaElement(deltaEl.value);
   },
-  { flush: 'post' }
+  { flush: 'post' },
 );
 
 onColourSchemeChange((schemeName) => {
@@ -63,7 +63,7 @@ const onToggleUnchanged = () => {
     compareStore.showOnlyChanged = !compareStore.showOnlyChanged;
     hideUnchanged(
       compareStore.showOnlyChanged,
-      deltaEl.value.firstElementChild
+      deltaEl.value.firstElementChild,
     );
   }
 };
@@ -147,7 +147,7 @@ a {
   height: 100vh;
 
   .-body {
-    flex: 1 0 0%;
+    flex: 1 0 0;
     overflow: auto;
     overflow-wrap: break-word;
     overflow-anchor: none;

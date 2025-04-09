@@ -17,12 +17,12 @@ export function escapeHTML(str: string) {
   return str.replace(
     /[&<>"']/g,
     (match) =>
-      (<Record<string, string>>{
+      (<Record<string, string>> {
         '&': '&amp;',
         '<': '&lt;',
         '>': '&gt;',
         '"': '&quot;',
         "'": '&#39;',
-      })[match]
+      })[match],
   );
 }

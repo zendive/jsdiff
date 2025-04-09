@@ -1,5 +1,7 @@
 export const APP_DIFFAPI = 'https://github.com/benjamine/jsondiffpatch';
-export const APP_CODE_EXAMPLE = `${typeof browser !== 'undefined' ? 'jsdiff' : 'console'}.diff({a:1, b:1, c:3}, {a:1, b:2, d:3});`;
+export const APP_CODE_EXAMPLE = `${
+  typeof browser !== 'undefined' ? 'jsdiff' : 'console'
+}.diff({a:1, b:1, c:3}, {a:1, b:2, d:3});`;
 export const TAG_EMPTY = '⟪empty⟫';
 export const TAG_UNDEFINED = '⟪undefined⟫';
 export const TAG_NULL = '⟪null⟫';

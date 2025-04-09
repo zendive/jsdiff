@@ -1,0 +1,44 @@
+{
+  "compilerOptions": {
+    "types": ["npm:@types/chrome", "npm:@types/firefox-webext-browser"],
+    "lib": ["dom", "dom.iterable", "dom.asynciterable", "deno.ns"],
+    "strict": true
+  },
+  "lint": {
+    "include": [
+      "src/",
+      "tests/",
+      "build.ts",
+      "public/*.html"
+    ],
+    "rules": {
+      "tags": ["recommended"]
+    }
+  },
+  "fmt": {
+    "useTabs": false,
+    "lineWidth": 80,
+    "indentWidth": 2,
+    "semiColons": true,
+    "singleQuote": true,
+    "proseWrap": "preserve",
+    "include": [
+      "src/",
+      "tests/",
+      "public/*.html",
+      "build.ts",
+      "deno.json",
+      "package.json",
+      "manifest.chrome.json",
+      "manifest.firefox.json",
+      "tsconfig.json"
+    ]
+  },
+  "imports": {
+    "esbuild": "https://deno.land/x/esbuild@v0.25.2/mod.js",
+    "esbuild-plugin-vue-iii": "npm:esbuild-plugin-vue-iii@0.5.0",
+
+    "@std/expect": "jsr:@std/expect@1.0.15",
+    "@std/testing": "jsr:@std/testing@1.0.11"
+  }
+}

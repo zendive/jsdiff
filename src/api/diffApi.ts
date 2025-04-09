@@ -1,9 +1,9 @@
-import { hasValue } from '@/api/toolkit.ts';
+import { hasValue } from './toolkit.ts';
 import DiffMatchPatch from 'diff-match-patch';
-import * as jsondiffpatch from 'jsondiffpatch';
+import { create } from 'jsondiffpatch';
 export type { Delta } from 'jsondiffpatch';
 
-const patcher = jsondiffpatch.create({
+const patcher = create({
   // used to match objects when diffing arrays, by default only === operator is used
   objectHash(obj, index) {
     // this function is used only to when objects are not equal by ref
@@ -11,8 +11,8 @@ const patcher = jsondiffpatch.create({
       ? 'id' in obj && hasValue(obj.id)
         ? obj.id
         : '_id' in obj && hasValue(obj._id)
-          ? obj._id
-          : index
+        ? obj._id
+        : index
       : index;
 
     return hasValue(rv) ? String(rv) : undefined;

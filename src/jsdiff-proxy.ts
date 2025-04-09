@@ -1,10 +1,10 @@
 import {
-  proxyMessageGate,
-  proxyInprogressHandler,
   proxyCompareHandler,
-} from '@/api/proxy.ts';
+  proxyInprogressHandler,
+  proxyMessageGate,
+} from './api/proxy.ts';
 
-window.addEventListener(
+globalThis.addEventListener(
   'message',
-  proxyMessageGate(proxyInprogressHandler, proxyCompareHandler)
+  proxyMessageGate(proxyInprogressHandler, proxyCompareHandler),
 );

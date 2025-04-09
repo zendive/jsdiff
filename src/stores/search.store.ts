@@ -1,4 +1,4 @@
-import { UPPERCASE_PATTERN } from '@/api/const.ts';
+import { UPPERCASE_PATTERN } from '../api/const.ts';
 import { defineStore } from 'pinia';
 import { markRaw } from 'vue';
 
@@ -34,8 +34,9 @@ export const useSearchStore = defineStore('searchStore', {
     },
 
     assignDeltaElement(el: HTMLElement | null) {
-      this.deltaEl =
-        el && typeof el === 'object' ? markRaw<HTMLElement>(el) : null;
+      this.deltaEl = el && typeof el === 'object'
+        ? markRaw<HTMLElement>(el)
+        : null;
       this.clear();
     },
 
@@ -55,15 +56,15 @@ export const useSearchStore = defineStore('searchStore', {
             this.deltaEl,
             this.searchQuery,
             UPPERCASE_PATTERN.test(this.searchQuery),
-            /*IN/OUT*/ this.foundEls
+            /*IN/OUT*/ this.foundEls,
           );
           this.currentIndex = -1;
         }
       }
     },
 
-    searchNext(step: -1 | 1, prefferFresh = true) {
-      prefferFresh && this._ensureFreshResults();
+    searchNext(step: -1 | 1, preferFresh = true) {
+      preferFresh && this._ensureFreshResults();
 
       if (this.foundEls.length) {
         clearCurrent(this.foundEls[this.currentIndex]);
@@ -71,7 +72,7 @@ export const useSearchStore = defineStore('searchStore', {
         this.currentIndex += step;
         this.currentIndex = indexInBound(
           this.currentIndex,
-          this.foundEls.length
+          this.foundEls.length,
         );
 
         highlightCurrent(this.foundEls[this.currentIndex]);
@@ -114,6 +115,7 @@ function highlightCurrent(el: HTMLElement) {
  * Find nodes containing string query recursively
  * @param container
  * @param query
+ * @param isCaseSensitive
  * @param els
  * @returns
  */
@@ -121,21 +123,21 @@ function highlightAll(
   container: HTMLElement | null,
   query: string,
   isCaseSensitive: boolean,
-  /*IN/OUT*/ els: HTMLElement[]
+  /*IN/OUT*/ els: HTMLElement[],
 ) {
   if (!container) {
     return;
   }
 
-  const containerNodes = <NodeListOf<HTMLElement>>container.childNodes;
+  const containerNodes = <NodeListOf<HTMLElement>> container.childNodes;
 
   if (!containerNodes.length) {
     return;
   }
 
   const firstChild = containerNodes[0];
-  const isLeafNode =
-    containerNodes.length === 1 && firstChild.nodeType === Node.TEXT_NODE;
+  const isLeafNode = containerNodes.length === 1 &&
+    firstChild.nodeType === Node.TEXT_NODE;
 
   if (isLeafNode) {
     const text = firstChild.textContent || firstChild.innerText;
@@ -147,8 +149,7 @@ function highlightAll(
       return;
     }
 
-    const isHidden =
-      container.closest('.jsondiffpatch-unchanged-hidden') &&
+    const isHidden = container.closest('.jsondiffpatch-unchanged-hidden') &&
       container.closest('.jsondiffpatch-unchanged');
 
     if (isHidden) {

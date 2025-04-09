@@ -1,9 +1,9 @@
 import { escapeHTML } from '../toolkit.ts';
 import BaseFormatter from 'jsondiffpatch/formatters/base';
 import type {
+  BaseFormatterContext,
   DeltaType,
   NodeType,
-  BaseFormatterContext,
 } from 'jsondiffpatch/formatters/base';
 import type {
   AddedDelta,
@@ -17,9 +17,12 @@ import type {
 export type { Delta } from 'jsondiffpatch';
 
 export class HtmlFormatter extends BaseFormatter<BaseFormatterContext> {
-  typeFormattterErrorFormatter(context: BaseFormatterContext, err: unknown) {
+  override typeFormattterErrorFormatter(
+    context: BaseFormatterContext,
+    err: unknown,
+  ) {
     context.out(
-      `<pre class="jsondiffpatch-error">${escapeHTML(String(err))}</pre>`
+      `<pre class="jsondiffpatch-error">${escapeHTML(String(err))}</pre>`,
     );
   }
 
@@ -34,19 +37,17 @@ export class HtmlFormatter extends BaseFormatter<BaseFormatterContext> {
       const line = lines[i];
       context.out(
         '<li><div class="jsondiffpatch-textdiff-location">' +
-          `<span class="jsondiffpatch-textdiff-line-number">${
-            line.location.line
-          }</span><span class="jsondiffpatch-textdiff-char">${
-            line.location.chr
-          }</span></div><div class="jsondiffpatch-textdiff-line">`
+          `<span class="jsondiffpatch-textdiff-line-number">${line.location.line}</span><span class="jsondiffpatch-textdiff-char">${line.location.chr}</span></div><div class="jsondiffpatch-textdiff-line">`,
       );
       const pieces = line.pieces;
       for (let i = 0, I = pieces.length; i < I; i++) {
         const piece = pieces[i];
         context.out(
-          `<span class="jsondiffpatch-textdiff-${piece.type}">${escapeHTML(
-            decodeURI(piece.text)
-          )}</span>`
+          `<span class="jsondiffpatch-textdiff-${piece.type}">${
+            escapeHTML(
+              decodeURI(piece.text),
+            )
+          }</span>`,
         );
       }
       context.out('</div></li>');
@@ -57,7 +58,7 @@ export class HtmlFormatter extends BaseFormatter<BaseFormatterContext> {
   rootBegin(
     context: BaseFormatterContext,
     type: DeltaType,
-    nodeType: NodeType
+    nodeType: NodeType,
   ) {
     const nodeClass = `jsondiffpatch-${type}${
       nodeType ? ` jsondiffpatch-child-node-type-${nodeType}` : ''
@@ -71,10 +72,10 @@ export class HtmlFormatter extends BaseFormatter<BaseFormatterContext> {
 
   nodeBegin(
     context: BaseFormatterContext,
-    key: string,
+    _key: string,
     leftKey: string | number,
     type: DeltaType,
-    nodeType: NodeType
+    nodeType: NodeType,
   ) {
     const nodeClass = `jsondiffpatch-${type}${
       nodeType ? ` jsondiffpatch-child-node-type-${nodeType}` : ''
@@ -82,7 +83,7 @@ export class HtmlFormatter extends BaseFormatter<BaseFormatterContext> {
     context.out(
       `<li class="${nodeClass}"><div class="jsondiffpatch-property-name">${
         typeof leftKey === 'string' ? escapeHTML(leftKey) : leftKey
-      }</div>`
+      }</div>`,
     );
   }
 
@@ -92,8 +93,8 @@ export class HtmlFormatter extends BaseFormatter<BaseFormatterContext> {
 
   format_unchanged(
     context: BaseFormatterContext,
-    delta: undefined,
-    left: unknown
+    _delta: undefined,
+    left: unknown,
   ) {
     if (typeof left === 'undefined') {
       return;
@@ -105,8 +106,8 @@ export class HtmlFormatter extends BaseFormatter<BaseFormatterContext> {
 
   format_movedestination(
     context: BaseFormatterContext,
-    delta: undefined,
-    left: unknown
+    _delta: undefined,
+    left: unknown,
   ) {
     if (typeof left === 'undefined') {
       return;
@@ -119,12 +120,12 @@ export class HtmlFormatter extends BaseFormatter<BaseFormatterContext> {
   format_node(
     context: BaseFormatterContext,
     delta: ObjectDelta | ArrayDelta,
-    left: unknown
+    left: unknown,
   ) {
     // recurse
     const nodeType = delta._t === 'a' ? 'array' : 'object';
     context.out(
-      `<ul class="jsondiffpatch-node jsondiffpatch-node-type-${nodeType}">`
+      `<ul class="jsondiffpatch-node jsondiffpatch-node-type-${nodeType}">`,
     );
     this.formatDeltaChildren(context, delta, left);
     context.out('</ul>');

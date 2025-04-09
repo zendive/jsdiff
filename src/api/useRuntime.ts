@@ -2,7 +2,7 @@
  * Browser extension runtime connection unified abstraction between chrome and firefox.
  * Chrome connection is straightforward, while firefox MV3 still communicates via
  * background script port that have limited live-span and should be kept alive
- * while stil in use.
+ * while still in use.
  *
  * @example
  * const runtime = useRuntime(); // once per component setup
@@ -11,15 +11,15 @@
  */
 
 import {
-  BACKGROUND_SCRIPT_CONNECTION_NAME,
   BACKGROUND_SCRIPT_CONNECTION_INTERVAL,
-} from '@/api/const.ts';
+  BACKGROUND_SCRIPT_CONNECTION_NAME,
+} from './const.ts';
 
-type TRuntimeListener = (...args: any[]) => void;
+type TRuntimeListener = (...args: unknown[]) => void;
 
 const allListeners = new Set<TRuntimeListener>();
 
-function callAllListeners(...args: any[]) {
+function callAllListeners(...args: unknown[]) {
   for (const listener of allListeners) {
     listener(...args);
   }
@@ -37,6 +37,7 @@ function getFirefoxPort(callback: TRuntimeListener) {
 
 if (typeof browser !== 'undefined') {
   // firefox
+  // deno-lint-ignore no-unused-vars
   let port = getFirefoxPort(callAllListeners);
 
   setInterval(() => {
@@ -48,7 +49,7 @@ if (typeof browser !== 'undefined') {
 }
 
 export function useRuntime() {
-  let localListeners = new Set<TRuntimeListener>();
+  const localListeners = new Set<TRuntimeListener>();
 
   return {
     connect(listener: TRuntimeListener) {

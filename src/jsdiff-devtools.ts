@@ -2,8 +2,8 @@
 if (chrome.devtools.inspectedWindow.tabId !== null) {
   chrome.devtools.panels.create(
     'JSDiff',
-    '/bundle/img/panel-icon28.png',
-    '/bundle/jsdiff-panel.html',
-    (/*panel*/) => {}
+    '/public/img/panel-icon28.png',
+    '/public/jsdiff-panel.html',
+    (/*panel*/) => {},
   );
 }

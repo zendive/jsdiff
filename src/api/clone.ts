@@ -1,30 +1,29 @@
-import { hashString } from '@/api/toolkit.ts';
+import { hashString } from './toolkit.ts';
 import {
+  TAG_DOM_ELEMENT,
   TAG_EXCEPTION,
   TAG_EXCEPTION_FALLBACK,
   TAG_FUNCTION,
+  TAG_GLOBAL_SYMBOL,
   TAG_NATIVE_FUNCTION,
-  TAG_NULL,
   TAG_NUMERIC,
   TAG_RECURRING_ARRAY,
   TAG_RECURRING_MAP,
   TAG_RECURRING_OBJECT,
   TAG_RECURRING_SET,
   TAG_REGEXP,
-  TAG_UNIQUE_SYMBOL,
   TAG_UNDEFINED,
-  TAG_DOM_ELEMENT,
-  TAG_GLOBAL_SYMBOL,
+  TAG_UNIQUE_SYMBOL,
   TAG_URL,
-} from '@/api/const.ts';
+} from './const.ts';
 import {
-  UniqueLookupCatalog,
   CommonLookupCatalog,
   type TCommonInstanceTag,
-} from '@/api/cloneCatalog.ts';
+  UniqueLookupCatalog,
+} from './cloneCatalog.ts';
 
 interface ISerializeToObject {
-  [key: string]: any;
+  [key: string | symbol]: unknown;
 }
 interface IFunction {
   name: string;
@@ -36,41 +35,6 @@ interface IHasToJSON {
 
 const symbolCatalog = new UniqueLookupCatalog();
 const domCatalog = new UniqueLookupCatalog();
-
-export function post(payload: ICompareMessagePayload) {
-  try {
-    window.postMessage(
-      { source: 'jsdiff-console-to-proxy-inprogress', on: true },
-      '*'
-    );
-
-    for (const key of ['push', 'left', 'right']) {
-      if (Reflect.has(payload, key)) {
-        const value = payload[key];
-
-        if (value === undefined) {
-          payload[key] = TAG_UNDEFINED;
-        } else if (value === null) {
-          payload[key] = TAG_NULL;
-        } else {
-          payload[key] = customClone(value);
-        }
-      }
-    }
-
-    window.postMessage(
-      { source: 'jsdiff-console-to-proxy-compare', payload },
-      '*'
-    );
-  } catch (error) {
-    console.error('console.diff()', error);
-
-    window.postMessage(
-      { source: 'jsdiff-console-to-proxy-inprogress', on: false },
-      '*'
-    );
-  }
-}
 
 export function customClone(value: unknown) {
   let commonCatalog: CommonLookupCatalog | null = new CommonLookupCatalog();
@@ -117,7 +81,7 @@ function recursiveClone(commonCatalog: CommonLookupCatalog, value: unknown) {
 function serializeArrayAlike(
   commonCatalog: CommonLookupCatalog,
   array: unknown[] | Set<unknown>,
-  badge: TCommonInstanceTag
+  badge: TCommonInstanceTag,
 ): unknown[] | string {
   const record = commonCatalog.lookup(array, badge);
   if (record.seen) {
@@ -136,7 +100,7 @@ function serializeArrayAlike(
 
 function serializeMap(
   commonCatalog: CommonLookupCatalog,
-  value: Map<unknown, unknown>
+  value: Map<unknown, unknown>,
 ) {
   const record = commonCatalog.lookup(value, TAG_RECURRING_MAP);
 
@@ -149,9 +113,8 @@ function serializeMap(
   const obj: ISerializeToObject = {};
   for (const [k, v] of value) {
     const newKey = serializeMapKey(commonCatalog, k);
-    const newValue = recursiveClone(commonCatalog, v);
 
-    obj[newKey] = newValue;
+    obj[newKey] = recursiveClone(commonCatalog, v);
   }
 
   return obj;
@@ -159,7 +122,7 @@ function serializeMap(
 
 function serializeMapKey(
   commonCatalog: CommonLookupCatalog,
-  key: unknown
+  key: unknown,
 ): string {
   let rv;
 
@@ -223,7 +186,7 @@ function serializeObject(commonCatalog: CommonLookupCatalog, value: object) {
 function serializeObjectKey(
   commonCatalog: CommonLookupCatalog,
   key: string | symbol,
-  value: object
+  value: ISerializeToObject,
 ) {
   let newKey: string, newValue: unknown;
 
@@ -237,7 +200,7 @@ function serializeObjectKey(
 
   try {
     // accessing value by key may throw
-    newValue = recursiveClone(commonCatalog, (value as any)[key]);
+    newValue = recursiveClone(commonCatalog, value[key]);
   } catch (error) {
     newValue = stringifyError(error);
   }
@@ -283,16 +246,17 @@ function isArray(that: unknown): that is unknown[] {
   return (
     that instanceof Array ||
     that instanceof Uint8Array ||
-    that instanceof Int8Array ||
     that instanceof Uint8ClampedArray ||
     that instanceof Uint16Array ||
-    that instanceof Int16Array ||
     that instanceof Uint32Array ||
+    that instanceof Int8Array ||
+    that instanceof Int16Array ||
     that instanceof Int32Array ||
+    that instanceof Float16Array ||
     that instanceof Float32Array ||
+    that instanceof Float64Array ||
     that instanceof BigUint64Array ||
-    that instanceof BigInt64Array ||
-    that instanceof Float64Array
+    that instanceof BigInt64Array
   );
 }
 
@@ -316,12 +280,11 @@ function isSelfSerializableObject(that: unknown): that is IHasToJSON {
   let rv;
 
   try {
-    rv =
-      that !== null &&
+    rv = that !== null &&
       typeof that === 'object' &&
       'toJSON' in that &&
       typeof that.toJSON === 'function';
-  } catch (ignore) {
+  } catch (_ignore) {
     rv = false;
   }
 

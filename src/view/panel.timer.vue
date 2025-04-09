@@ -6,8 +6,8 @@
 </template>
 
 <script lang="ts" setup>
-import { SECOND, timeFromNow, timeToString } from '@/api/time.ts';
-import { useCompareStore } from '@/stores/compare.store.ts';
+import { SECOND, timeFromNow, timeToString } from '../api/time.ts';
+import { useCompareStore } from '../stores/compare.store.ts';
 import { computed, onUnmounted, ref, watch } from 'vue';
 
 const compareStore = useCompareStore();
@@ -36,7 +36,7 @@ watch(
   },
   {
     immediate: true,
-  }
+  },
 );
 
 onUnmounted(() => {
