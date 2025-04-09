@@ -15,7 +15,7 @@
   "background": {
     "scripts": ["public/build/firefox/jsdiff-background.js"]
   },
-  "devtools_page": "public/builddiff-devtools.html",
+  "devtools_page": "public/jsdiff-devtools.html",
   "icons": {
     "28": "public/img/panel-icon28.png",
     "64": "public/img/panel-icon64.png",
