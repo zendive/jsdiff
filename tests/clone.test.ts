@@ -17,6 +17,7 @@ Object.assign(globalThis, {
   Document: class Document {
     nodeName = 'stub-document';
   },
+  window: globalThis,
 });
 
 describe('clone', () => {

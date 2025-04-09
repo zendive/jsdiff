@@ -244,19 +244,21 @@ function isNumericSpecials(value: unknown): value is bigint | number {
 
 function isArray(that: unknown): that is unknown[] {
   return (
-    that instanceof Array ||
-    that instanceof Uint8Array ||
-    that instanceof Uint8ClampedArray ||
-    that instanceof Uint16Array ||
-    that instanceof Uint32Array ||
-    that instanceof Int8Array ||
-    that instanceof Int16Array ||
-    that instanceof Int32Array ||
-    that instanceof Float16Array ||
-    that instanceof Float32Array ||
-    that instanceof Float64Array ||
-    that instanceof BigUint64Array ||
-    that instanceof BigInt64Array
+    // NOTE: firefox content script has instances to compare with
+    // in `window` (not in `globalThis`)
+    that instanceof window.Array ||
+    that instanceof window.Uint8Array ||
+    that instanceof window.Uint8ClampedArray ||
+    that instanceof window.Uint16Array ||
+    that instanceof window.Uint32Array ||
+    that instanceof window.Int8Array ||
+    that instanceof window.Int16Array ||
+    that instanceof window.Int32Array ||
+    that instanceof window.Float16Array ||
+    that instanceof window.Float32Array ||
+    that instanceof window.Float64Array ||
+    that instanceof window.BigUint64Array ||
+    that instanceof window.BigInt64Array
   );
 }
 
@@ -269,11 +271,11 @@ function isFunction(that: unknown): that is IFunction {
 }
 
 function isSet(that: unknown): that is Set<unknown> {
-  return that instanceof Set;
+  return that instanceof window.Set;
 }
 
 function isMap(that: unknown): that is Map<unknown, unknown> {
-  return that instanceof Map;
+  return that instanceof window.Map;
 }
 
 function isSelfSerializableObject(that: unknown): that is IHasToJSON {
@@ -304,11 +306,12 @@ function isGlobalSymbol(that: symbol): that is symbol {
 }
 
 function isObject(that: unknown): that is object {
-  return (that !== null && typeof that === 'object') || that instanceof Object;
+  return (that !== null && typeof that === 'object') ||
+    that instanceof window.Object;
 }
 
 function isRegExp(that: unknown): that is RegExp {
-  return that instanceof RegExp;
+  return that instanceof window.RegExp;
 }
 
 function isURL(that: unknown): that is URL {

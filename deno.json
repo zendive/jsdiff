@@ -12,7 +12,8 @@
       "public/*.html"
     ],
     "rules": {
-      "tags": ["recommended"]
+      "tags": ["recommended"],
+      "exclude": ["no-window"]
     }
   },
   "fmt": {
