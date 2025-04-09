@@ -1,11 +1,11 @@
-import { HtmlFormatter, type Delta } from './HtmlFormatter.ts';
+import { type Delta, HtmlFormatter } from './HtmlFormatter.ts';
 
 let htmlFormatter: HtmlFormatter;
 
 export function buildDeltaElement(
   delta: Delta,
   left: unknown,
-  hide: boolean
+  hide: boolean,
 ): Element | null {
   if (!htmlFormatter) {
     htmlFormatter = new HtmlFormatter();

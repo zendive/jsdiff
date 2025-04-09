@@ -1,4 +1,4 @@
-type TUniqueInstanceTag = (id: string, value: any) => string;
+type TUniqueInstanceTag = (id: string, value: unknown) => string;
 export type TCommonInstanceTag = (id: string) => string;
 
 type ICatalogUniqueRecord = string;

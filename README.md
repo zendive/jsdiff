@@ -1,4 +1,4 @@
-### ![](./bundle/img/panel-icon28.png) JSDiff
+### ![](public/img/panel-icon28.png) JSDiff
 
 An extension for developers that enhances the console API by incorporating the ability to compare objects and adds a `JSDiff` tab (parallel to Elements, Network panels) within your dev-tools for viewing the results.
 
@@ -150,7 +150,7 @@ declare global {
 ### Build instructions
 
 - Linux
-- node 22.14 (LTS)
+- deno 2.2.8
 
 ```sh
 make install      # install dependencies

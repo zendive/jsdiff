@@ -36,7 +36,7 @@ watch(
   },
   {
     immediate: true,
-  }
+  },
 );
 
 onUnmounted(() => {

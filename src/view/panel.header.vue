@@ -11,9 +11,11 @@
       >
         <span
           class="icon -toggle-unchanged"
-          :class="{
-            '-on': compareStore.showOnlyChanged,
-          }"
+          :class="
+            {
+              '-on': compareStore.showOnlyChanged,
+            }
+          "
         />
       </button>
 

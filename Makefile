@@ -1,62 +1,54 @@
-ZIP_CHROME_FILE="extension.chrome.zip"
-ZIP_FIREFOX_FILE="extension.firefox.zip"
-HASH_ALG="sha384"
-
 .PHONY:
-	install clean all lint test dev prod zip_chrome zip_firefox
+	install clean install dev valid test prod all
 	tune2chrome tune2firefox
+.DEFAULT_GOAL := dev
 
-install:
-	npm i -g pnpm
-	pnpm i
+CHROME_ZIP = "extension.chrome.zip"
+CHROME_MANIFEST = ./manifest.chrome.json
+FIREFOX_ZIP = "extension.firefox.zip"
+FIREFOX_MANIFEST = ./manifest.firefox.json
+DENO_DEV = NODE_ENV=development deno run --watch
+DENO_PROD = NODE_ENV=production deno run
+DENO_OPTIONS = --allow-env --allow-read --allow-run
+BUILD_SCRIPT = ./build.ts
+OUTPUT_DIR = ./public/
+BUILD_DIR = ./public/build/
 
 clean:
-	rm -rf ./node_modules
-	rm -rf $(ZIP_CHROME_FILE) $(ZIP_FIREFOX_FILE)
-	rm -rf ./bundle/js/
+	rm -rf ./node_modules ./deno.lock $(BUILD_DIR) $(CHROME_ZIP) $(FIREFOX_ZIP)
 
-all:
-	make lint
-	make test
-	make prod
-	make zip_firefox
-	make zip_chrome
-
-lint:
-	pnpm exec prettier . --write
-	pnpm exec tsc -noEmit
-
-test:
-	pnpm exec tsx --test
+install:
+	deno install --allow-scripts
 
 dev:
-	rm -rf ./bundle/js/
-	NODE_OPTIONS="--import=tsx --trace-deprecation" \
-		pnpm exec webpack --progress --watch --mode=development
+	rm -rf $(BUILD_DIR)
+	$(DENO_DEV) $(DENO_OPTIONS) $(BUILD_SCRIPT)
 
-prod:
-	rm -rf ./bundle/js/
-	NODE_OPTIONS="--import=tsx" \
-		NODE_ENV="production" \
-		time pnpm exec webpack --mode=production
+valid:
+	deno fmt --unstable-component
+	deno lint
 
-zip_chrome:
-	make tune2chrome
-	rm -rf $(ZIP_CHROME_FILE)
-	zip -r $(ZIP_CHROME_FILE) ./bundle ./manifest.json > /dev/null
-	zip --delete $(ZIP_CHROME_FILE) "bundle/js/firefox/*"
-	FILE_HASH=$$(openssl dgst -$(HASH_ALG) -binary $(ZIP_CHROME_FILE) | openssl base64 -A); \
-		echo "$(ZIP_CHROME_FILE) $(HASH_ALG):$$FILE_HASH"
+test: valid
+	deno test --no-check --trace-leaks --reporter=dot
 
-zip_firefox:
-	make tune2firefox
-	rm -rf $(ZIP_FIREFOX_FILE)
-	zip -r $(ZIP_FIREFOX_FILE) ./bundle ./manifest.json > /dev/null
-	FILE_HASH=$$(openssl dgst -$(HASH_ALG) -binary $(ZIP_FIREFOX_FILE) | openssl base64 -A); \
-		echo "$(ZIP_FIREFOX_FILE) $(HASH_ALG):$$FILE_HASH"
+prod: test
+	rm -rf $(BUILD_DIR)
+	$(DENO_PROD) $(DENO_OPTIONS) $(BUILD_SCRIPT)
 
 tune2chrome:
-	cp manifest.chrome.json manifest.json
+	cp $(CHROME_MANIFEST) manifest.json
 
 tune2firefox:
-	cp manifest.firefox.json manifest.json
+	cp $(FIREFOX_MANIFEST) manifest.json
+
+all: prod
+	make tune2firefox
+	rm -rf $(FIREFOX_ZIP)
+	zip -r $(FIREFOX_ZIP) $(OUTPUT_DIR) ./manifest.json > /dev/null
+
+	make tune2chrome
+	rm -rf $(CHROME_ZIP)
+	zip -r $(CHROME_ZIP) $(OUTPUT_DIR) ./manifest.json > /dev/null
+	zip --delete $(CHROME_ZIP) "$(BUILD_DIR)firefox/*" > /dev/null
+
+	tree -Dis $(BUILD_DIR) *.zip

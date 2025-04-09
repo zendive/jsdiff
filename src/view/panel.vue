@@ -18,7 +18,7 @@
 </template>
 
 <script setup lang="ts">
-import { watch, onUnmounted, ref, watchEffect } from 'vue';
+import { onUnmounted, ref, watch, watchEffect } from 'vue';
 import { useCompareStore } from '../stores/compare.store.ts';
 import { useSearchStore } from '../stores/search.store.ts';
 import PanelHeader from './panel.header.vue';
@@ -38,19 +38,19 @@ watch(
       const tmpEl = buildDeltaElement(
         compareStore.deltaObj,
         compareStore.compare.left,
-        compareStore.showOnlyChanged
+        compareStore.showOnlyChanged,
       );
       tmpEl && deltaEl.value.replaceChildren(tmpEl);
     }
   },
-  { flush: 'post' }
+  { flush: 'post' },
 );
 
 watchEffect(
   () => {
     searchStore.assignDeltaElement(deltaEl.value);
   },
-  { flush: 'post' }
+  { flush: 'post' },
 );
 
 onColourSchemeChange((schemeName) => {
@@ -63,7 +63,7 @@ const onToggleUnchanged = () => {
     compareStore.showOnlyChanged = !compareStore.showOnlyChanged;
     hideUnchanged(
       compareStore.showOnlyChanged,
-      deltaEl.value.firstElementChild
+      deltaEl.value.firstElementChild,
     );
   }
 };

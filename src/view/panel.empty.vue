@@ -19,7 +19,7 @@
 </template>
 
 <script setup lang="ts">
-import { APP_DIFFAPI, APP_CODE_EXAMPLE } from '../api/const.ts';
+import { APP_CODE_EXAMPLE, APP_DIFFAPI } from '../api/const.ts';
 import { APP_HOMEPAGE } from '../api/env.ts';
 </script>
 

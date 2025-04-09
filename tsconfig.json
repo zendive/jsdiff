@@ -16,5 +16,8 @@
     "baseUrl": "."
   },
   "include": ["src/**/*", "src/**/*.vue"],
-  "exclude": ["bundle", "**/~*.ts"]
+  "exclude": [
+    "public",
+    "**/~*.ts"
+  ]
 }

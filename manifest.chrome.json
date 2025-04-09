@@ -1,31 +1,30 @@
 {
   "manifest_version": 3,
   "name": "console.diff(...)",
-  "version": "3.0.7",
+  "version": "3.1.0",
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAlCx2Bl0li+3idvfrH9cQL/MzphafGFqMUA2P+0vbyhwxsxWl0llOaGQbkirX5qCoAVHoUCPqu3hCjpVCv35igPbfqDs5bdLZZmXt2F0HjEQnWI/eZKd9IKcKYMplEeL2BodmpU02VrP1UnUzQHZeeMWk9ybgWOqCimkwliILVubRj5dxNB9AidLwO4Z5iGq/OvW9AJMYdxKxrLP2lF6/GGNcCBg+iCJZwlQOhFB9LbUjytT4ws3bIEX4b5zmWLqGKR1NiZfGug2eCWXt9oEKg2WkbXmBBzFKqxnM/bBUrVR29N9qNgx0f42qnyhsW3Bo4kPzE3d0asXCV5nofLTLEwIDAQAB",
   "description": "Compare objects in memory with console.diff(old, new) devtools function",
-  "minimum_chrome_version": "100.0",
+  "minimum_chrome_version": "135.0",
   "homepage_url": "https://github.com/zendive/jsdiff#readme",
-  "author": "calexblock@gmail.com",
   "permissions": ["storage"],
   "host_permissions": ["*://*/*"],
-  "devtools_page": "bundle/jsdiff-devtools.html",
+  "devtools_page": "/public/jsdiff-devtools.html",
   "icons": {
-    "28": "bundle/img/panel-icon28.png",
-    "64": "bundle/img/panel-icon64.png",
-    "128": "bundle/img/panel-icon128.png"
+    "28": "/public/img/panel-icon28.png",
+    "64": "/public/img/panel-icon64.png",
+    "128": "/public/img/panel-icon128.png"
   },
   "content_scripts": [
     {
       "world": "MAIN",
-      "js": ["/bundle/js/jsdiff-console.js"],
+      "js": ["/public/build/jsdiff-console.js"],
       "matches": ["<all_urls>"],
       "match_origin_as_fallback": true,
       "all_frames": true,
       "run_at": "document_start"
     },
     {
-      "js": ["/bundle/js/jsdiff-proxy.js"],
+      "js": ["/public/build/jsdiff-proxy.js"],
       "matches": ["<all_urls>"],
       "match_origin_as_fallback": true,
       "all_frames": true,

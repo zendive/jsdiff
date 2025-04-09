@@ -1,30 +1,29 @@
 import { hashString } from './toolkit.ts';
 import {
+  TAG_DOM_ELEMENT,
   TAG_EXCEPTION,
   TAG_EXCEPTION_FALLBACK,
   TAG_FUNCTION,
+  TAG_GLOBAL_SYMBOL,
   TAG_NATIVE_FUNCTION,
-  TAG_NULL,
   TAG_NUMERIC,
   TAG_RECURRING_ARRAY,
   TAG_RECURRING_MAP,
   TAG_RECURRING_OBJECT,
   TAG_RECURRING_SET,
   TAG_REGEXP,
-  TAG_UNIQUE_SYMBOL,
   TAG_UNDEFINED,
-  TAG_DOM_ELEMENT,
-  TAG_GLOBAL_SYMBOL,
+  TAG_UNIQUE_SYMBOL,
   TAG_URL,
 } from './const.ts';
 import {
-  UniqueLookupCatalog,
   CommonLookupCatalog,
   type TCommonInstanceTag,
+  UniqueLookupCatalog,
 } from './cloneCatalog.ts';
 
 interface ISerializeToObject {
-  [key: string]: any;
+  [key: string | symbol]: unknown;
 }
 interface IFunction {
   name: string;
@@ -36,41 +35,6 @@ interface IHasToJSON {
 
 const symbolCatalog = new UniqueLookupCatalog();
 const domCatalog = new UniqueLookupCatalog();
-
-export function post(payload: ICompareMessagePayload) {
-  try {
-    window.postMessage(
-      { source: 'jsdiff-console-to-proxy-inprogress', on: true },
-      '*'
-    );
-
-    for (const key of ['push', 'left', 'right']) {
-      if (Reflect.has(payload, key)) {
-        const value = payload[key];
-
-        if (value === undefined) {
-          payload[key] = TAG_UNDEFINED;
-        } else if (value === null) {
-          payload[key] = TAG_NULL;
-        } else {
-          payload[key] = customClone(value);
-        }
-      }
-    }
-
-    window.postMessage(
-      { source: 'jsdiff-console-to-proxy-compare', payload },
-      '*'
-    );
-  } catch (error) {
-    console.error('console.diff()', error);
-
-    window.postMessage(
-      { source: 'jsdiff-console-to-proxy-inprogress', on: false },
-      '*'
-    );
-  }
-}
 
 export function customClone(value: unknown) {
   let commonCatalog: CommonLookupCatalog | null = new CommonLookupCatalog();
@@ -117,7 +81,7 @@ function recursiveClone(commonCatalog: CommonLookupCatalog, value: unknown) {
 function serializeArrayAlike(
   commonCatalog: CommonLookupCatalog,
   array: unknown[] | Set<unknown>,
-  badge: TCommonInstanceTag
+  badge: TCommonInstanceTag,
 ): unknown[] | string {
   const record = commonCatalog.lookup(array, badge);
   if (record.seen) {
@@ -136,7 +100,7 @@ function serializeArrayAlike(
 
 function serializeMap(
   commonCatalog: CommonLookupCatalog,
-  value: Map<unknown, unknown>
+  value: Map<unknown, unknown>,
 ) {
   const record = commonCatalog.lookup(value, TAG_RECURRING_MAP);
 
@@ -159,7 +123,7 @@ function serializeMap(
 
 function serializeMapKey(
   commonCatalog: CommonLookupCatalog,
-  key: unknown
+  key: unknown,
 ): string {
   let rv;
 
@@ -223,7 +187,7 @@ function serializeObject(commonCatalog: CommonLookupCatalog, value: object) {
 function serializeObjectKey(
   commonCatalog: CommonLookupCatalog,
   key: string | symbol,
-  value: object
+  value: ISerializeToObject,
 ) {
   let newKey: string, newValue: unknown;
 
@@ -237,7 +201,7 @@ function serializeObjectKey(
 
   try {
     // accessing value by key may throw
-    newValue = recursiveClone(commonCatalog, (value as any)[key]);
+    newValue = recursiveClone(commonCatalog, value[key]);
   } catch (error) {
     newValue = stringifyError(error);
   }
@@ -316,12 +280,11 @@ function isSelfSerializableObject(that: unknown): that is IHasToJSON {
   let rv;
 
   try {
-    rv =
-      that !== null &&
+    rv = that !== null &&
       typeof that === 'object' &&
       'toJSON' in that &&
       typeof that.toJSON === 'function';
-  } catch (ignore) {
+  } catch (_ignore) {
     rv = false;
   }
 

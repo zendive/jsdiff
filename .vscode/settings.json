@@ -1,6 +1,9 @@
 {
-  "json.schemaDownload.enable": true,
+  "deno.enable": true,
+  "editor.defaultFormatter": "denoland.vscode-deno"
   "editor.formatOnSave": true,
+  "editor.formatOnSaveMode": "file",
+  "json.schemaDownload.enable": true,
   "json.schemas": [
     {
       "fileMatch": ["manifest.json"],

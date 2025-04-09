@@ -5,9 +5,36 @@ import {
   TAG_EMPTY,
 } from './const.ts';
 
+export interface ICompareMessagePayload {
+  push?: unknown;
+  left?: unknown;
+  right?: unknown;
+  timestamp: number;
+  [key: string]: unknown;
+}
+
+interface ICompareMessage {
+  source: 'jsdiff-proxy-to-panel-compare';
+  payload: ICompareMessagePayload;
+}
+
+interface IErrorMessage {
+  source: 'jsdiff-proxy-to-panel-error';
+}
+
+interface IProgressMessage {
+  source: 'jsdiff-proxy-to-panel-inprogress';
+  on: boolean;
+}
+
+export type TRuntimeMessageOptions =
+  | ICompareMessage
+  | IProgressMessage
+  | IErrorMessage;
+
 export function proxyMessageGate(
   callbackInprogress: (e: MessageEvent<IProgressMessage>) => void,
-  callbackCompare: (e: MessageEvent<ICompareMessage>) => Promise<void>
+  callbackCompare: (e: MessageEvent<ICompareMessage>) => Promise<void>,
 ) {
   return function (e: MessageEvent) {
     if (e.source === window && typeof e.data === 'object' && e.data !== null) {
@@ -21,14 +48,14 @@ export function proxyMessageGate(
 }
 
 export async function proxyCompareHandler(
-  e: MessageEvent<ICompareMessage>
+  e: MessageEvent<ICompareMessage>,
 ): Promise<void> {
   try {
     const current = e.data.payload;
     const { lastApiReq: old } = await chrome.storage.local.get(['lastApiReq']);
     const next = processComparisonObject(
       old as ICompareMessagePayload,
-      current
+      current,
     );
 
     // may throw
@@ -38,15 +65,15 @@ export async function proxyCompareHandler(
       {
         source: 'jsdiff-proxy-to-panel-compare',
       } as ICompareMessage,
-      handleResponse
+      handleResponse,
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     if (error?.message === ERROR_QUOTA_EXCEEDED) {
       await chrome.storage.local.set({ lastError: ERROR_QUOTA_EXCEEDED });
 
       chrome.runtime.sendMessage(
         { source: 'jsdiff-proxy-to-panel-error' } as IErrorMessage,
-        handleResponse
+        handleResponse,
       );
     } else if (error?.message) {
       console.error('Unhnadled', error.message);
@@ -55,20 +82,20 @@ export async function proxyCompareHandler(
 }
 
 export function proxyInprogressHandler(
-  e: MessageEvent<IProgressMessage>
+  e: MessageEvent<IProgressMessage>,
 ): void {
   chrome.runtime.sendMessage(
     {
       source: 'jsdiff-proxy-to-panel-inprogress',
       on: e.data.on,
     } as IProgressMessage,
-    handleResponse
+    handleResponse,
   );
 }
 
 function processComparisonObject(
   old: ICompareMessagePayload,
-  next: ICompareMessagePayload
+  next: ICompareMessagePayload,
 ) {
   if (!old) {
     old = {

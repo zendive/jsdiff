@@ -52,13 +52,13 @@ const interceptDefaultSearchPanel = (e: KeyboardEvent) => {
 };
 
 onMounted(() => {
-  window.addEventListener('keydown', interceptDefaultSearchPanel, {
+  globalThis.addEventListener('keydown', interceptDefaultSearchPanel, {
     capture: true,
   });
 });
 
 onUnmounted(() => {
-  window.removeEventListener('keydown', interceptDefaultSearchPanel, {
+  globalThis.removeEventListener('keydown', interceptDefaultSearchPanel, {
     capture: true,
   });
 });

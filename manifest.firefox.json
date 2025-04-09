@@ -1,31 +1,29 @@
 {
   "manifest_version": 3,
   "name": "jsdiff.diff(...)",
-  "version": "3.0.6",
+  "version": "3.1.0",
   "description": "Compare objects in memory with jsdiff.diff(old, new) devtools function",
-  "minimum_chrome_version": "100.0",
   "browser_specific_settings": {
     "gecko": {
-      "id": "calexblock@gmail.com",
-      "strict_min_version": "120.0"
+      "id": "{d010c440-61aa-4972-a4ca-30838c593b51}",
+      "strict_min_version": "137.0"
     }
   },
   "homepage_url": "https://github.com/zendive/jsdiff#readme",
-  "author": "calexblock@gmail.com",
   "permissions": ["storage", "devtools", "activeTab"],
   "host_permissions": ["<all_urls>"],
   "background": {
-    "scripts": ["bundle/js/firefox/jsdiff-background.js"]
+    "scripts": ["public/build/firefox/jsdiff-background.js"]
   },
-  "devtools_page": "bundle/jsdiff-devtools.html",
+  "devtools_page": "public/builddiff-devtools.html",
   "icons": {
-    "28": "bundle/img/panel-icon28.png",
-    "64": "bundle/img/panel-icon64.png",
-    "128": "bundle/img/panel-icon128.png"
+    "28": "public/img/panel-icon28.png",
+    "64": "public/img/panel-icon64.png",
+    "128": "public/img/panel-icon128.png"
   },
   "content_scripts": [
     {
-      "js": ["bundle/js/jsdiff-console.js", "bundle/js/jsdiff-proxy.js"],
+      "js": ["public/build/jsdiff-console.js", "public/build/jsdiff-proxy.js"],
       "matches": ["*://*/*"],
       "all_frames": true,
       "run_at": "document_start"

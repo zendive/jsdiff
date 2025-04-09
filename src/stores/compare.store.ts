@@ -1,9 +1,16 @@
-import { diff, type Delta } from '../api/diffApi.ts';
+import { type Delta, diff } from '../api/diffApi.ts';
 import { hasValue } from '../api/toolkit.ts';
 import { defineStore } from 'pinia';
 import { markRaw } from 'vue';
 import { useRuntime } from '../api/useRuntime.ts';
 import { useSearchStore } from './search.store.ts';
+import type { TRuntimeMessageOptions } from '../api/proxy.ts';
+
+interface ICompareState {
+  timestamp: number;
+  left?: unknown;
+  right?: unknown;
+}
 
 function defaultCompareState(): ICompareState {
   return {
@@ -19,7 +26,7 @@ export const useCompareStore = defineStore('compareStore', {
     inprogress: false,
     compare: defaultCompareState(),
     showOnlyChanged: JSON.parse(
-      localStorage.getItem('showOnlyChanged') || 'false'
+      localStorage.getItem('showOnlyChanged') || 'false',
     ),
     lastError: '',
   }),
@@ -38,8 +45,9 @@ export const useCompareStore = defineStore('compareStore', {
     assign({ left, right, timestamp }: ICompareState) {
       this.compare = {
         left: left !== null && typeof left === 'object' ? markRaw(left) : left,
-        right:
-          right !== null && typeof right === 'object' ? markRaw(right) : right,
+        right: right !== null && typeof right === 'object'
+          ? markRaw(right)
+          : right,
         timestamp: timestamp || Date.now(),
       };
     },
@@ -98,7 +106,7 @@ export const compareStoreRuntimeService = {
       }
     });
 
-    compareStore.$subscribe((mut, state) => {
+    compareStore.$subscribe((_mut, state) => {
       localStorage.setItem('showOnlyChanged', String(state.showOnlyChanged));
     });
   },
