@@ -89,10 +89,7 @@ export const compareStoreRuntimeService = {
         const { lastError } = await chrome.storage.local.get(['lastError']);
         compareStore.lastError = lastError || '';
         compareStore.inprogress = false;
-      } else if (
-        'jsdiff-proxy-to-panel-inprogress' === e.source &&
-        typeof e.on === 'boolean'
-      ) {
+      } else if ('jsdiff-proxy-to-panel-inprogress' === e.source) {
         compareStore.inprogress = e.on;
       } else if ('jsdiff-proxy-to-panel-compare' === e.source) {
         compareStore.lastError = '';

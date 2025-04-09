@@ -1,6 +1,6 @@
 {
   "deno.enable": true,
-  "editor.defaultFormatter": "denoland.vscode-deno"
+  "editor.defaultFormatter": "denoland.vscode-deno",
   "editor.formatOnSave": true,
   "editor.formatOnSaveMode": "file",
   "json.schemaDownload.enable": true,
@@ -12,5 +12,12 @@
   ],
   "typescript.tsdk": "node_modules/typescript/lib",
   "spellright.language": ["en-US-10-1."],
-  "spellright.documentTypes": ["latex", "plaintext", "markdown"]
+  "spellright.documentTypes": [
+    "latex",
+    "plaintext",
+    "markdown"
+  ],
+  "[typescript]": {
+    "editor.defaultFormatter": "denoland.vscode-deno"
+  }
 }

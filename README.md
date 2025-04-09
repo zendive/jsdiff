@@ -101,7 +101,7 @@ declare global {
 ### Serialization by types
 
 | Input                                                                           | Output                                                                                                   |
-| ------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+|---------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------|
 | XMLHttpRequest<sup>[1]</sup>                                                    | ƒ XMLHttpRequest⟪native⟫                                                                                 |
 | function test(){}<sup>[1]</sup>                                                 | ƒ test⟪1374b28d22b674e53a044425556a9cd48b82fd5aba3bf19e3545d51704227b10⟫                                 |
 | document.body                                                                   | {0001}<sup>[2,3]</sup> DOM⟪BODY⟫                                                                         |
@@ -110,7 +110,7 @@ declare global {
 | 98765432109876543210n                                                           | BigInt⟪98765432109876543210⟫                                                                             |
 | void 0                                                                          | ⟪undefined⟫                                                                                              |
 | /example/i                                                                      | RegExp⟪/example/i⟫                                                                                       |
-| new URL('https:\//example.com/')                                                | URL⟪https:\//example.com/⟫                                                                               |
+| new URL('https:\//example.com/')                                                | URL⟪https:\//example.com\/⟫                                                                              |
 | Symbol('example')                                                               | {0001}<sup>[3]</sup> Symbol(example)                                                                     |
 | Symbol.for('global')                                                            | Symbol(global)                                                                                           |
 | (obj = {key: 1}, {first: obj, second: obj})                                     | {"first": {"key": 1}, "second": "[0002]<sup>[4]</sup> Object⟪♻️⟫"}                                       |

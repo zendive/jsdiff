@@ -147,7 +147,7 @@ a {
   height: 100vh;
 
   .-body {
-    flex: 1 0 0%;
+    flex: 1 0 0;
     overflow: auto;
     overflow-wrap: break-word;
     overflow-anchor: none;

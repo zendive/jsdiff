@@ -113,9 +113,8 @@ function serializeMap(
   const obj: ISerializeToObject = {};
   for (const [k, v] of value) {
     const newKey = serializeMapKey(commonCatalog, k);
-    const newValue = recursiveClone(commonCatalog, v);
 
-    obj[newKey] = newValue;
+    obj[newKey] = recursiveClone(commonCatalog, v);
   }
 
   return obj;

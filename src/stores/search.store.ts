@@ -63,8 +63,8 @@ export const useSearchStore = defineStore('searchStore', {
       }
     },
 
-    searchNext(step: -1 | 1, prefferFresh = true) {
-      prefferFresh && this._ensureFreshResults();
+    searchNext(step: -1 | 1, preferFresh = true) {
+      preferFresh && this._ensureFreshResults();
 
       if (this.foundEls.length) {
         clearCurrent(this.foundEls[this.currentIndex]);
@@ -115,6 +115,7 @@ function highlightCurrent(el: HTMLElement) {
  * Find nodes containing string query recursively
  * @param container
  * @param query
+ * @param isCaseSensitive
  * @param els
  * @returns
  */
