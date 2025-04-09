@@ -3,7 +3,7 @@
 An extension for developers that enhances the console API by incorporating the ability to compare objects and adds a `JSDiff` tab (parallel to Elements, Network panels) within your dev-tools for viewing the results.
 
 - Available in Chrome Web Store as [console.diff()](https://chromewebstore.google.com/detail/consolediff/iefeamoljhdcpigpnpggeiiabpnpgonb)
-- Available in Firefox Add-ons as [jsdiff.diff()](https://addons.mozilla.org/addon/jsdiff-diff/)
+<!-- - Available in Firefox Add-ons as [jsdiff.diff()](https://addons.mozilla.org/addon/jsdiff-diff/) -->
 
 <details>
   <summary> <strong>Screenshots</strong> </summary>
