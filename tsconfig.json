@@ -15,7 +15,7 @@
     "typeRoots": ["node_modules/@types", "src/@types"],
     "baseUrl": "."
   },
-  "include": ["src/**/*", "src/**/*.vue"],
+  "include": ["src/**/*", "build.ts"],
   "exclude": [
     "public",
     "**/~*.ts"

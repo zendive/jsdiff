@@ -10,9 +10,9 @@ FIREFOX_MANIFEST = ./manifest.firefox.json
 DENO_DEV = NODE_ENV=development deno run --watch
 DENO_PROD = NODE_ENV=production deno run
 DENO_OPTIONS = --allow-env --allow-read --allow-run
-BUILD_SCRIPT = ./build.ts
 OUTPUT_DIR = ./public/
 BUILD_DIR = ./public/build/
+BUILD_SCRIPT = ./build.ts
 
 clean:
 	rm -rf ./node_modules ./deno.lock $(BUILD_DIR) $(CHROME_ZIP) $(FIREFOX_ZIP)

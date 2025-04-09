@@ -28,11 +28,7 @@
       "tests/",
       "public/*.html",
       "build.ts",
-      "deno.json",
-      "package.json",
-      "manifest.chrome.json",
-      "manifest.firefox.json",
-      "tsconfig.json"
+      "*.json"
     ]
   },
   "imports": {
