@@ -150,7 +150,7 @@ declare global {
 ### Build instructions
 
 - Linux
-- deno 2.2.8
+- [Deno](https://docs.deno.com/runtime/getting_started/installation/) 2.2.8
 
 ```sh
 make install      # install dependencies
