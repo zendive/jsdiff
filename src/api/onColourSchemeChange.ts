@@ -11,6 +11,8 @@ export function onColourSchemeChange(
 
   if (devtoolsScheme === 'dark' || osDarkScheme.matches) {
     callback('dark');
+  } else {
+    callback('light');
   }
 
   osDarkScheme.addEventListener('change', (e: MediaQueryListEvent) => {
