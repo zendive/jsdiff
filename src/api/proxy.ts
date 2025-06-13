@@ -76,7 +76,7 @@ export async function proxyCompareHandler(
         handleResponse,
       );
     } else if (error?.message) {
-      console.error('Unhnadled', error.message);
+      console.error('Unhandled', error.message);
     }
   }
 }
