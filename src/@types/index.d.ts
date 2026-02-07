@@ -5,9 +5,8 @@ declare global {
   const __app_version__: string;
   const __app_homepage__: string;
 
-  interface Window {
-    wrappedJSObject: { jsdiff: () => void };
-  }
+  // firefox
+  var wrappedJSObject: { jsdiff: () => void };
 
   // firefox extension context
   // currently not present in '@types/firefox-webext-browser'

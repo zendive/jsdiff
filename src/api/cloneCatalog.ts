@@ -1,4 +1,6 @@
-type TUniqueInstanceTag = (id: string, value: unknown) => string;
+import { TAG_DOM_ELEMENT, TAG_UNIQUE_SYMBOL } from './const.ts';
+
+type TUniqueInstanceTag = typeof TAG_DOM_ELEMENT | typeof TAG_UNIQUE_SYMBOL;
 export type TCommonInstanceTag = (id: string) => string;
 
 type ICatalogUniqueRecord = string;
@@ -18,7 +20,7 @@ export class UniqueLookupCatalog {
     }
 
     const id = index2Id(++this.#index);
-    record = tag(id, key);
+    record = tag(id, <(Document | Element) & symbol> key);
     this.#records.set(key, record);
 
     return record;

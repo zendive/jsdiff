@@ -13,8 +13,8 @@ export const TAG_RECURRING_SET = (id: string) => `[${id}] Set⟪♻️⟫`;
 export const TAG_RECURRING_MAP = (id: string) => `[${id}] Map⟪♻️⟫`;
 export const TAG_DOM_ELEMENT = (id: string, value: Document | Element) =>
   `{${id}} DOM⟪${value.nodeName}⟫`;
-export const TAG_UNIQUE_SYMBOL = (id: string, smbl: symbol) =>
-  `{${id}} ${smbl.toString()}`;
+export const TAG_UNIQUE_SYMBOL = (id: string, value: symbol) =>
+  `{${id}} ${value.toString()}`;
 export const TAG_GLOBAL_SYMBOL = (smbl: symbol) => `${smbl.toString()}`;
 export const TAG_NATIVE_FUNCTION = (name: string) =>
   `ƒ${name ? ` ${name}` : ''}⟪native⟫`;

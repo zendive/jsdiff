@@ -2,8 +2,8 @@ import { build, type BuildOptions, context, stop } from 'esbuild';
 import manifest from './manifest.json' with { type: 'json' };
 import { vue3Plugin } from 'esbuild-plugin-vue-iii';
 
-const buildMode = Deno.env.get('APP_MODE') || 'production';
-const isProd = buildMode === 'production';
+const isProd = Deno.env.get('BUILD_MODE') === 'production';
+const buildMode = isProd ? 'production' : 'development';
 const logLevel = isProd ? 'warning' : 'debug';
 const buildOptions: BuildOptions = {
   plugins: [

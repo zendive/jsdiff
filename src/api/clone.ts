@@ -22,7 +22,7 @@ import {
   UniqueLookupCatalog,
 } from './cloneCatalog.ts';
 
-interface ISerializeToObject {
+interface ISerializableObject {
   [key: string | symbol]: unknown;
 }
 interface IFunction {
@@ -110,7 +110,7 @@ function serializeMap(
 
   record.seen = true;
 
-  const obj: ISerializeToObject = {};
+  const obj: ISerializableObject = {};
   for (const [k, v] of value) {
     const newKey = serializeMapKey(commonCatalog, k);
 
@@ -161,7 +161,10 @@ function serializeMapKey(
   return rv;
 }
 
-function serializeObject(commonCatalog: CommonLookupCatalog, value: object) {
+function serializeObject(
+  commonCatalog: CommonLookupCatalog,
+  value: ISerializableObject,
+) {
   const record = commonCatalog.lookup(value, TAG_RECURRING_OBJECT);
   if (record.seen) {
     return record.name;
@@ -174,7 +177,7 @@ function serializeObject(commonCatalog: CommonLookupCatalog, value: object) {
     return recursiveClone(commonCatalog, toJsonValue);
   }
 
-  const rv: ISerializeToObject = {};
+  const rv: ISerializableObject = {};
   for (const key of Reflect.ownKeys(value)) {
     const { newKey, newValue } = serializeObjectKey(commonCatalog, key, value);
     rv[newKey] = newValue;
@@ -186,7 +189,7 @@ function serializeObject(commonCatalog: CommonLookupCatalog, value: object) {
 function serializeObjectKey(
   commonCatalog: CommonLookupCatalog,
   key: string | symbol,
-  value: ISerializeToObject,
+  value: ISerializableObject,
 ) {
   let newKey: string, newValue: unknown;
 
@@ -305,7 +308,7 @@ function isGlobalSymbol(that: symbol): that is symbol {
   return Symbol.keyFor(that) !== undefined;
 }
 
-function isObject(that: unknown): that is object {
+function isObject(that: unknown): that is ISerializableObject {
   return (that !== null && typeof that === 'object') ||
     that instanceof window.Object;
 }

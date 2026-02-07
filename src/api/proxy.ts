@@ -67,16 +67,16 @@ export async function proxyCompareHandler(
       } as ICompareMessage,
       handleResponse,
     );
-  } catch (error: unknown) {
-    if (error?.message === ERROR_QUOTA_EXCEEDED) {
+  } catch (error) {
+    if (error instanceof Error && error.message === ERROR_QUOTA_EXCEEDED) {
       await chrome.storage.local.set({ lastError: ERROR_QUOTA_EXCEEDED });
 
       chrome.runtime.sendMessage(
         { source: 'jsdiff-proxy-to-panel-error' } as IErrorMessage,
         handleResponse,
       );
-    } else if (error?.message) {
-      console.error('Unhandled', error.message);
+    } else {
+      console.error('Unhandled', error);
     }
   }
 }

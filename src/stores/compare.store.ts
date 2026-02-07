@@ -80,14 +80,14 @@ export const compareStoreRuntimeService = {
         if (hasValue(lastApiReq)) {
           compareStore.assign(lastApiReq as ICompareState);
         }
-        compareStore.lastError = lastError || '';
+        compareStore.lastError = lastError ? String(lastError) : '';
         compareStore.initialized = true;
       });
 
     runtime.connect(async (e: TRuntimeMessageOptions) => {
       if ('jsdiff-proxy-to-panel-error' === e.source) {
         const { lastError } = await chrome.storage.local.get(['lastError']);
-        compareStore.lastError = lastError || '';
+        compareStore.lastError = lastError ? String(lastError) : '';
         compareStore.inprogress = false;
       } else if ('jsdiff-proxy-to-panel-inprogress' === e.source) {
         compareStore.inprogress = e.on;
