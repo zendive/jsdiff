@@ -2,8 +2,9 @@ import { build, type BuildOptions, context, stop } from 'esbuild';
 import manifest from './manifest.json' with { type: 'json' };
 import { vue3Plugin } from 'esbuild-plugin-vue-iii';
 
-const nodeEnv = Deno.env.get('NODE_ENV');
-const isProd = nodeEnv === 'production';
+const buildMode = Deno.env.get('APP_MODE') || 'production';
+const isProd = buildMode === 'production';
+const logLevel = isProd ? 'warning' : 'debug';
 const buildOptions: BuildOptions = {
   plugins: [
     vue3Plugin({
@@ -35,11 +36,11 @@ const buildOptions: BuildOptions = {
   platform: 'browser',
   format: 'iife',
   target: 'esnext',
-  conditions: [`${nodeEnv}`],
+  conditions: [buildMode],
   minify: isProd,
   sourcemap: false,
   treeShaking: true,
-  logLevel: isProd ? 'warning' : 'debug',
+  logLevel,
 };
 
 if (isProd) {

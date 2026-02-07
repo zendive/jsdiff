@@ -1,5 +1,5 @@
 import { hasValue } from './toolkit.ts';
-import DiffMatchPatch from 'diff-match-patch';
+import { diff_match_patch } from '@dmsnell/diff-match-patch';
 import { create } from 'jsondiffpatch';
 export type { Delta } from 'jsondiffpatch';
 
@@ -26,7 +26,7 @@ const patcher = create({
   },
 
   textDiff: {
-    diffMatchPatch: DiffMatchPatch,
+    diffMatchPatch: diff_match_patch,
     // default 60, minimum string length (left and right sides) to use text diff algorythm: google-diff-match-patch
     minLength: 120,
   },

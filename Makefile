@@ -1,46 +1,62 @@
-.PHONY:
-	install clean install dev valid test prod all
-	tune2chrome tune2firefox
 .DEFAULT_GOAL := dev
 
-CHROME_ZIP = "extension.chrome.zip"
+# Ensure environment dependencies exist
+REQUIRED_BINS := deno jq zip tree
+$(foreach bin,$(REQUIRED_BINS),$(if $(shell command -v $(bin) 2> /dev/null),,$(error Missing dependency: `$(bin)`)))
+
 CHROME_MANIFEST = ./manifest.chrome.json
-FIREFOX_ZIP = "extension.firefox.zip"
+CHROME_MANIFEST_VERSION != jq -j '.version' $(CHROME_MANIFEST)
+CHROME_ZIP = "extension.chrome-$(CHROME_MANIFEST_VERSION).zip"
 FIREFOX_MANIFEST = ./manifest.firefox.json
-DENO_DEV = NODE_ENV=development deno run --watch
-DENO_PROD = NODE_ENV=production deno run
-DENO_OPTIONS = --allow-env --allow-read --allow-run
+FIREFOX_MANIFEST_VERSION != jq -j '.version' $(FIREFOX_MANIFEST)
+FIREFOX_ZIP = "extension.firefox-$(FIREFOX_MANIFEST_VERSION).zip"
+DENO_DEV = APP_ENV=development deno run --watch --allow-env --allow-read --allow-run
+DENO_PROD = APP_ENV=production deno run --allow-env --allow-read --allow-run
 OUTPUT_DIR = ./public/
 BUILD_DIR = ./public/build/
 BUILD_SCRIPT = ./build.ts
 
+.PHONY: clean
 clean:
 	rm -rf ./node_modules ./deno.lock $(BUILD_DIR) $(CHROME_ZIP) $(FIREFOX_ZIP)
 
+.PHONY: install
 install:
 	deno install --allow-scripts
 
+.PHONY: update
+update:
+	deno update --latest
+
+.PHONY: dev
 dev:
 	rm -rf $(BUILD_DIR)
-	$(DENO_DEV) $(DENO_OPTIONS) $(BUILD_SCRIPT)
+	$(DENO_DEV) $(BUILD_SCRIPT)
 
+.PHONY: valid
 valid:
 	deno fmt --unstable-component
 	deno lint
+	deno check
 
+.PHONY: test
 test: valid
 	deno test --no-check --trace-leaks --reporter=dot
 
+.PHONY: prod
 prod: test
 	rm -rf $(BUILD_DIR)
-	$(DENO_PROD) $(DENO_OPTIONS) $(BUILD_SCRIPT)
+	$(DENO_PROD) $(BUILD_SCRIPT)
 
+.PHONY: tune2chrome
 tune2chrome:
 	cp $(CHROME_MANIFEST) manifest.json
 
+.PHONY: tune2firefox
 tune2firefox:
 	cp $(FIREFOX_MANIFEST) manifest.json
 
+.PHONY: all
 all: prod
 	make tune2firefox
 	rm -rf $(FIREFOX_ZIP)

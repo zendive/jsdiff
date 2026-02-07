@@ -147,16 +147,18 @@ declare global {
   }
   ```
 
+### Build requirements
+- Linux: [deno](https://docs.deno.com/runtime/getting_started/installation/) make jq zip tree
+
 ### Build instructions
 
-- Linux
-- [Deno](https://docs.deno.com/runtime/getting_started/installation/) 2.2.8
+Here is a short list to help you get started, for a full set of make commands refer to [./Makefile](./Makefile):
 
 ```sh
-make install      # install dependencies
-make all          # build for prod and make extension.${browser}.zip
-make tune2chrome  # or tune2firefox for relevant manifest.json file
-make dev          # local development
+make clean install  # install dependencies
+make dev            # build in development mode and watch for changes
+make tune2chrome    # or tune2firefox to generate relevant manifest.json file
+make all            # build in production mode and make extension zip files
 ```
 
 #### Based on
