@@ -24,7 +24,7 @@ import { useSearchStore } from '../stores/search.store.ts';
 import PanelHeader from './panel.header.vue';
 import PanelEmpty from './panel.empty.vue';
 import { onColourSchemeChange } from '../api/onColourSchemeChange.ts';
-import { buildDeltaElement, hideUnchanged } from '../api/deltaHtml/api';
+import { buildDeltaElement, hideUnchanged } from '../api/diffApi.ts';
 
 const compareStore = useCompareStore();
 const searchStore = useSearchStore();
@@ -172,16 +172,6 @@ a {
   .jsondiffpatch-delta pre {
     white-space: pre-wrap;
     word-break: break-all;
-  }
-
-  .jsondiffpatch-property-name::after {
-    content: unset;
-  }
-  .jsondiffpatch-child-node-type-array,
-  .jsondiffpatch-child-node-type-object {
-    & > .jsondiffpatch-property-name::after {
-      content: ' [';
-    }
   }
 
   .jsondiffpatch-added .jsondiffpatch-property-name,

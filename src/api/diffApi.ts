@@ -1,5 +1,6 @@
 import { hasValue } from './toolkit.ts';
-import { create } from 'jsondiffpatch/with-text-diffs';
+import { create, type Delta } from 'jsondiffpatch/with-text-diffs';
+import { format } from 'jsondiffpatch/formatters/html';
 import { ISerializableObject } from './clone.ts';
 export type { Delta } from 'jsondiffpatch';
 
@@ -35,4 +36,42 @@ const patcher = create({
 
 export function diff(left: unknown, right: unknown) {
   return patcher.diff(left, right);
+}
+
+export function buildDeltaElement(
+  delta: Delta,
+  left: unknown,
+  hide: boolean,
+): Element | null {
+  let html: string | undefined;
+
+  try {
+    html = format(delta, left);
+  } catch (e) {
+    console.error(e);
+  }
+
+  if (!html) {
+    return null;
+  }
+
+  const tmpEl = document.createElement('div');
+  tmpEl.innerHTML = html;
+  const rv = tmpEl.firstElementChild;
+  hideUnchanged(hide, rv);
+
+  return rv;
+}
+
+const unchangedHiddenClass = 'jsondiffpatch-unchanged-hidden';
+export function hideUnchanged(hide: boolean, el: Element | null) {
+  if (!el) {
+    return;
+  }
+
+  if (hide) {
+    el.classList.add(unchangedHiddenClass);
+  } else {
+    el.classList.remove(unchangedHiddenClass);
+  }
 }
