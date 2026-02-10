@@ -48,7 +48,7 @@ export function buildDeltaElement(
   try {
     html = format(delta, left);
   } catch (e) {
-    console.error(e);
+    console.error('buildDeltaElement', e);
   }
 
   if (!html) {
