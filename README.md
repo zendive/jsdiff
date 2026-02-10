@@ -156,8 +156,8 @@ Here is a short list to help you get started, for a full set of make commands re
 
 ```sh
 make clean install  # install dependencies
-make dev            # build in development mode and watch for changes
 make tune2chrome    # or tune2firefox to generate relevant manifest.json file
+make dev            # build in development mode and watch for changes
 make all            # build in production mode and make extension zip files
 ```
 
