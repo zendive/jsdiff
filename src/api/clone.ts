@@ -110,7 +110,7 @@ function serializeMap(
 
   record.seen = true;
 
-  const obj: ISerializableObject = {};
+  const obj: ISerializableObject = Object.create(null);
   for (const [k, v] of value) {
     const newKey = serializeMapKey(commonCatalog, k);
 
@@ -177,7 +177,7 @@ function serializeObject(
     return recursiveClone(commonCatalog, toJsonValue);
   }
 
-  const rv: ISerializableObject = {};
+  const rv: ISerializableObject = Object.create(null);
   for (const key of Reflect.ownKeys(value)) {
     const { newKey, newValue } = serializeObjectKey(commonCatalog, key, value);
     rv[newKey] = newValue;
@@ -245,7 +245,7 @@ function isNumericSpecials(value: unknown): value is bigint | number {
   );
 }
 
-function isArray(that: unknown): that is unknown[] {
+export function isArray(that: unknown): that is unknown[] {
   return (
     // NOTE: firefox content script has instances to compare with
     // in `window` (not in `globalThis`)
@@ -308,7 +308,7 @@ function isGlobalSymbol(that: symbol): that is symbol {
   return Symbol.keyFor(that) !== undefined;
 }
 
-function isObject(that: unknown): that is ISerializableObject {
+export function isObject(that: unknown): that is ISerializableObject {
   return (that !== null && typeof that === 'object') ||
     that instanceof window.Object;
 }
@@ -319,4 +319,12 @@ function isRegExp(that: unknown): that is RegExp {
 
 function isURL(that: unknown): that is URL {
   return that instanceof URL;
+}
+
+export function cleanObjectPrototype(unk: unknown) {
+  if (!isArray(unk) && isObject(unk)) {
+    return Object.assign(Object.create(null), unk);
+  }
+
+  return unk;
 }

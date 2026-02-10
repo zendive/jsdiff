@@ -1,10 +1,11 @@
 import { type Delta, diff } from '../api/diffApi.ts';
 import { hasValue } from '../api/toolkit.ts';
+import { cleanObjectPrototype } from '../api/clone.ts';
+import type { TRuntimeMessageOptions } from '../api/proxy.ts';
 import { defineStore } from 'pinia';
 import { markRaw } from 'vue';
 import { useRuntime } from '../api/useRuntime.ts';
 import { useSearchStore } from './search.store.ts';
-import type { TRuntimeMessageOptions } from '../api/proxy.ts';
 
 interface ICompareState {
   timestamp: number;
@@ -37,7 +38,10 @@ export const useCompareStore = defineStore('compareStore', {
     },
 
     deltaObj(): Delta {
-      return diff(this.compare.left, this.compare.right);
+      return diff(
+        cleanObjectPrototype(this.compare.left),
+        cleanObjectPrototype(this.compare.right),
+      );
     },
   },
 
