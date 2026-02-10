@@ -11,7 +11,6 @@
     "jsr:@std/internal@^1.0.12": "1.0.12",
     "jsr:@std/path@^1.1.4": "1.1.4",
     "jsr:@std/testing@1.0.17": "1.0.17",
-    "npm:@dmsnell/diff-match-patch@1.1.0": "1.1.0",
     "npm:@noble/hashes@2.0.1": "2.0.1",
     "npm:@types/chrome@*": "0.1.36",
     "npm:@types/chrome@0.1.36": "0.1.36",
@@ -20,10 +19,10 @@
     "npm:esbuild-plugin-vue-iii@0.5.0": "0.5.0_esbuild@0.27.3_typescript@5.9.3",
     "npm:esbuild@0.27.3": "0.27.3",
     "npm:jsondiffpatch@0.7.3": "0.7.3",
-    "npm:pinia@3.0.4": "3.0.4_typescript@5.9.3_vue@3.5.27__typescript@5.9.3",
+    "npm:pinia@3.0.4": "3.0.4_typescript@5.9.3_vue@3.5.28__typescript@5.9.3",
     "npm:typescript@5.9.3": "5.9.3",
     "npm:vue-loader@17.4.2": "17.4.2_webpack@5.105.0__acorn@8.15.0",
-    "npm:vue@3.5.27": "3.5.27_typescript@5.9.3"
+    "npm:vue@3.5.28": "3.5.28_typescript@5.9.3"
   },
   "jsr": {
     "@std/assert@1.0.18": {
@@ -343,8 +342,8 @@
         "eslint-visitor-keys"
       ]
     },
-    "@vue/compiler-core@3.5.27": {
-      "integrity": "sha512-gnSBQjZA+//qDZen+6a2EdHqJ68Z7uybrMf3SPjEGgG4dicklwDVmMC1AeIHxtLVPT7sn6sH1KOO+tS6gwOUeQ==",
+    "@vue/compiler-core@3.5.28": {
+      "integrity": "sha512-kviccYxTgoE8n6OCw96BNdYlBg2GOWfBuOW4Vqwrt7mSKWKwFVvI8egdTltqRgITGPsTFYtKYfxIG8ptX2PJHQ==",
       "dependencies": [
         "@babel/parser",
         "@vue/shared",
@@ -353,15 +352,15 @@
         "source-map-js"
       ]
     },
-    "@vue/compiler-dom@3.5.27": {
-      "integrity": "sha512-oAFea8dZgCtVVVTEC7fv3T5CbZW9BxpFzGGxC79xakTr6ooeEqmRuvQydIiDAkglZEAd09LgVf1RoDnL54fu5w==",
+    "@vue/compiler-dom@3.5.28": {
+      "integrity": "sha512-/1ZepxAb159jKR1btkefDP+J2xuWL5V3WtleRmxaT+K2Aqiek/Ab/+Ebrw2pPj0sdHO8ViAyyJWfhXXOP/+LQA==",
       "dependencies": [
         "@vue/compiler-core",
         "@vue/shared"
       ]
     },
-    "@vue/compiler-sfc@3.5.27": {
-      "integrity": "sha512-sHZu9QyDPeDmN/MRoshhggVOWE5WlGFStKFwu8G52swATgSny27hJRWteKDSUUzUH+wp+bmeNbhJnEAel/auUQ==",
+    "@vue/compiler-sfc@3.5.28": {
+      "integrity": "sha512-6TnKMiNkd6u6VeVDhZn/07KhEZuBSn43Wd2No5zaP5s3xm8IqFTHBj84HJah4UepSUJTro5SoqqlOY22FKY96g==",
       "dependencies": [
         "@babel/parser",
         "@vue/compiler-core",
@@ -374,8 +373,8 @@
         "source-map-js"
       ]
     },
-    "@vue/compiler-ssr@3.5.27": {
-      "integrity": "sha512-Sj7h+JHt512fV1cTxKlYhg7qxBvack+BGncSpH+8vnN+KN95iPIcqB5rsbblX40XorP+ilO7VIKlkuu3Xq2vjw==",
+    "@vue/compiler-ssr@3.5.28": {
+      "integrity": "sha512-JCq//9w1qmC6UGLWJX7RXzrGpKkroubey/ZFqTpvEIDJEKGgntuDMqkuWiZvzTzTA5h2qZvFBFHY7fAAa9475g==",
       "dependencies": [
         "@vue/compiler-dom",
         "@vue/shared"
@@ -405,21 +404,21 @@
         "rfdc"
       ]
     },
-    "@vue/reactivity@3.5.27": {
-      "integrity": "sha512-vvorxn2KXfJ0nBEnj4GYshSgsyMNFnIQah/wczXlsNXt+ijhugmW+PpJ2cNPe4V6jpnBcs0MhCODKllWG+nvoQ==",
+    "@vue/reactivity@3.5.28": {
+      "integrity": "sha512-gr5hEsxvn+RNyu9/9o1WtdYdwDjg5FgjUSBEkZWqgTKlo/fvwZ2+8W6AfKsc9YN2k/+iHYdS9vZYAhpi10kNaw==",
       "dependencies": [
         "@vue/shared"
       ]
     },
-    "@vue/runtime-core@3.5.27": {
-      "integrity": "sha512-fxVuX/fzgzeMPn/CLQecWeDIFNt3gQVhxM0rW02Tvp/YmZfXQgcTXlakq7IMutuZ/+Ogbn+K0oct9J3JZfyk3A==",
+    "@vue/runtime-core@3.5.28": {
+      "integrity": "sha512-POVHTdbgnrBBIpnbYU4y7pOMNlPn2QVxVzkvEA2pEgvzbelQq4ZOUxbp2oiyo+BOtiYlm8Q44wShHJoBvDPAjQ==",
       "dependencies": [
         "@vue/reactivity",
         "@vue/shared"
       ]
     },
-    "@vue/runtime-dom@3.5.27": {
-      "integrity": "sha512-/QnLslQgYqSJ5aUmb5F0z0caZPGHRB8LEAQ1s81vHFM5CBfnun63rxhvE/scVb/j3TbBuoZwkJyiLCkBluMpeg==",
+    "@vue/runtime-dom@3.5.28": {
+      "integrity": "sha512-4SXxSF8SXYMuhAIkT+eBRqOkWEfPu6nhccrzrkioA6l0boiq7sp18HCOov9qWJA5HML61kW8p/cB4MmBiG9dSA==",
       "dependencies": [
         "@vue/reactivity",
         "@vue/runtime-core",
@@ -427,16 +426,16 @@
         "csstype"
       ]
     },
-    "@vue/server-renderer@3.5.27_vue@3.5.27__typescript@5.9.3_typescript@5.9.3": {
-      "integrity": "sha512-qOz/5thjeP1vAFc4+BY3Nr6wxyLhpeQgAE/8dDtKo6a6xdk+L4W46HDZgNmLOBUDEkFXV3G7pRiUqxjX0/2zWA==",
+    "@vue/server-renderer@3.5.28_vue@3.5.28__typescript@5.9.3_typescript@5.9.3": {
+      "integrity": "sha512-pf+5ECKGj8fX95bNincbzJ6yp6nyzuLDhYZCeFxUNp8EBrQpPpQaLX3nNCp49+UbgbPun3CeVE+5CXVV1Xydfg==",
       "dependencies": [
         "@vue/compiler-ssr",
         "@vue/shared",
         "vue"
       ]
     },
-    "@vue/shared@3.5.27": {
-      "integrity": "sha512-dXr/3CgqXsJkZ0n9F3I4elY8wM9jMJpP3pvRG52r6m0tu/MsAFIe6JpXVGeNMd/D9F4hQynWT8Rfuj0bdm9kFQ=="
+    "@vue/shared@3.5.28": {
+      "integrity": "sha512-cfWa1fCGBxrvaHRhvV3Is0MgmrbSCxYTXCSCau2I0a1Xw1N1pHAvkWCiXPRAqjvToILvguNyEwjevUqAuBQWvQ=="
     },
     "@webassemblyjs/ast@1.14.1": {
       "integrity": "sha512-nuBEDgQfm1ccRp/8bCQrx1frohyufl4JlbMMZ4P1wpeOfDhF6FQkxZJ1b/e+PLwr6X1Nhw6OLme5usuBWYBvuQ==",
@@ -910,7 +909,7 @@
     "picomatch@2.3.1": {
       "integrity": "sha512-JU3teHTNjmE2VCGFzuY8EXzCDVwEqB2a8fsIvwaStHhAWJEeVd1o1QD80CU6+ZdEXXSLbSsuLwJjkCBWqRQUVA=="
     },
-    "pinia@3.0.4_typescript@5.9.3_vue@3.5.27__typescript@5.9.3": {
+    "pinia@3.0.4_typescript@5.9.3_vue@3.5.28__typescript@5.9.3": {
       "integrity": "sha512-l7pqLUFTI/+ESXn6k3nu30ZIzW5E2WZF/LaHJEpoq6ElcLD+wduZoB2kBN19du6K/4FDpPMazY2wJr+IndBtQw==",
       "dependencies": [
         "@vue/devtools-api",
@@ -1081,8 +1080,8 @@
         "webpack"
       ]
     },
-    "vue@3.5.27_typescript@5.9.3": {
-      "integrity": "sha512-aJ/UtoEyFySPBGarREmN4z6qNKpbEguYHMmXSiOGk69czc+zhs0NF6tEFrY8TZKAl8N/LYAkd4JHVd5E/AsSmw==",
+    "vue@3.5.28_typescript@5.9.3": {
+      "integrity": "sha512-BRdrNfeoccSoIZeIhyPBfvWSLFP4q8J3u8Ju8Ug5vu3LdD+yTM13Sg4sKtljxozbnuMu1NB1X5HBHRYUzFocKg==",
       "dependencies": [
         "@vue/compiler-dom",
         "@vue/compiler-sfc",
@@ -1148,7 +1147,6 @@
     ],
     "packageJson": {
       "dependencies": [
-        "npm:@dmsnell/diff-match-patch@1.1.0",
         "npm:@noble/hashes@2.0.1",
         "npm:@types/chrome@0.1.36",
         "npm:@types/firefox-webext-browser@143.0.0",
@@ -1156,7 +1154,7 @@
         "npm:pinia@3.0.4",
         "npm:typescript@5.9.3",
         "npm:vue-loader@17.4.2",
-        "npm:vue@3.5.27"
+        "npm:vue@3.5.28"
       ]
     }
   }

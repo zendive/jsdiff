@@ -1,19 +1,22 @@
 import { hasValue } from './toolkit.ts';
-import { diff_match_patch } from '@dmsnell/diff-match-patch';
-import { create } from 'jsondiffpatch';
+import { create } from 'jsondiffpatch/with-text-diffs';
+import { ISerializableObject } from './clone.ts';
 export type { Delta } from 'jsondiffpatch';
+
+const OBJECT_ID_IN_ARRAY = ['id', '_id', 'uuid', 'name', 'key', 'version'];
 
 const patcher = create({
   // used to match objects when diffing arrays, by default only === operator is used
-  objectHash(obj, index) {
-    // this function is used only to when objects are not equal by ref
-    const rv = hasValue(obj)
-      ? 'id' in obj && hasValue(obj.id)
-        ? obj.id
-        : '_id' in obj && hasValue(obj._id)
-        ? obj._id
-        : index
-      : index;
+  objectHash(item: object, index?: number) {
+    const obj = <ISerializableObject> item;
+    let rv: unknown = index;
+
+    for (const prop of OBJECT_ID_IN_ARRAY) {
+      if (hasValue(obj[prop])) {
+        rv = obj[prop];
+        break;
+      }
+    }
 
     return hasValue(rv) ? String(rv) : undefined;
   },
@@ -26,9 +29,7 @@ const patcher = create({
   },
 
   textDiff: {
-    diffMatchPatch: diff_match_patch,
-    // default 60, minimum string length (left and right sides) to use text diff algorythm: google-diff-match-patch
-    minLength: 120,
+    minLength: 120, // default 60
   },
 });
 

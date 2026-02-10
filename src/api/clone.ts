@@ -22,7 +22,7 @@ import {
   UniqueLookupCatalog,
 } from './cloneCatalog.ts';
 
-interface ISerializableObject {
+export interface ISerializableObject {
   [key: string | symbol]: unknown;
 }
 interface IFunction {
