@@ -4,7 +4,7 @@ import { format } from 'jsondiffpatch/formatters/html';
 import { ISerializableObject } from './clone.ts';
 export type { Delta } from 'jsondiffpatch';
 
-const OBJECT_ID_IN_ARRAY = ['id', '_id', 'uuid', 'name', 'key', 'version'];
+const OBJECT_ID_IN_ARRAY = ['id', '_id', 'uuid', 'guid', 'ulid'];
 
 const patcher = create({
   // used to match objects when diffing arrays, by default only === operator is used
