@@ -1,5 +1,5 @@
 <template>
-  <main class="jsdiff-panel" :class="colourScheme">
+  <main class="jsdiff-panel">
     <panel-header
       @toggle-unchanged="onToggleUnchanged"
       @copy-delta="onCopyDelta"
@@ -23,13 +23,11 @@ import { useCompareStore } from '../stores/compare.store.ts';
 import { useSearchStore } from '../stores/search.store.ts';
 import PanelHeader from './panel.header.vue';
 import PanelEmpty from './panel.empty.vue';
-import { onColourSchemeChange } from '../api/onColourSchemeChange.ts';
 import { buildDeltaElement, hideUnchanged } from '../api/diffApi.ts';
 
 const compareStore = useCompareStore();
 const searchStore = useSearchStore();
 const deltaEl = ref<HTMLElement | null>(null);
-const colourScheme = ref('light');
 
 watch(
   () => compareStore.deltaObj,
@@ -52,10 +50,6 @@ watchEffect(
   },
   { flush: 'post' },
 );
-
-onColourSchemeChange((schemeName) => {
-  colourScheme.value = schemeName;
-});
 
 const onToggleUnchanged = () => {
   if (deltaEl.value) {
