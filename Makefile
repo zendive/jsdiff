@@ -67,4 +67,4 @@ all: prod
 	zip -r $(CHROME_ZIP) $(OUTPUT_DIR) ./manifest.json > /dev/null
 	zip --delete $(CHROME_ZIP) "$(BUILD_DIR)firefox/*" > /dev/null
 
-	tree -Dis $(BUILD_DIR) *.zip
+	tree -Dis $(BUILD_DIR) *.zip | grep -E "\\.css|\\.js|\\.zip"
