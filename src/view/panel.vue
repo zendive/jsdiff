@@ -85,43 +85,28 @@ onUnmounted(() => {
 
 <style lang="scss">
 :root {
-  --colour-background: #fff;
-  --colour-text: #000;
-  --colour-error: rgb(182, 33, 33);
+  color-scheme: light dark;
+  --colour-background: light-dark(#fff, rgb(32 33 36));
+  --colour-text: light-dark(#000, rgb(189, 198, 207));
+  --colour-error: light-dark(rgb(182, 33, 33), rgb(211, 231, 26));
   --colour-text-diff: #000;
 
-  --colour-found-outline: 0, 0, 0;
-  --colour-found-this-background: 0, 0, 0;
-  --colour-found-this-text: 255, 255, 255;
+  --colour-found-outline: light-dark(rgb(0 0 0), rgb(100% 100% 100%));
+  --colour-found-this-background: light-dark(rgb(0 0 0), rgb(100% 100% 100%));
+  --colour-found-this-text: light-dark(rgb(100% 100% 100%), rgb(0 0 0));
 
   --header-height: 1.625rem;
-  --header-background: #fff;
-  --header-border: 1px solid #bbb;
+  --header-background: light-dark(#fff, rgb(41, 42, 45));
+  --header-border: light-dark(#bbb, rgb(73, 76, 80));
 
   --button-background: rgba(0, 0, 0, 0.05);
   --button-background-hover: rgba(0, 0, 0, 0.3);
 
-  --input-background-idle: rgba(0, 0, 0, 0.05);
-  --input-background-active: rgba(0, 0, 0, 0.1);
+  --input-background-idle: light-dark(rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.05));
+  --input-background-active: light-dark(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.3));
 
   --diff-added-background: #bbffbb;
   --diff-deleted-background: #ffbbbb;
-}
-
-.dark {
-  --colour-background: rgb(32 33 36);
-  --colour-text: rgb(189, 198, 207);
-  --colour-error: rgb(211, 231, 26);
-
-  --colour-found-outline: 255, 255, 255;
-  --colour-found-this-background: 255, 255, 255;
-  --colour-found-this-text: 0, 0, 0;
-
-  --input-background-idle: rgba(0, 0, 0, 0.05);
-  --input-background-active: rgba(0, 0, 0, 0.3);
-
-  --header-background: rgb(41, 42, 45);
-  --header-border: 1px solid rgb(73, 76, 80);
 }
 
 * {
@@ -170,14 +155,14 @@ a {
 
       .-delta {
         .jsdiff-found {
-          outline: 2px solid rgba(var(--colour-found-outline), 1);
+          outline: 2px solid var(--colour-found-outline);
           outline-offset: -1px;
           font-weight: bold;
 
           &.jsdiff-found-this {
             font-weight: bold;
-            color: rgba(var(--colour-found-this-text), 1);
-            background-color: rgba(var(--colour-found-this-background), 1);
+            color: var(--colour-found-this-text);
+            background-color: var(--colour-found-this-background);
           }
         }
       }
