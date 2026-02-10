@@ -189,6 +189,16 @@ a {
     word-break: break-all;
   }
 
+  .jsondiffpatch-property-name::after {
+    content: unset;
+  }
+  .jsondiffpatch-child-node-type-array,
+  .jsondiffpatch-child-node-type-object {
+    & > .jsondiffpatch-property-name::after {
+      content: ' [';
+    }
+  }
+
   .jsondiffpatch-added .jsondiffpatch-property-name,
   .jsondiffpatch-added .jsondiffpatch-value pre,
   .jsondiffpatch-modified .jsondiffpatch-right-value pre,

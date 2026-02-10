@@ -83,7 +83,7 @@ export class HtmlFormatter extends BaseFormatter<BaseFormatterContext> {
     context.out(
       `<li class="${nodeClass}"><div class="jsondiffpatch-property-name">${
         typeof leftKey === 'string' ? escapeHTML(leftKey) : leftKey
-      }</div>`,
+      }:</div>`,
     );
   }
 
