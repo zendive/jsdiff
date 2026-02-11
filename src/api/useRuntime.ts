@@ -19,11 +19,13 @@ import type { TRuntimeMessageOptions } from './proxy.ts';
 type TRuntimeListener = (e: TRuntimeMessageOptions) => void;
 type TRuntimeListenerAsync = (e: TRuntimeMessageOptions) => Promise<void>;
 
-const allListeners = new Set<TRuntimeListener>();
+const allListeners = new Set<TRuntimeListener | TRuntimeListenerAsync>();
 
 function callAllListeners(e: TRuntimeMessageOptions) {
   for (const listener of allListeners) {
-    listener(e);
+    Promise.try(listener, e).catch((err) =>
+      void console.error('RuntimeListener', err)
+    );
   }
 }
 
