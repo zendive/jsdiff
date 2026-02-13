@@ -47,6 +47,7 @@ test: valid
 prod: test
 	rm -rf $(BUILD_DIR)
 	$(DENO_PROD) $(BUILD_SCRIPT)
+	deno audit
 
 .PHONY: tune2chrome
 tune2chrome:
