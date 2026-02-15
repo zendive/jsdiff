@@ -23,7 +23,11 @@ import { useCompareStore } from '../stores/compare.store.ts';
 import { useSearchStore } from '../stores/search.store.ts';
 import PanelHeader from './panel.header.vue';
 import PanelEmpty from './panel.empty.vue';
-import { buildDeltaElement, hideUnchanged } from '../api/diffApi.ts';
+import {
+  buildDeltaElement,
+  formatDeltaAsRFC6902,
+  hideUnchanged,
+} from '../api/diffApi.ts';
 
 const compareStore = useCompareStore();
 const searchStore = useSearchStore();
@@ -63,7 +67,9 @@ const onToggleUnchanged = () => {
 };
 
 const onCopyDelta = () => {
-  const sDelta = JSON.stringify(compareStore.deltaObj, null, 2);
+  const delta = formatDeltaAsRFC6902(compareStore.deltaObj);
+  const sDelta = JSON.stringify(delta, null, 2);
+
   document.addEventListener('copy', function onCopy(e: ClipboardEvent) {
     e.preventDefault();
     document.removeEventListener('copy', onCopy);
