@@ -1,7 +1,7 @@
 import { hasValue } from './toolkit.ts';
+import { cleanObjectPrototype, type ISerializableObject } from './clone.ts';
 import { create, type Delta } from 'jsondiffpatch/with-text-diffs';
 import { format } from 'jsondiffpatch/formatters/html';
-import { ISerializableObject } from './clone.ts';
 export type { Delta } from 'jsondiffpatch';
 
 const OBJECT_ID_IN_ARRAY = ['id', '_id', 'uuid', 'guid', 'ulid'];
@@ -46,7 +46,10 @@ export function buildDeltaElement(
   let html: string | undefined;
 
   try {
-    html = format(delta, left);
+    html = format(
+      cleanObjectPrototype(delta),
+      cleanObjectPrototype(left),
+    );
   } catch (e) {
     console.error('buildDeltaElement', e);
   }
