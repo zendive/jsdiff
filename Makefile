@@ -59,11 +59,11 @@ tune2firefox:
 
 .PHONY: all
 all: prod
-	make tune2firefox
+	$(MAKE) tune2firefox
 	rm -rf $(FIREFOX_ZIP)
 	zip -r $(FIREFOX_ZIP) $(OUTPUT_DIR) ./manifest.json > /dev/null
 
-	make tune2chrome
+	$(MAKE) tune2chrome
 	rm -rf $(CHROME_ZIP)
 	zip -r $(CHROME_ZIP) $(OUTPUT_DIR) ./manifest.json > /dev/null
 	zip --delete $(CHROME_ZIP) "$(BUILD_DIR)firefox/*" > /dev/null

@@ -3,6 +3,7 @@ import { cleanObjectPrototype, type ISerializableObject } from './clone.ts';
 import { create, type Delta } from 'jsondiffpatch/with-text-diffs';
 import { format as formatHtml } from 'jsondiffpatch/formatters/html';
 import { format as formatRFC6902 } from 'jsondiffpatch/formatters/jsonpatch';
+import DOMPurify from 'dompurify';
 export type { Delta } from 'jsondiffpatch';
 
 const OBJECT_ID_IN_ARRAY = ['id', '_id', 'uuid', 'guid', 'ulid'];
@@ -26,8 +27,6 @@ const patcher = create({
   arrays: {
     // default true, detect items moved inside the array (otherwise they will be registered as remove+add)
     detectMove: false,
-    // default false, the value of items moved is not included in deltas
-    includeValueOnMove: true,
   },
 
   textDiff: {
@@ -55,6 +54,7 @@ export function buildDeltaElement(
       cleanObjectPrototype(delta),
       cleanObjectPrototype(left),
     );
+    html = DOMPurify.sanitize(html || '');
   } catch (e) {
     console.error('buildDeltaElement', e);
   }
@@ -63,9 +63,9 @@ export function buildDeltaElement(
     return null;
   }
 
-  const tmpEl = document.createElement('div');
-  tmpEl.innerHTML = html;
-  const rv = tmpEl.firstElementChild;
+  const virtualEl = document.createElement('div');
+  virtualEl.innerHTML = html;
+  const rv = virtualEl.firstElementChild;
   hideUnchanged(hide, rv);
 
   return rv;

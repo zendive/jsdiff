@@ -4,6 +4,7 @@
     "@noble/hashes": "2.0.1",
     "@types/chrome": "0.1.36",
     "@types/firefox-webext-browser": "143.0.0",
+    "dompurify": "3.3.1",
     "jsondiffpatch": "0.7.3",
     "pinia": "3.0.4",
     "typescript": "5.9.3",

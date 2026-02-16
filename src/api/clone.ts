@@ -309,8 +309,7 @@ function isGlobalSymbol(that: symbol): that is symbol {
 }
 
 export function isObject(that: unknown): that is ISerializableObject {
-  return (that !== null && typeof that === 'object') ||
-    that instanceof window.Object;
+  return (that !== null && typeof that === 'object');
 }
 
 function isRegExp(that: unknown): that is RegExp {

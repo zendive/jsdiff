@@ -102,8 +102,8 @@ onUnmounted(() => {
   --button-background: rgba(0, 0, 0, 0.05);
   --button-background-hover: rgba(0, 0, 0, 0.3);
 
-  --input-background-idle: light-dark(rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.05));
-  --input-background-active: light-dark(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.3));
+  --input-background-idle: light-dark(rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.1));
+  --input-background-active: light-dark(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.9));
 
   --diff-added-background: #bbffbb;
   --diff-deleted-background: #ffbbbb;

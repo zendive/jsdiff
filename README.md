@@ -148,7 +148,7 @@ declare global {
   ```
 
 ### Build requirements
-- Linux: [deno](https://docs.deno.com/runtime/getting_started/installation/) make jq zip tree
+- Linux: [deno](https://docs.deno.com/runtime/getting_started/installation/), `make`, `jq`, `zip`, `tree`
 
 ### Build instructions
 

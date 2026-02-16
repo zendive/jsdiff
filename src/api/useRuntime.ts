@@ -34,8 +34,8 @@ function getFirefoxPort(callback: TRuntimeListener) {
     name: BACKGROUND_SCRIPT_CONNECTION_NAME,
   });
 
-  // @ts-expect-error: expects callback with argument of type object
-  // also the addListener signature here is shown from another API
+  // @ts-expect-error: expects callback with argument of type `object`
+  // and not `any` as in chrome api
   port.onMessage.addListener(callback);
 
   return port;
@@ -43,10 +43,11 @@ function getFirefoxPort(callback: TRuntimeListener) {
 
 if (typeof browser !== 'undefined') {
   // firefox
-  getFirefoxPort(callAllListeners);
+  let port = getFirefoxPort(callAllListeners);
 
   setInterval(() => {
-    getFirefoxPort(callAllListeners);
+    port.disconnect();
+    port = getFirefoxPort(callAllListeners);
   }, BACKGROUND_SCRIPT_CONNECTION_INTERVAL);
 } else {
   // chrome

@@ -22,6 +22,8 @@ const consoleAPI = {
   },
 };
 
+export type TConsoleAPI = typeof consoleAPI;
+
 if (typeof browser === 'undefined') {
   // chrome
   Object.assign(console, consoleAPI);
@@ -29,7 +31,7 @@ if (typeof browser === 'undefined') {
 } else if (typeof cloneInto === 'function') {
   // firefox
   // the technic described in https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Sharing_objects_with_page_scripts
-  globalThis.wrappedJSObject.jsdiff = <() => void> cloneInto(
+  globalThis.wrappedJSObject.jsdiff = <TConsoleAPI> cloneInto(
     consoleAPI,
     window,
     { cloneFunctions: true },
