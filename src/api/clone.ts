@@ -304,7 +304,7 @@ function isSymbol(that: unknown): that is symbol {
   return typeof that === 'symbol';
 }
 
-function isGlobalSymbol(that: symbol): that is symbol {
+function isGlobalSymbol(that: symbol): boolean {
   return Symbol.keyFor(that) !== undefined;
 }
 

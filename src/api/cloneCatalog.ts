@@ -1,6 +1,3 @@
-import { TAG_DOM_ELEMENT, TAG_UNIQUE_SYMBOL } from './const.ts';
-
-type TUniqueInstanceTag = typeof TAG_DOM_ELEMENT | typeof TAG_UNIQUE_SYMBOL;
 export type TCommonInstanceTag = (id: string) => string;
 
 type ICatalogUniqueRecord = string;
@@ -13,14 +10,17 @@ export class UniqueLookupCatalog {
   #records: WeakMap<WeakKey, ICatalogUniqueRecord> = new WeakMap();
   #index = 0;
 
-  lookup(key: WeakKey, tag: TUniqueInstanceTag) {
+  lookup<
+    TMapKey extends WeakKey,
+    TTagFn extends (id: string, value: TMapKey) => string,
+  >(key: TMapKey, tag: TTagFn): string {
     let record = this.#records.get(key);
     if (record) {
       return record;
     }
 
     const id = index2Id(++this.#index);
-    record = tag(id, <(Document | Element) & symbol> key);
+    record = tag(id, key);
     this.#records.set(key, record);
 
     return record;
