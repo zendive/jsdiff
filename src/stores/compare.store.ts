@@ -1,6 +1,6 @@
 import { type Delta, diff } from '../api/diffApi.ts';
 import { hasValue } from '../api/toolkit.ts';
-import { cleanObjectPrototype } from '../api/clone.ts';
+import { stripDeepObjectPrototype } from '../api/clone.ts';
 import type { TRuntimeMessageOptions } from '../api/proxy.ts';
 import { defineStore } from 'pinia';
 import { markRaw } from 'vue';
@@ -39,8 +39,8 @@ export const useCompareStore = defineStore('compareStore', {
 
     deltaObj(): Delta {
       return diff(
-        cleanObjectPrototype(this.compare.left),
-        cleanObjectPrototype(this.compare.right),
+        stripDeepObjectPrototype(this.compare.left),
+        stripDeepObjectPrototype(this.compare.right),
       );
     },
   },

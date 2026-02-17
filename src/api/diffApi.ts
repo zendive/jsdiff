@@ -1,5 +1,5 @@
 import { hasValue } from './toolkit.ts';
-import { cleanObjectPrototype, type ISerializableObject } from './clone.ts';
+import { type ISerializableObject, stripDeepObjectPrototype } from './clone.ts';
 import { create, type Delta } from 'jsondiffpatch/with-text-diffs';
 import { format as formatHtml } from 'jsondiffpatch/formatters/html';
 import { format as formatRFC6902 } from 'jsondiffpatch/formatters/jsonpatch';
@@ -51,8 +51,8 @@ export function buildDeltaElement(
 
   try {
     html = formatHtml(
-      cleanObjectPrototype(delta),
-      cleanObjectPrototype(left),
+      stripDeepObjectPrototype(delta),
+      stripDeepObjectPrototype(left),
     );
     html = DOMPurify.sanitize(html || '');
   } catch (e) {

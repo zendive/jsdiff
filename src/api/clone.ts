@@ -308,7 +308,7 @@ function isGlobalSymbol(that: symbol): boolean {
   return Symbol.keyFor(that) !== undefined;
 }
 
-export function isObject(that: unknown): that is ISerializableObject {
+function isObject(that: unknown): that is ISerializableObject {
   return (that !== null && typeof that === 'object');
 }
 
@@ -320,9 +320,30 @@ function isURL(that: unknown): that is URL {
   return that instanceof URL;
 }
 
-export function cleanObjectPrototype(unk: unknown) {
-  if (!isArray(unk) && isObject(unk)) {
-    return Object.assign(Object.create(null), unk);
+/**
+ * @note: use when reoccurrence is not expected
+ * @param unk - expects object | array | primitives, nothing else exotic
+ */
+export function stripDeepObjectPrototype<T>(unk: T) {
+  if (Object.prototype.toString.call(unk) === '[object Array]') {
+    // @ts-expect-error in 2026, typescript doesn't know yet
+    for (let n = 0; n < unk.length; n++) {
+      // @ts-expect-error in 2026, typescript doesn't know yet
+      unk[n] = stripDeepObjectPrototype(unk[n]);
+    }
+
+    return unk;
+  }
+
+  if (Object.prototype.toString.call(unk) === '[object Object]') {
+    const rv = Object.create(null);
+    const obj = <ISerializableObject> unk;
+
+    for (const key of Reflect.ownKeys(obj)) {
+      rv[key] = stripDeepObjectPrototype(obj[key]);
+    }
+
+    return <T> rv;
   }
 
   return unk;
