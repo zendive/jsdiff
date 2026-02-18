@@ -330,7 +330,7 @@ export function stripDeepObjectPrototype<T>(unk: T): T {
 
     // @ts-expect-error in 2026, typescript doesn't know yet
     for (const value of unk) {
-      rv.push(stripDeepObjectPrototype(value));
+      rv.push(stripDeepObjectPrototype(value)); // recursion
     }
 
     return <T> rv;
@@ -341,7 +341,7 @@ export function stripDeepObjectPrototype<T>(unk: T): T {
     const obj = <ISerializableObject> unk;
 
     for (const key of Reflect.ownKeys(obj)) {
-      rv[key] = stripDeepObjectPrototype(obj[key]);
+      rv[key] = stripDeepObjectPrototype(obj[key]); // recursion
     }
 
     return <T> rv;

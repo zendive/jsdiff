@@ -21,6 +21,14 @@ function defaultCompareState(): ICompareState {
   };
 }
 
+function castrateObject<T>(that: T): T {
+  if (that !== null && typeof that === 'object') {
+    return markRaw(Object.freeze(stripDeepObjectPrototype(that)));
+  }
+
+  return that;
+}
+
 export const useCompareStore = defineStore('compareStore', {
   state: () => ({
     initialized: false,
@@ -38,20 +46,15 @@ export const useCompareStore = defineStore('compareStore', {
     },
 
     deltaObj(): Delta {
-      return diff(
-        stripDeepObjectPrototype(this.compare.left),
-        stripDeepObjectPrototype(this.compare.right),
-      );
+      return castrateObject(diff(this.compare.left, this.compare.right));
     },
   },
 
   actions: {
     assign({ left, right, timestamp }: ICompareState) {
       this.compare = {
-        left: left !== null && typeof left === 'object' ? markRaw(left) : left,
-        right: right !== null && typeof right === 'object'
-          ? markRaw(right)
-          : right,
+        left: castrateObject(left),
+        right: castrateObject(right),
         timestamp: timestamp || Date.now(),
       };
     },
