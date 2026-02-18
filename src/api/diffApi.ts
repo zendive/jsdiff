@@ -39,7 +39,11 @@ export function diff(left: unknown, right: unknown) {
 }
 
 export function formatDeltaAsRFC6902(delta: Delta) {
-  return formatRFC6902(delta);
+  try {
+    return formatRFC6902(delta);
+  } catch (e) {
+    return String(e);
+  }
 }
 
 export function buildDeltaElement(
