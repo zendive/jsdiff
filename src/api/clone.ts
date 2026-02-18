@@ -324,15 +324,16 @@ function isURL(that: unknown): that is URL {
  * @note: use when reoccurrence is not expected
  * @param unk - expects object | array | primitives, nothing else exotic
  */
-export function stripDeepObjectPrototype<T>(unk: T) {
+export function stripDeepObjectPrototype<T>(unk: T): T {
   if (Object.prototype.toString.call(unk) === '[object Array]') {
+    const rv = [];
+
     // @ts-expect-error in 2026, typescript doesn't know yet
-    for (let n = 0; n < unk.length; n++) {
-      // @ts-expect-error in 2026, typescript doesn't know yet
-      unk[n] = stripDeepObjectPrototype(unk[n]);
+    for (const value of unk) {
+      rv.push(stripDeepObjectPrototype(value));
     }
 
-    return unk;
+    return <T> rv;
   }
 
   if (Object.prototype.toString.call(unk) === '[object Object]') {
