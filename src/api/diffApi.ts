@@ -1,19 +1,25 @@
 import { hasValue } from './toolkit.ts';
-import DiffMatchPatch from 'diff-match-patch';
-import { create } from 'jsondiffpatch';
+import { type ISerializableObject } from './clone.ts';
+import { create, type Delta } from 'jsondiffpatch/with-text-diffs';
+import { format as formatHtml } from 'jsondiffpatch/formatters/html';
+import { format as formatRFC6902 } from 'jsondiffpatch/formatters/jsonpatch';
+import DOMPurify from 'dompurify';
 export type { Delta } from 'jsondiffpatch';
+
+const OBJECT_ID_IN_ARRAY = ['id', '_id', 'uuid', 'guid', 'ulid'];
 
 const patcher = create({
   // used to match objects when diffing arrays, by default only === operator is used
-  objectHash(obj, index) {
-    // this function is used only to when objects are not equal by ref
-    const rv = hasValue(obj)
-      ? 'id' in obj && hasValue(obj.id)
-        ? obj.id
-        : '_id' in obj && hasValue(obj._id)
-        ? obj._id
-        : index
-      : index;
+  objectHash(item: object, index?: number) {
+    const obj = <ISerializableObject> item;
+    let rv: unknown = index;
+
+    for (const prop of OBJECT_ID_IN_ARRAY) {
+      if (hasValue(obj[prop])) {
+        rv = obj[prop];
+        break;
+      }
+    }
 
     return hasValue(rv) ? String(rv) : undefined;
   },
@@ -21,17 +27,60 @@ const patcher = create({
   arrays: {
     // default true, detect items moved inside the array (otherwise they will be registered as remove+add)
     detectMove: false,
-    // default false, the value of items moved is not included in deltas
-    includeValueOnMove: true,
   },
 
   textDiff: {
-    diffMatchPatch: DiffMatchPatch,
-    // default 60, minimum string length (left and right sides) to use text diff algorythm: google-diff-match-patch
-    minLength: 120,
+    minLength: 120, // default 60
   },
 });
 
 export function diff(left: unknown, right: unknown) {
   return patcher.diff(left, right);
+}
+
+export function formatDeltaAsRFC6902(delta: Delta) {
+  try {
+    return formatRFC6902(delta);
+  } catch (e) {
+    return String(e);
+  }
+}
+
+export function buildDeltaElement(
+  delta: Delta,
+  left: unknown,
+  hide: boolean,
+): Element | null {
+  let html: string | undefined;
+
+  try {
+    html = formatHtml(delta, left);
+    html = DOMPurify.sanitize(html || '');
+  } catch (e) {
+    console.error('buildDeltaElement', e);
+  }
+
+  if (!html) {
+    return null;
+  }
+
+  const virtualEl = document.createElement('div');
+  virtualEl.innerHTML = html;
+  const rv = virtualEl.firstElementChild;
+  hideUnchanged(hide, rv);
+
+  return rv;
+}
+
+const unchangedHiddenClass = 'jsondiffpatch-unchanged-hidden';
+export function hideUnchanged(hide: boolean, el: Element | null) {
+  if (!el) {
+    return;
+  }
+
+  if (hide) {
+    el.classList.add(unchangedHiddenClass);
+  } else {
+    el.classList.remove(unchangedHiddenClass);
+  }
 }

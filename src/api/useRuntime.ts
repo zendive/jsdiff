@@ -14,14 +14,18 @@ import {
   BACKGROUND_SCRIPT_CONNECTION_INTERVAL,
   BACKGROUND_SCRIPT_CONNECTION_NAME,
 } from './const.ts';
+import type { TRuntimeMessageOptions } from './proxy.ts';
 
-type TRuntimeListener = (...args: unknown[]) => void;
+type TRuntimeListener = (e: TRuntimeMessageOptions) => void;
+type TRuntimeListenerAsync = (e: TRuntimeMessageOptions) => Promise<void>;
 
-const allListeners = new Set<TRuntimeListener>();
+const allListeners = new Set<TRuntimeListener | TRuntimeListenerAsync>();
 
-function callAllListeners(...args: unknown[]) {
+function callAllListeners(e: TRuntimeMessageOptions) {
   for (const listener of allListeners) {
-    listener(...args);
+    Promise.try(listener, e).catch((err) =>
+      void console.error('RuntimeListener', err)
+    );
   }
 }
 
@@ -30,6 +34,8 @@ function getFirefoxPort(callback: TRuntimeListener) {
     name: BACKGROUND_SCRIPT_CONNECTION_NAME,
   });
 
+  // @ts-expect-error: expects callback with argument of type `object`
+  // and not `any` as in chrome api
   port.onMessage.addListener(callback);
 
   return port;
@@ -37,10 +43,10 @@ function getFirefoxPort(callback: TRuntimeListener) {
 
 if (typeof browser !== 'undefined') {
   // firefox
-  // deno-lint-ignore no-unused-vars
   let port = getFirefoxPort(callAllListeners);
 
   setInterval(() => {
+    port.disconnect();
     port = getFirefoxPort(callAllListeners);
   }, BACKGROUND_SCRIPT_CONNECTION_INTERVAL);
 } else {
@@ -49,10 +55,10 @@ if (typeof browser !== 'undefined') {
 }
 
 export function useRuntime() {
-  const localListeners = new Set<TRuntimeListener>();
+  const localListeners = new Set<TRuntimeListenerAsync>();
 
   return {
-    connect(listener: TRuntimeListener) {
+    connect(listener: TRuntimeListenerAsync) {
       localListeners.add(listener);
       allListeners.add(listener);
     },

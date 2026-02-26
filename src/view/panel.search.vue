@@ -121,7 +121,7 @@ const onNextSearch = () => {
     display: flex;
     align-items: center;
     margin-left: 10px;
-    color: rgb(var(--colour-found-this-background));
+    color: var(--colour-found-this-background);
     font-size: 12px;
     font-weight: bold;
 

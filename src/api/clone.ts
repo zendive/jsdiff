@@ -22,7 +22,7 @@ import {
   UniqueLookupCatalog,
 } from './cloneCatalog.ts';
 
-interface ISerializeToObject {
+export interface ISerializableObject {
   [key: string | symbol]: unknown;
 }
 interface IFunction {
@@ -110,7 +110,7 @@ function serializeMap(
 
   record.seen = true;
 
-  const obj: ISerializeToObject = {};
+  const obj: ISerializableObject = Object.create(null);
   for (const [k, v] of value) {
     const newKey = serializeMapKey(commonCatalog, k);
 
@@ -161,7 +161,10 @@ function serializeMapKey(
   return rv;
 }
 
-function serializeObject(commonCatalog: CommonLookupCatalog, value: object) {
+function serializeObject(
+  commonCatalog: CommonLookupCatalog,
+  value: ISerializableObject,
+) {
   const record = commonCatalog.lookup(value, TAG_RECURRING_OBJECT);
   if (record.seen) {
     return record.name;
@@ -174,7 +177,7 @@ function serializeObject(commonCatalog: CommonLookupCatalog, value: object) {
     return recursiveClone(commonCatalog, toJsonValue);
   }
 
-  const rv: ISerializeToObject = {};
+  const rv: ISerializableObject = Object.create(null);
   for (const key of Reflect.ownKeys(value)) {
     const { newKey, newValue } = serializeObjectKey(commonCatalog, key, value);
     rv[newKey] = newValue;
@@ -186,7 +189,7 @@ function serializeObject(commonCatalog: CommonLookupCatalog, value: object) {
 function serializeObjectKey(
   commonCatalog: CommonLookupCatalog,
   key: string | symbol,
-  value: ISerializeToObject,
+  value: ISerializableObject,
 ) {
   let newKey: string, newValue: unknown;
 
@@ -242,7 +245,7 @@ function isNumericSpecials(value: unknown): value is bigint | number {
   );
 }
 
-function isArray(that: unknown): that is unknown[] {
+export function isArray(that: unknown): that is unknown[] {
   return (
     // NOTE: firefox content script has instances to compare with
     // in `window` (not in `globalThis`)
@@ -301,13 +304,12 @@ function isSymbol(that: unknown): that is symbol {
   return typeof that === 'symbol';
 }
 
-function isGlobalSymbol(that: symbol): that is symbol {
+function isGlobalSymbol(that: symbol): boolean {
   return Symbol.keyFor(that) !== undefined;
 }
 
-function isObject(that: unknown): that is object {
-  return (that !== null && typeof that === 'object') ||
-    that instanceof window.Object;
+function isObject(that: unknown): that is ISerializableObject {
+  return (that !== null && typeof that === 'object');
 }
 
 function isRegExp(that: unknown): that is RegExp {
@@ -316,4 +318,34 @@ function isRegExp(that: unknown): that is RegExp {
 
 function isURL(that: unknown): that is URL {
   return that instanceof URL;
+}
+
+/**
+ * @note: use when reoccurrence is not expected
+ * @param unk - expects object | array | primitives, nothing else exotic
+ */
+export function stripDeepObjectPrototype<T>(unk: T): T {
+  if (Object.prototype.toString.call(unk) === '[object Array]') {
+    const rv = [];
+
+    // @ts-expect-error in 2026, typescript doesn't know yet
+    for (const value of unk) {
+      rv.push(stripDeepObjectPrototype(value)); // recursion
+    }
+
+    return <T> rv;
+  }
+
+  if (Object.prototype.toString.call(unk) === '[object Object]') {
+    const rv = Object.create(null);
+    const obj = <ISerializableObject> unk;
+
+    for (const key of Reflect.ownKeys(obj)) {
+      rv[key] = stripDeepObjectPrototype(obj[key]); // recursion
+    }
+
+    return <T> rv;
+  }
+
+  return unk;
 }

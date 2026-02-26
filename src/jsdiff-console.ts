@@ -22,16 +22,19 @@ const consoleAPI = {
   },
 };
 
+export type TConsoleAPI = typeof consoleAPI;
+
 if (typeof browser === 'undefined') {
   // chrome
   Object.assign(console, consoleAPI);
   console.debug(`✚ console.diff()`);
 } else if (typeof cloneInto === 'function') {
   // firefox
-  // the technic described in:
-  // @link: https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Sharing_objects_with_page_scripts
-  globalThis.wrappedJSObject.jsdiff = cloneInto(consoleAPI, window, {
-    cloneFunctions: true,
-  });
+  // the technic described in https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Sharing_objects_with_page_scripts
+  globalThis.wrappedJSObject.jsdiff = <TConsoleAPI> cloneInto(
+    consoleAPI,
+    window,
+    { cloneFunctions: true },
+  );
   console.debug(`✚ jsdiff.diff()`);
 }

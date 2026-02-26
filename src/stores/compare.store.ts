@@ -1,10 +1,11 @@
 import { type Delta, diff } from '../api/diffApi.ts';
 import { hasValue } from '../api/toolkit.ts';
+import { stripDeepObjectPrototype } from '../api/clone.ts';
+import type { TRuntimeMessageOptions } from '../api/proxy.ts';
 import { defineStore } from 'pinia';
 import { markRaw } from 'vue';
 import { useRuntime } from '../api/useRuntime.ts';
 import { useSearchStore } from './search.store.ts';
-import type { TRuntimeMessageOptions } from '../api/proxy.ts';
 
 interface ICompareState {
   timestamp: number;
@@ -18,6 +19,14 @@ function defaultCompareState(): ICompareState {
     left: undefined,
     right: undefined,
   };
+}
+
+function castrateObject<T>(that: T): T {
+  if (that !== null && typeof that === 'object') {
+    return markRaw(Object.freeze(stripDeepObjectPrototype(that)));
+  }
+
+  return that;
 }
 
 export const useCompareStore = defineStore('compareStore', {
@@ -37,17 +46,15 @@ export const useCompareStore = defineStore('compareStore', {
     },
 
     deltaObj(): Delta {
-      return diff(this.compare.left, this.compare.right);
+      return castrateObject(diff(this.compare.left, this.compare.right));
     },
   },
 
   actions: {
     assign({ left, right, timestamp }: ICompareState) {
       this.compare = {
-        left: left !== null && typeof left === 'object' ? markRaw(left) : left,
-        right: right !== null && typeof right === 'object'
-          ? markRaw(right)
-          : right,
+        left: castrateObject(left),
+        right: castrateObject(right),
         timestamp: timestamp || Date.now(),
       };
     },
@@ -80,14 +87,14 @@ export const compareStoreRuntimeService = {
         if (hasValue(lastApiReq)) {
           compareStore.assign(lastApiReq as ICompareState);
         }
-        compareStore.lastError = lastError || '';
+        compareStore.lastError = lastError ? String(lastError) : '';
         compareStore.initialized = true;
       });
 
     runtime.connect(async (e: TRuntimeMessageOptions) => {
       if ('jsdiff-proxy-to-panel-error' === e.source) {
         const { lastError } = await chrome.storage.local.get(['lastError']);
-        compareStore.lastError = lastError || '';
+        compareStore.lastError = lastError ? String(lastError) : '';
         compareStore.inprogress = false;
       } else if ('jsdiff-proxy-to-panel-inprogress' === e.source) {
         compareStore.inprogress = e.on;

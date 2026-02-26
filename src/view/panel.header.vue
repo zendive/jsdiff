@@ -73,7 +73,7 @@ const onClearResults = () => {
   flex-shrink: 0;
   width: 100%;
   background-color: var(--header-background);
-  border-bottom: var(--header-border);
+  border-bottom: 1px solid var(--header-border);
   display: flex;
   align-items: center;
   height: var(--header-height);
