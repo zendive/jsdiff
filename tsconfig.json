@@ -10,10 +10,19 @@
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "esModuleInterop": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "allowUnusedLabels": false,
+    "noUncheckedSideEffectImports": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "erasableSyntaxOnly": false,
+    "noImplicitOverride": true,
+    "exactOptionalPropertyTypes": true,
     "lib": ["ESNext", "DOM"],
-    "types": ["chrome", "firefox-webext-browser"],
-    "typeRoots": ["node_modules/@types", "src/@types"],
-    "baseUrl": "."
+    "types": ["deno", "chrome", "firefox-webext-browser"],
+    "typeRoots": ["node_modules/@types", "src/@types"]
   },
   "include": ["src/**/*", "build.ts"],
   "exclude": [
