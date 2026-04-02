@@ -27,7 +27,5 @@ browser.runtime.onConnect.addListener((port) => {
 // Listen for messages from content scripts
 // and forward the message to the DevTools page connected ports
 browser.runtime.onMessage.addListener((msg) => {
-  for (const [_contextId, port] of ports) {
-    port.postMessage(msg);
-  }
+  ports.forEach((port) => void port.postMessage(msg));
 });

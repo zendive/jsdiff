@@ -111,11 +111,11 @@ function serializeMap(
   record.seen = true;
 
   const obj: ISerializableObject = Object.create(null);
-  for (const [k, v] of value) {
+  value.forEach((v, k) => {
     const newKey = serializeMapKey(commonCatalog, k);
 
     obj[newKey] = recursiveClone(commonCatalog, v);
-  }
+  });
 
   return obj;
 }
