@@ -20,7 +20,7 @@ An extension for developers that enhances the console API by incorporating the a
 
 - Track object mutations during runtime and/or while debugging with intention to find expected or unexpected changes.
 
-### Features
+### Specification
 
 - User interface:
 
@@ -31,7 +31,7 @@ An extension for developers that enhances the console API by incorporating the a
     - If search query contains at least one upper-case letter - the search will be case-sensitive.
   - Indicator of the last update time.
   - Indicator of a fatal error (out of storage memory).
-  - DevTools light/dark color scheme support.
+  - DevTools light/dark colour scheme support.
 
 - Compare objects between multiple [sub]domains, Chrome tabs, or single page reloads.
 
@@ -53,33 +53,23 @@ An extension for developers that enhances the console API by incorporating the a
 
 ### API
 
-- **console.diff(left, right)** - compare left and right arguments
-
 ```javascript
-console.diff({ a: 1, b: 1, c: 3 }, { a: 1, b: 2, d: 3 });
-```
+// compare left and right arguments
+console.diff( 
+  { a: 1, b: 1, c: 3 },
+  { a: 1, b: 2, d: 3 }
+);
 
-- **console.diffPush(next)** - shifts sides, right becomes left, next becomes right
-
-```javascript
-console.diffPush(Date.now());
-```
-
-- **console.diff(next)** - shorthand for `diffPush`
-
-```javascript
+// with a single argument behaves the same as `console.diffPush`
 console.diff(Date.now());
-```
 
-- **console.diffLeft(left)** - update the old value only
+// shifts sides - previous right side becomes left, new valude becomes right
+console.diffPush(Date.now());
 
-```javascript
+// update left side only
 console.diffLeft(Date.now());
-```
 
-- **console.diffRight(right)** - update the new value only
-
-```javascript
+// update right side only
 console.diffRight(Date.now());
 ```
 
