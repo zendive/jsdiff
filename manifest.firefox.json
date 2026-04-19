@@ -1,12 +1,12 @@
 {
   "manifest_version": 3,
   "name": "jsdiff.diff(...)",
-  "version": "3.2.0",
+  "version": "3.3.0",
   "description": "Compare objects in memory with jsdiff.diff(old, new) devtools function",
   "browser_specific_settings": {
     "gecko": {
       "id": "{d010c440-61aa-4972-a4ca-30838c593b51}",
-      "strict_min_version": "137.0"
+      "strict_min_version": "148.0"
     }
   },
   "homepage_url": "https://github.com/zendive/jsdiff#readme",

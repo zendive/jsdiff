@@ -22,7 +22,7 @@ clean:
 
 .PHONY: install
 install:
-	deno install --allow-scripts
+	deno install
 
 .PHONY: update
 update:

@@ -1,14 +1,13 @@
 {
   "type": "module",
   "devDependencies": {
-    "@noble/hashes": "2.0.1",
-    "@types/chrome": "0.1.37",
+    "@noble/hashes": "2.2.0",
+    "@types/chrome": "0.1.40",
     "@types/firefox-webext-browser": "143.0.0",
-    "dompurify": "3.3.1",
     "jsondiffpatch": "0.7.3",
     "pinia": "3.0.4",
-    "typescript": "5.9.3",
-    "vue": "3.5.29",
+    "typescript": "6.0.3",
+    "vue": "3.5.32",
     "vue-loader": "17.4.2"
   }
 }

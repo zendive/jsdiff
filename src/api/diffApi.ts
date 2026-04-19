@@ -3,7 +3,6 @@ import { type ISerializableObject } from './clone.ts';
 import { create, type Delta } from 'jsondiffpatch/with-text-diffs';
 import { format as formatHtml } from 'jsondiffpatch/formatters/html';
 import { format as formatRFC6902 } from 'jsondiffpatch/formatters/jsonpatch';
-import DOMPurify from 'dompurify';
 export type { Delta } from 'jsondiffpatch';
 
 const OBJECT_ID_IN_ARRAY = ['id', '_id', 'uuid', 'guid', 'ulid'];
@@ -50,26 +49,40 @@ export function buildDeltaElement(
   delta: Delta,
   left: unknown,
   hide: boolean,
-): Element | null {
-  let html: string | undefined;
+) {
+  let rv: Element | null = null;
 
   try {
-    html = formatHtml(delta, left);
-    html = DOMPurify.sanitize(html || '');
+    const html = formatHtml(delta, left);
+    if (!html) {
+      return null;
+    }
+
+    rv = createElement(html);
+
+    hideUnchanged(hide, rv);
   } catch (e) {
     console.error('buildDeltaElement', e);
   }
 
-  if (!html) {
-    return null;
-  }
-
-  const virtualEl = document.createElement('div');
-  virtualEl.innerHTML = html;
-  const rv = virtualEl.firstElementChild;
-  hideUnchanged(hide, rv);
-
   return rv;
+}
+
+// @ts-expect-error: 2026-03-31 - `Sanitizer` new in Chrome v146
+const deltaHtmlSanitizer = new Sanitizer({
+  comments: false,
+  dataAttributes: false,
+  // whitelist following attributes and elements:
+  attributes: [{ name: 'class' }],
+  elements: ['div', 'span', 'pre', 'ul', 'li'],
+});
+
+function createElement(html: string) {
+  const virtualEl = document.createElement('div');
+  // @ts-expect-error: 2026-03-31 - `setHTML` new in Chrome v146
+  virtualEl.setHTML(html, { sanitizer: deltaHtmlSanitizer });
+
+  return virtualEl.firstElementChild;
 }
 
 const unchangedHiddenClass = 'jsondiffpatch-unchanged-hidden';

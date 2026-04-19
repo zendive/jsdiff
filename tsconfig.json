@@ -1,8 +1,5 @@
 {
   "compilerOptions": {
-    "strict": true,
-    "noImplicitAny": true,
-    "strictNullChecks": true,
     "target": "ES2022",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
@@ -10,10 +7,18 @@
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "esModuleInterop": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "allowUnusedLabels": false,
+    "noUncheckedSideEffectImports": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noImplicitOverride": true,
+    "exactOptionalPropertyTypes": true,
     "lib": ["ESNext", "DOM"],
-    "types": ["chrome", "firefox-webext-browser"],
-    "typeRoots": ["node_modules/@types", "src/@types"],
-    "baseUrl": "."
+    "types": ["deno", "chrome", "firefox-webext-browser"],
+    "typeRoots": ["node_modules/@types", "src/@types"]
   },
   "include": ["src/**/*", "build.ts"],
   "exclude": [

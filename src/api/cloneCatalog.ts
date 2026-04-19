@@ -14,16 +14,11 @@ export class UniqueLookupCatalog {
     TMapKey extends WeakKey,
     TTagFn extends (id: string, value: TMapKey) => string,
   >(key: TMapKey, tag: TTagFn): string {
-    let record = this.#records.get(key);
-    if (record) {
-      return record;
-    }
+    return this.#records.getOrInsertComputed(key, () => {
+      const id = index2Id(++this.#index);
 
-    const id = index2Id(++this.#index);
-    record = tag(id, key);
-    this.#records.set(key, record);
-
-    return record;
+      return tag(id, key);
+    });
   }
 }
 
@@ -32,19 +27,11 @@ export class CommonLookupCatalog {
   #index = 0;
 
   lookup(key: WeakKey, tag: TCommonInstanceTag) {
-    let record = this.#records.get(key);
-    if (record) {
-      return record;
-    }
+    return this.#records.getOrInsertComputed(key, () => {
+      const id = index2Id(++this.#index);
 
-    const id = index2Id(++this.#index);
-    record = {
-      name: tag(id),
-      seen: false,
-    };
-    this.#records.set(key, record);
-
-    return record;
+      return { name: tag(id), seen: false };
+    });
   }
 }
 
