@@ -33,9 +33,11 @@
     ]
   },
   "imports": {
+    // bundle imports
     "esbuild": "npm:esbuild@0.27.4",
     "esbuild-plugin-vue-iii": "npm:esbuild-plugin-vue-iii@0.5.0",
 
+    // test imports
     "@std/expect": "jsr:@std/expect@1.0.18",
     "@std/testing": "jsr:@std/testing@1.0.17"
   }
