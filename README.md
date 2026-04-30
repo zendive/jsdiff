@@ -63,7 +63,7 @@ console.diff(
 // with a single argument behaves the same as `console.diffPush`
 console.diff(Date.now());
 
-// shifts sides - previous right side becomes left, new valude becomes right
+// shifts sides - previous right side becomes left, new value becomes right
 console.diffPush(Date.now());
 
 // update left side only
