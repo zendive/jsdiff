@@ -10,7 +10,7 @@
     "jsr:@std/internal@^1.0.13": "1.0.13",
     "jsr:@std/path@^1.1.4": "1.1.4",
     "jsr:@std/testing@1.0.18": "1.0.18",
-    "npm:@noble/hashes@2.2.0": "2.2.0",
+    "npm:@awasm/noble@0.1.2": "0.1.2",
     "npm:@types/chrome@*": "0.1.42",
     "npm:@types/chrome@0.1.42": "0.1.42",
     "npm:@types/firefox-webext-browser@*": "143.0.0",
@@ -72,6 +72,9 @@
     }
   },
   "npm": {
+    "@awasm/noble@0.1.2": {
+      "integrity": "sha512-eA9cvKsw0xgMFXHkBzCs+hQ2mNbNWi8ZBQJKUavcxHtJRNaVkf/ZBic2nLFVu5py3Y4aLD3a4I87LzmC7Gn/+Q=="
+    },
     "@babel/helper-string-parser@7.27.1": {
       "integrity": "sha512-qMlSxKbpRlAridDExk92nSobyDdpPijUq2DW6oDnUqd0iOGxmQjyqhMIihI9+zv4LPyZdRje2cavWPbCbWm3eA=="
     },
@@ -251,9 +254,6 @@
         "@jridgewell/resolve-uri",
         "@jridgewell/sourcemap-codec"
       ]
-    },
-    "@noble/hashes@2.2.0": {
-      "integrity": "sha512-IYqDGiTXab6FniAgnSdZwgWbomxpy9FtYvLKs7wCUs2a8RkITG+DFGO1DM9cr+E3/RgADRpFjrKVaJ1z6sjtEg=="
     },
     "@nodelib/fs.scandir@2.1.5": {
       "integrity": "sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==",
@@ -1121,7 +1121,7 @@
     ],
     "packageJson": {
       "dependencies": [
-        "npm:@noble/hashes@2.2.0",
+        "npm:@awasm/noble@0.1.2",
         "npm:@types/chrome@0.1.42",
         "npm:@types/firefox-webext-browser@143.0.0",
         "npm:jsondiffpatch@0.7.3",

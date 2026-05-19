@@ -1,7 +1,7 @@
 {
   "type": "module",
   "devDependencies": {
-    "@noble/hashes": "2.2.0",
+    "@awasm/noble": "0.1.2",
     "@types/chrome": "0.1.42",
     "@types/firefox-webext-browser": "143.0.0",
     "jsondiffpatch": "0.7.3",

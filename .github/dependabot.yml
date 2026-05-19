@@ -18,3 +18,4 @@ updates:
     allow:
       # Allow updates for specific dependencies
       - dependency-name: 'jsondiffpatch'
+      - dependency-name: '@awasm/noble'
