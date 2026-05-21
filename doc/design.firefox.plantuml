@@ -1,11 +1,11 @@
 @startuml Design
 skinparam style strictuml
 
-box "Devtools"
+box "Window\nContext"
 actor "User" as User
 end box
 
-box "Firefox Runtime Context"
+box "XRay"
 participant Console [
   =Console
   ----
@@ -15,6 +15,12 @@ participant Proxy [
   =Proxy
   ----
   content script
+]
+end box
+
+box "Firefox Runtime Context"
+participant Devtools [
+  =Devtools
 ]
 participant Background [
   =Background
@@ -27,40 +33,50 @@ participant Panel [
 ]
 end box
 
-[-> User: Open Devtools
+User -> Devtools: Open Devtools
+Devtools o->o Devtools: Create Panel
+User -> Panel: Select Panel
 
-Background <- Panel: jsdiff-devtools-page-connect
+activate Panel
+Panel o->o Panel: createApp + mount
+Storage -> Panel: read payload
+Panel -> Panel: Compare objects
+Panel ->o]: Display result
+deactivate Panel
+
+Background <- Panel: browser.runtime.connect
 activate Background
 Background <-- Panel: keep alive
 
-=== Invoke API ==
-User -> Console: jsdiff.diff(...)
+User -> Console: execute\njsdiff.diff(...)
 activate Console
-  Console -> Proxy: jsdiff-console-\nto-proxy-inprogress
+  Console -> Proxy: PROGRESS
   activate Proxy
-    Proxy -> Background: jsdiff-proxy-to-panel-inprogress
+    Proxy -> Background: PROGRESS
   deactivate Proxy
   Console o->o Console: clone arguments
-  Console -> Proxy: jsdiff-console-\nto-proxy-compare
+  Console -> Proxy: DIFF
 deactivate Console
-
 activate Proxy
-  Proxy o<->o Proxy: arrange payload
-  Proxy -> Storage: write payload
-  Proxy --> Background: jsdiff-proxy-to-panel-error
-  Proxy -> Background: jsdiff-proxy-to-panel-compare
+Proxy -> Devtools: SAVE
 deactivate Proxy
-Background -> Panel: relay all messages
+
+activate Devtools
+  Devtools o<->o Devtools: arrange payload
+  Devtools -> Storage: write payload
+  Devtools --> Background: ERROR
+  Devtools -> Background: DIFF
+deactivate Devtools
+
+Background -> Panel: port.postMessage
 
 deactivate Background
 
 activate Panel
-  Storage -> Panel: read payload
   Panel -> Panel: Compare objects
   Panel ->o]: Display result
 deactivate Panel
 
-=== Search in DevTools Panel ==
 User -> Panel: ^+F\n⌘+F
 
 activate Panel

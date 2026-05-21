@@ -1,8 +1,8 @@
 @startuml
 skinparam style strictuml
 
-box "User Window Context"
-actor "Users DevTools" as User
+box "Window Context"
+actor "User" as User
 participant Console [
   =Console
   ----
@@ -71,4 +71,5 @@ activate Panel
 Panel -> Panel: Search in DOM
 Panel ->o]: Display result
 deactivate Panel
+
 @enduml
