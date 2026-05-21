@@ -1,8 +1,8 @@
-@startuml Design
+@startuml
 skinparam style strictuml
 
-box "User's Window Context"
-actor "User's\nDevTools" as User
+box "User Window Context"
+actor "Users DevTools" as User
 participant Console [
   =Console
   ----
@@ -17,6 +17,9 @@ participant Proxy [
   content script
   ISOLATED world
 ]
+participant Devtools [
+  =Devtools
+]
 database Storage
 participant Panel [
   =JSDiff Panel
@@ -25,39 +28,47 @@ participant Panel [
 ]
 end box
 
-[-> User: Open Devtools
-=== Invoke API ==
-
-User -> Console: console.diff(...)
-
-activate Console
-Console -> Proxy: jsdiff-console-\nto-proxy-inprogress
-activate Proxy
-  Proxy -> Panel: jsdiff-proxy-to-panel-inprogress
-deactivate Proxy
-Console o->o Console: clone arguments
-Console -> Proxy: jsdiff-console-\nto-proxy-compare
-deactivate Console
-
-activate Proxy
-Proxy o<->o Proxy: arrange payload
-Proxy -> Storage: write payload
-Proxy --> Panel: jsdiff-proxy-to-panel-error
-Proxy -> Panel: jsdiff-proxy-to-panel-compare
-deactivate Proxy
+User -> Devtools: Open Devtools
+Devtools o->o Devtools: Create Panel
+User -> Panel: Select Panel
 
 activate Panel
+Panel o->o Panel: createApp + mount
 Storage -> Panel: read payload
 Panel -> Panel: Compare objects
 Panel ->o]: Display result
 deactivate Panel
 
-=== Search in DevTools Panel ==
-User -> Panel: ^+F\n⌘+F
+User -> Console: execute\nconsole.diff(...)
+
+activate Console
+Console -> Proxy: PROGRESS
+activate Proxy
+Proxy -> Panel: PROGRESS
+deactivate Proxy
+Console o->o Console: clone arguments
+Console -> Proxy: DIFF
+deactivate Console
+activate Proxy
+Proxy -> Devtools: SAVE
+deactivate Proxy
+
+activate Devtools
+Devtools o<->o Devtools: arrange payload
+Devtools -> Storage: write payload
+Devtools --> Panel: ERROR
+Devtools -> Panel: DIFF
+deactivate Devtools
 
 activate Panel
-Panel -> Panel: search in DOM
+Panel -> Panel: Compare objects
 Panel ->o]: Display result
 deactivate Panel
 
+User -> Panel: ^+F\n⌘+F
+
+activate Panel
+Panel -> Panel: Search in DOM
+Panel ->o]: Display result
+deactivate Panel
 @enduml
