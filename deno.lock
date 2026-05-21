@@ -13,6 +13,7 @@
     "npm:@awasm/noble@0.1.2": "0.1.2",
     "npm:@types/chrome@*": "0.1.42",
     "npm:@types/chrome@0.1.42": "0.1.42",
+    "npm:@types/deno@2.5.0": "2.5.0",
     "npm:@types/firefox-webext-browser@*": "143.0.0",
     "npm:@types/firefox-webext-browser@143.0.0": "143.0.0",
     "npm:esbuild-plugin-vue-iii@0.5.0": "0.5.0_esbuild@0.28.0_typescript@6.0.3",
@@ -278,6 +279,9 @@
         "@types/filesystem",
         "@types/har-format"
       ]
+    },
+    "@types/deno@2.5.0": {
+      "integrity": "sha512-g8JS38vmc0S87jKsFzre+0ZyMOUDHPVokEJymSCRlL57h6f/FdKPWBXgdFh3Z8Ees9sz11qt9VWELU9Y9ZkiVw=="
     },
     "@types/eslint-scope@3.7.7": {
       "integrity": "sha512-MzMFlSLBqNF2gcHWO0G1vP/YQyfvrxZ0bF+u7mzUdZ1/xK4A4sru+nraZz5i3iEIk1l1uyicaDVTB4QbbEkAYg==",
@@ -1123,6 +1127,7 @@
       "dependencies": [
         "npm:@awasm/noble@0.1.2",
         "npm:@types/chrome@0.1.42",
+        "npm:@types/deno@2.5.0",
         "npm:@types/firefox-webext-browser@143.0.0",
         "npm:jsondiffpatch@0.7.3",
         "npm:pinia@3.0.4",
