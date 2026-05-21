@@ -1,4 +1,5 @@
 import { sha256 } from '@awasm/noble/js.js';
+import { ERROR_NO_CONNECTION, ERROR_PORT_CLOSED } from './const.ts';
 
 export function hasValue(o: unknown): boolean {
   return undefined !== o && null !== o;
@@ -13,4 +14,18 @@ export function hashString(str: string) {
 
 export function isSearchKeyboardEvent(e: KeyboardEvent) {
   return (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'f';
+}
+
+export function runtimeResponse(): void {
+  if (!isIgnorable(chrome.runtime.lastError)) {
+    console.error(chrome.runtime.lastError);
+  }
+}
+
+function isIgnorable(error: chrome.runtime.LastError | undefined): boolean {
+  return (
+    !error ||
+    error.message === ERROR_NO_CONNECTION ||
+    error.message === ERROR_PORT_CLOSED
+  );
 }

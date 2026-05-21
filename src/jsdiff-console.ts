@@ -1,6 +1,6 @@
-import { post } from './api/consolePost.ts';
+import { type IConsoleApi, post } from './api/console.ts';
 
-const consoleAPI = {
+const consoleAPI: IConsoleApi = {
   diff: (...args: unknown[]) => {
     post(
       args.length === 1
@@ -8,33 +8,28 @@ const consoleAPI = {
         : { left: args[0], right: args[1], timestamp: Date.now() },
     );
   },
-
   diffLeft: (left: unknown) => {
     post({ left, timestamp: Date.now() });
   },
-
   diffRight: (right: unknown) => {
     post({ right, timestamp: Date.now() });
   },
-
   diffPush: (push: unknown) => {
     post({ push, timestamp: Date.now() });
   },
 };
 
-export type TConsoleAPI = typeof consoleAPI;
-
 if (typeof browser === 'undefined') {
   // chrome
   Object.assign(console, consoleAPI);
-  console.debug(`✚ console.diff()`);
+  __development__ && console.debug(`✚ console.diff()`);
 } else if (typeof cloneInto === 'function') {
   // firefox
   // the technic described in https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Sharing_objects_with_page_scripts
-  globalThis.wrappedJSObject.jsdiff = <TConsoleAPI> cloneInto(
+  globalThis.wrappedJSObject.jsdiff = <IConsoleApi> cloneInto(
     consoleAPI,
     window,
     { cloneFunctions: true },
   );
-  console.debug(`✚ jsdiff.diff()`);
+  __development__ && console.debug(`✚ jsdiff.diff()`);
 }
