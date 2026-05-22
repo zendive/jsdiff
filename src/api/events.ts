@@ -27,7 +27,7 @@ export enum ERT_TYPE {
   DIFF,
   ERROR,
 }
-export interface IRuntumeProgressEvent {
+export interface IRuntimeProgressEvent {
   type: ERT_TYPE.PROGRESS;
   on: boolean;
 }
@@ -47,7 +47,7 @@ export type TContentScriptEvents =
   | IContentScriptProgressEvent
   | IContentScriptDiffEvent;
 export type TRuntimeEvents =
-  | IRuntumeProgressEvent
+  | IRuntimeProgressEvent
   | IRuntimeSaveEvent
   | IRuntimeDiffEvent
   | IRuntimeErrorEvent;

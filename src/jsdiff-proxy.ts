@@ -2,8 +2,8 @@ import {
   CUSTOM_DOC_EVENT,
   ECS_TYPE,
   ERT_TYPE,
+  type IRuntimeProgressEvent,
   type IRuntimeSaveEvent,
-  type IRuntumeProgressEvent,
   type TContentScriptEvents,
 } from './api/events.ts';
 import { runtimeResponse } from './api/toolkit.ts';
@@ -23,6 +23,6 @@ function proxyListener(e: CustomEvent<TContentScriptEvents>) {
   }
 }
 
-function postRuntime(e: IRuntumeProgressEvent | IRuntimeSaveEvent) {
+function postRuntime(e: IRuntimeProgressEvent | IRuntimeSaveEvent) {
   chrome.runtime.sendMessage(e).catch(runtimeResponse);
 }
