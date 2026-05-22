@@ -18,7 +18,7 @@
     "npm:@types/firefox-webext-browser@143.0.0": "143.0.0",
     "npm:esbuild-plugin-vue-iii@0.5.0": "0.5.0_esbuild@0.28.0_typescript@6.0.3",
     "npm:esbuild@0.28.0": "0.28.0",
-    "npm:jsondiffpatch@0.7.3": "0.7.3",
+    "npm:jsondiffpatch@0.7.6": "0.7.6",
     "npm:pinia@3.0.4": "3.0.4_typescript@6.0.3_vue@3.5.34__typescript@6.0.3",
     "npm:typescript@6.0.3": "6.0.3",
     "npm:vue-loader@17.4.2": "17.4.2_webpack@5.106.2",
@@ -318,8 +318,8 @@
     "@types/json-schema@7.0.15": {
       "integrity": "sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA=="
     },
-    "@types/node@25.7.0": {
-      "integrity": "sha512-z+pdZyxE+RTQE9AcboAZCb4otwcrvgHD+GlBpPgn0emDVt0ohrTMhAwlr2Wd9nZ+nihhYFxO2pThz3C5qSu2Eg==",
+    "@types/node@25.8.0": {
+      "integrity": "sha512-TCFSk8IZh+iLX1xtksoBVtdmgL+1IX0fC9BeU4QqFSuNdN/K+HUlhqOzEmSYYpZUVsLYcPqc9KX+60iDuninSQ==",
       "dependencies": [
         "undici-types"
       ]
@@ -665,8 +665,8 @@
         "path-type"
       ]
     },
-    "electron-to-chromium@1.5.353": {
-      "integrity": "sha512-kOrWphBi8TOZyiJZqsgqIle0lw+tzmnQK83pV9dZUd01Nm2POECSyFQMAuarzZdYqQW7FH9RaYOuaRo3h+bQ3w=="
+    "electron-to-chromium@1.5.356": {
+      "integrity": "sha512-9NgFd7m5t5MCJ5rUSjJITUXAH9mEGlrlofnMf4YEr+pz6JlP7cWmTAH+JFmbPnaSW8koVTkuW7pacORWAnA5Yw=="
     },
     "enhanced-resolve@5.21.3": {
       "integrity": "sha512-QyL119InA+XXEkNLNTPCXPugSvOfhwv0JOlGNzvxs0hZaiHLNvXSpudUWsOlsXGWJh8G6ckCScEkVHfX3kw/2Q==",
@@ -844,8 +844,8 @@
     "json-schema-traverse@1.0.0": {
       "integrity": "sha512-NM8/P9n3XjXhIZn1lLhkFaACTOURQXjWhV4BA/RnOv8xvgqtqpAX9IO4mRQxSx1Rlo4tqzeqb0sOlruaOy3dug=="
     },
-    "jsondiffpatch@0.7.3": {
-      "integrity": "sha512-zd4dqFiXSYyant2WgSXAZ9+yYqilNVvragVNkNRn2IFZKgjyULNrKRznqN4Zon0MkLueCg+3QaPVCnDAVP20OQ==",
+    "jsondiffpatch@0.7.6": {
+      "integrity": "sha512-zE9+AXFq+MkTolDor2Cw1nJzLC0aleqPkYf52Kb4Kn4mJcka/gFHpGI2JBVEJCfWOvBl0OoxZS+wuLdislQcqg==",
       "dependencies": [
         "@dmsnell/diff-match-patch"
       ],
@@ -1038,8 +1038,8 @@
       "integrity": "sha512-y2TvuxSZPDyQakkFRPZHKFm+KKVqIisdg9/CZwm9ftvKXLP8NRWj38/ODjNbr43SsoXqNuAisEf1GdCxqWcdBw==",
       "bin": true
     },
-    "undici-types@7.21.0": {
-      "integrity": "sha512-w9IMgQrz4O0YN1LtB7K5P63vhlIOvC7opSmouCJ+ZywlPAlO9gIkJ+otk6LvGpAs2wg4econaCz3TvQ9xPoyuQ=="
+    "undici-types@7.24.6": {
+      "integrity": "sha512-WRNW+sJgj5OBN4/0JpHFqtqzhpbnV0GuB+OozA9gCL7a993SmU+1JBZCzLNxYsbMfIeDL+lTsphD5jN5N+n0zg=="
     },
     "update-browserslist-db@1.2.3_browserslist@4.28.2": {
       "integrity": "sha512-Js0m9cx+qOgDxo0eMiFGEueWztz+d4+M3rGlmKPT+T4IS/jP4ylw3Nwpu6cpTTP8R1MAC1kF4VbdLt3ARf209w==",
@@ -1129,7 +1129,7 @@
         "npm:@types/chrome@0.1.42",
         "npm:@types/deno@2.5.0",
         "npm:@types/firefox-webext-browser@143.0.0",
-        "npm:jsondiffpatch@0.7.3",
+        "npm:jsondiffpatch@0.7.6",
         "npm:pinia@3.0.4",
         "npm:typescript@6.0.3",
         "npm:vue-loader@17.4.2",
