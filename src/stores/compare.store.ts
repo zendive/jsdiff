@@ -1,11 +1,11 @@
 import { type Delta, diff } from '../api/diffApi.ts';
 import { hasValue } from '../api/toolkit.ts';
 import { stripDeepObjectPrototype } from '../api/clone.ts';
-import type { TRuntimeMessageOptions } from '../api/proxy.ts';
 import { defineStore } from 'pinia';
 import { markRaw } from 'vue';
 import { useRuntime } from '../api/useRuntime.ts';
 import { useSearchStore } from './search.store.ts';
+import { ERT_TYPE } from '../api/events.ts';
 
 interface ICompareState {
   timestamp: number;
@@ -91,20 +91,19 @@ export const compareStoreRuntimeService = {
         compareStore.initialized = true;
       });
 
-    runtime.connect(async (e: TRuntimeMessageOptions) => {
-      if ('jsdiff-proxy-to-panel-error' === e.source) {
+    runtime.connect(async (e) => {
+      if (ERT_TYPE.PROGRESS === e.type) {
+        compareStore.inprogress = e.on;
+      } else if (ERT_TYPE.ERROR === e.type) {
         const { lastError } = await chrome.storage.local.get(['lastError']);
         compareStore.lastError = lastError ? String(lastError) : '';
         compareStore.inprogress = false;
-      } else if ('jsdiff-proxy-to-panel-inprogress' === e.source) {
-        compareStore.inprogress = e.on;
-      } else if ('jsdiff-proxy-to-panel-compare' === e.source) {
+      } else if (ERT_TYPE.DIFF === e.type) {
         compareStore.lastError = '';
         compareStore.inprogress = false;
-        const { lastApiReq } = await chrome.storage.local.get(['lastApiReq']);
 
-        if (hasValue(lastApiReq)) {
-          compareStore.assign(lastApiReq as ICompareState);
+        if (hasValue(e.payload)) {
+          compareStore.assign(e.payload);
           searchStore.searchCancel();
         }
       }

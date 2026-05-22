@@ -28,7 +28,6 @@ export const ERROR_NO_CONNECTION =
   'Could not establish connection. Receiving end does not exist.';
 export const ERROR_PORT_CLOSED =
   'The message port closed before a response was received.';
-export const ERROR_QUOTA_EXCEEDED = 'QUOTA_BYTES quota exceeded';
 export const BACKGROUND_SCRIPT_CONNECTION_INTERVAL = 30e3;
 export const BACKGROUND_SCRIPT_CONNECTION_NAME = 'jsdiff-devtools-page-connect';
 export const UPPERCASE_PATTERN = /\p{Lu}/u; // 'u' flag enables Unicode matching

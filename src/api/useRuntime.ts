@@ -14,14 +14,15 @@ import {
   BACKGROUND_SCRIPT_CONNECTION_INTERVAL,
   BACKGROUND_SCRIPT_CONNECTION_NAME,
 } from './const.ts';
-import type { TRuntimeMessageOptions } from './proxy.ts';
+import type { TRuntimeEvents } from './events.ts';
 
-type TRuntimeListener = (e: TRuntimeMessageOptions) => void;
-type TRuntimeListenerAsync = (e: TRuntimeMessageOptions) => Promise<void>;
+type TRuntimeListenerSync = (e: TRuntimeEvents) => void;
+type TRuntimeListenerAsync = (e: TRuntimeEvents) => Promise<void>;
+type TRuntimeListener = TRuntimeListenerSync | TRuntimeListenerAsync;
 
-const allListeners = new Set<TRuntimeListener | TRuntimeListenerAsync>();
+const allListeners = new Set<TRuntimeListener>();
 
-function callAllListeners(e: TRuntimeMessageOptions) {
+function callAllListeners(e: TRuntimeEvents) {
   for (const listener of allListeners) {
     Promise.try(listener, e).catch((err) =>
       void console.error('RuntimeListener', err)
@@ -30,12 +31,10 @@ function callAllListeners(e: TRuntimeMessageOptions) {
 }
 
 function getFirefoxPort(callback: TRuntimeListener) {
-  const port = browser.runtime.connect({
+  const port = <chrome.runtime.Port> browser.runtime.connect({
     name: BACKGROUND_SCRIPT_CONNECTION_NAME,
   });
 
-  // @ts-expect-error: expects callback with argument of type `object`
-  // and not `any` as in chrome api
   port.onMessage.addListener(callback);
 
   return port;
@@ -55,10 +54,10 @@ if (typeof browser !== 'undefined') {
 }
 
 export function useRuntime() {
-  const localListeners = new Set<TRuntimeListenerAsync>();
+  const localListeners = new Set<TRuntimeListener>();
 
   return {
-    connect(listener: TRuntimeListenerAsync) {
+    connect(listener: TRuntimeListener) {
       localListeners.add(listener);
       allListeners.add(listener);
     },

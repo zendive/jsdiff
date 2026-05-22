@@ -1,12 +1,15 @@
 {
   "compilerOptions": {
-    "target": "ES2022",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["ESNext", "DOM"],
+    "types": ["deno", "chrome", "firefox-webext-browser"],
     "noEmit": true,
+    "verbatimModuleSyntax": true,
+    "skipLibCheck": true,
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
-    "esModuleInterop": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "allowUnusedLabels": false,
@@ -16,8 +19,6 @@
     "noPropertyAccessFromIndexSignature": true,
     "noImplicitOverride": true,
     "exactOptionalPropertyTypes": true,
-    "lib": ["ESNext", "DOM"],
-    "types": ["deno", "chrome", "firefox-webext-browser"],
     "typeRoots": ["node_modules/@types", "src/@types"]
   },
   "include": ["src/**/*", "build.ts"],

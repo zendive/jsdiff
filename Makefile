@@ -37,11 +37,11 @@ dev:
 valid:
 	deno fmt --unstable-component
 	deno lint
-	deno check
+	deno check --quiet
 
 .PHONY: test
 test: valid
-	deno test --no-check --trace-leaks --reporter=dot
+	deno test --trace-leaks --reporter=dot
 
 .PHONY: prod
 prod: test

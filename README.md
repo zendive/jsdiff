@@ -45,11 +45,14 @@ An extension for developers that enhances the console API by incorporating the a
 
 - Map keys like `0` and `'0'` would be merged due to `Map to Object` conversion.
 
-- While paused in debug mode, `JSDiff` panel won't reflect the result until runtime is resumed (see [#10](https://github.com/zendive/jsdiff/issues/10)).
-
 - Compared objects, after being serialized, stored in `chrome.storage.local` which has 10 MB limit.
 
-- In Firefox the API is under `jsdiff` object for now, cause extension API's not fully compatible.
+- In Chrome
+  - While paused in debug mode, `JSDiff` panel will show comparison results if its APIs were part of the script that is being debugged; **but** it won't show the results if it's invoked from a parallel Console panel. The solution would be to store objects in question in temporary global variables and test them later. Interestingly, Firefox has no such limitation.
+
+- In Firefox
+  - The API is under `jsdiff` object, because of differences in implementation of content scripts worlds between browsers.
+  - Data types like `Set`, `Map`, `Float16Array`, `BigUint64Array`, `BigInt64Array` can't be compared because of `XRay` implementation.
 
 ### API
 
