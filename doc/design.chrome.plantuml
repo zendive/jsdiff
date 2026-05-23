@@ -1,4 +1,4 @@
-@startuml
+@startuml Design
 skinparam style strictuml
 
 box "Window Context"
@@ -29,47 +29,43 @@ participant Panel [
 end box
 
 User -> Devtools: Open Devtools
-Devtools o->o Devtools: Create Panel
+rnote over Devtools: Create Panel
 User -> Panel: Select Panel
 
 activate Panel
-Panel o->o Panel: createApp + mount
+rnote over Panel: createApp\nand mount
 Storage -> Panel: read payload
-Panel -> Panel: Compare objects
-Panel ->o]: Display result
+rnote over Panel: Compare objects
+rnote over Panel: Display diff
 deactivate Panel
 
 User -> Console: execute\nconsole.diff(...)
 
 activate Console
-Console -> Proxy: PROGRESS
-activate Proxy
-Proxy -> Panel: PROGRESS
-deactivate Proxy
-Console o->o Console: clone arguments
-Console -> Proxy: DIFF
+  Console -> Proxy: CS_PROGRESS
+  activate Proxy
+  Proxy -> Panel: RT_PROGRESS
+  deactivate Proxy
+
+  rnote over Console: clone arguments
+  Console -> Proxy: CS_DIFF
 deactivate Console
+
 activate Proxy
-Proxy -> Devtools: SAVE
+Proxy -> Devtools: RT_SAVE
 deactivate Proxy
 
 activate Devtools
-Devtools o<->o Devtools: arrange payload
+rnote over Devtools: arrange payload
 Devtools -> Storage: write payload
-Devtools --> Panel: ERROR
-Devtools -> Panel: DIFF
+Devtools -> Panel: RT_DIFF
+rnote over Panel: Compare objects
+rnote over Panel: Display diff
+Devtools --> Panel: RT_ERROR
 deactivate Devtools
 
-activate Panel
-Panel -> Panel: Compare objects
-Panel ->o]: Display result
-deactivate Panel
-
 User -> Panel: ^+F\n⌘+F
-
-activate Panel
-Panel -> Panel: Search in DOM
-Panel ->o]: Display result
-deactivate Panel
+rnote over Panel: Search in DOM
+rnote over Panel: Alter DOM
 
 @enduml

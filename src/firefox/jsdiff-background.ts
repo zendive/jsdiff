@@ -1,31 +1,24 @@
-// background script for firefox's partial(?) MV3 implementation
+// background script for Firefox
 
 import { BACKGROUND_SCRIPT_CONNECTION_NAME } from '../api/const.ts';
 
-const ports = new Map<number, browser.runtime.Port>();
+const ports = new Set<browser.runtime.Port>();
 
-// Listen for connections from DevTools pages
+// listen to requests from browser.runtime.connect
 browser.runtime.onConnect.addListener((port) => {
-  if (port.name === BACKGROUND_SCRIPT_CONNECTION_NAME) {
-    const contextId = port.sender && 'contextId' in port.sender
-      ? (port.sender.contextId as number)
-      : -1;
-    console.assert(contextId !== -1, 'unreliable port.sender.contextId');
-
-    if (!ports.has(contextId)) {
-      ports.set(contextId, port);
-      console.log('++ added port', contextId, 'total', ports.size);
-    }
-
-    port.onDisconnect.addListener(() => {
-      ports.delete(contextId);
-      console.log('-- port removed', contextId);
-    });
+  if (port.name !== BACKGROUND_SCRIPT_CONNECTION_NAME || ports.has(port)) {
+    return;
   }
+
+  ports.add(port);
+  // console.debug('++ ports', ports.size);
+
+  port.onDisconnect.addListener((port) => {
+    ports.delete(port);
+    // console.debug('-- ports', ports.size);
+  });
 });
 
-// Listen for messages from content scripts
-// and forward the message to the DevTools page connected ports
 browser.runtime.onMessage.addListener((msg) => {
   ports.forEach((port) => void port.postMessage(msg));
 });
