@@ -7,6 +7,7 @@ import {
   type TRuntimeEvents,
 } from './api/events.ts';
 import { runtimeResponse } from './api/toolkit.ts';
+import { useRuntime } from './api/useRuntime.ts';
 
 // tabId may be null if user opened the devtools of the devtools
 if (chrome.devtools.inspectedWindow.tabId !== null) {
@@ -15,7 +16,12 @@ if (chrome.devtools.inspectedWindow.tabId !== null) {
     '/public/img/panel-icon28.png',
     '/public/jsdiff-panel.html',
     (/*panel*/) => {
-      chrome.runtime.onMessage.addListener(onRuntimeMessage);
+      if (typeof browser !== 'undefined') {
+        const runtime = useRuntime();
+        runtime.connect(onRuntimeMessage);
+      } else {
+        chrome.runtime.onMessage.addListener(onRuntimeMessage);
+      }
     },
   );
 }
