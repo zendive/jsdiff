@@ -10,10 +10,7 @@
  * onUnmount(() => { runtime.disconnect(); });
  */
 
-import {
-  BACKGROUND_SCRIPT_CONNECTION_INTERVAL,
-  BACKGROUND_SCRIPT_CONNECTION_NAME,
-} from './const.ts';
+import { BACKGROUND_SCRIPT_CONNECTION_NAME } from './const.ts';
 import type { TRuntimeEvents } from './events.ts';
 
 type TRuntimeListenerSync = (e: TRuntimeEvents) => void;
@@ -30,24 +27,18 @@ function callAllListeners(e: TRuntimeEvents) {
   }
 }
 
-function getFirefoxPort(callback: TRuntimeListener) {
+function getFirefoxPort() {
   const port = <chrome.runtime.Port> browser.runtime.connect({
     name: BACKGROUND_SCRIPT_CONNECTION_NAME,
   });
-
-  port.onMessage.addListener(callback);
 
   return port;
 }
 
 if (typeof browser !== 'undefined') {
   // firefox
-  let port = getFirefoxPort(callAllListeners);
-
-  setInterval(() => {
-    port.disconnect();
-    port = getFirefoxPort(callAllListeners);
-  }, BACKGROUND_SCRIPT_CONNECTION_INTERVAL);
+  const port = getFirefoxPort();
+  port.onMessage.addListener(callAllListeners);
 } else {
   // chrome
   chrome.runtime.onMessage.addListener(callAllListeners);
