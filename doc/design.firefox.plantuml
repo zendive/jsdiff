@@ -9,12 +9,12 @@ box "XRay"
 participant Console [
   =Console
   ----
-  content script
+  ""content script""
 ]
 participant Proxy [
   =Proxy
   ----
-  content script
+  ""content script""
 ]
 end box
 
@@ -29,59 +29,58 @@ database Storage
 participant Panel [
   =Panel
   ----
-  DevTools View
+  ""DevTools View""
 ]
 end box
 
 User -> Devtools: Open Devtools
-Devtools o->o Devtools: Create Panel
-User -> Panel: Select Panel
-
-activate Panel
-Panel o->o Panel: createApp + mount
-Storage -> Panel: read payload
-Panel -> Panel: Compare objects
-Panel ->o]: Display result
-deactivate Panel
-
-Background <- Panel: browser.runtime.connect
+activate Devtools
+  rnote over Devtools: Create Panel
+  Devtools -> Background: browser.runtime.connect
+deactivate Devtools
 activate Background
-Background <-- Panel: keep alive
+
+User -> Panel: Select Panel
+activate Panel
+  rnote over Panel: createApp\nand mount
+  Background <- Panel: browser.runtime.connect
+  Storage -> Panel: read payload
+  rnote over Panel: Compare objects
+  rnote over Panel: Display diff
+deactivate Panel
 
 User -> Console: execute\njsdiff.diff(...)
 activate Console
-  Console -> Proxy: PROGRESS
+  Console -> Proxy: CS_PROGRESS
   activate Proxy
-    Proxy -> Background: PROGRESS
+    Proxy -> Background: RT_PROGRESS
   deactivate Proxy
-  Console o->o Console: clone arguments
-  Console -> Proxy: DIFF
+  rnote over Console: clone arguments
+  Console -> Proxy: CS_DIFF
 deactivate Console
 activate Proxy
-Proxy -> Devtools: SAVE
+  Proxy -> Background: RT_SAVE
 deactivate Proxy
 
+
+Background -> Devtools: RT_SAVE
 activate Devtools
-  Devtools o<->o Devtools: arrange payload
+  rnote over Devtools: arrange payload
   Devtools -> Storage: write payload
-  Devtools --> Background: ERROR
-  Devtools -> Background: DIFF
+  Devtools -> Background: RT_DIFF
+  Devtools --> Background: RT_ERROR
 deactivate Devtools
 
-Background -> Panel: port.postMessage
-
+Background --> Panel: RT_ERROR
+Background -> Panel: RT_PROGRESS
+Background -> Panel: RT_DIFF
 deactivate Background
 
-activate Panel
-  Panel -> Panel: Compare objects
-  Panel ->o]: Display result
-deactivate Panel
+rnote over Panel: Compare objects
+rnote over Panel: Display diff
 
 User -> Panel: ^+F\n⌘+F
-
-activate Panel
-  Panel -> Panel: search in DOM
-  Panel ->o]: Display result
-deactivate Panel
+rnote over Panel: Search in DOM
+rnote over Panel: Alter DOM
 
 @enduml
