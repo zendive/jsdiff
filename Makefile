@@ -23,6 +23,7 @@ clean:
 .PHONY: install
 install:
 	deno install
+	deno audit
 
 .PHONY: update
 update:
@@ -58,13 +59,16 @@ tune2firefox:
 	cp $(FIREFOX_MANIFEST) manifest.json
 
 .PHONY: all
-all: prod
+all: test
+	deno audit
+	rm -rf $(BUILD_DIR) $(FIREFOX_ZIP) $(CHROME_ZIP)
+	
 	$(MAKE) tune2firefox
-	rm -rf $(FIREFOX_ZIP)
+	$(DENO_PROD) $(BUILD_SCRIPT)
 	zip -r $(FIREFOX_ZIP) $(OUTPUT_DIR) ./manifest.json > /dev/null
 
 	$(MAKE) tune2chrome
-	rm -rf $(CHROME_ZIP)
+	$(DENO_PROD) $(BUILD_SCRIPT)
 	zip -r $(CHROME_ZIP) $(OUTPUT_DIR) ./manifest.json > /dev/null
 	zip --delete $(CHROME_ZIP) "$(BUILD_DIR)firefox/*" > /dev/null
 
