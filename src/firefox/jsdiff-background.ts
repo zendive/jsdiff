@@ -11,11 +11,9 @@ browser.runtime.onConnect.addListener((port) => {
   }
 
   ports.add(port);
-  // console.debug('++ ports', ports.size);
 
   port.onDisconnect.addListener((port) => {
     ports.delete(port);
-    // console.debug('-- ports', ports.size);
   });
 });
 

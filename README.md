@@ -140,12 +140,15 @@ declare global {
   }
   ```
 
-### Build requirements
+### Build
+
+#### Requirements
+
 - Linux: [deno](https://docs.deno.com/runtime/getting_started/installation/), `make`, `jq`, `zip`, `tree`
 
-### Build instructions
+#### Instructions
 
-Here is a short list to help you get started, for a full set of make commands refer to [./Makefile](./Makefile):
+Here is a short list to help you get started; for a full set of make commands, refer to [./Makefile](./Makefile):
 
 ```sh
 make clean install  # install dependencies

@@ -27,18 +27,21 @@ function callAllListeners(e: TRuntimeEvents) {
   }
 }
 
-function getFirefoxPort() {
+function connect2backgroundScript(callbacks: TRuntimeListener) {
   const port = <chrome.runtime.Port> browser.runtime.connect({
     name: BACKGROUND_SCRIPT_CONNECTION_NAME,
   });
 
-  return port;
+  port.onDisconnect.addListener(() => {
+    port.onMessage.removeListener(callbacks);
+    connect2backgroundScript(callbacks);
+  });
+  port.onMessage.addListener(callbacks);
 }
 
 if (typeof browser !== 'undefined') {
   // firefox
-  const port = getFirefoxPort();
-  port.onMessage.addListener(callAllListeners);
+  connect2backgroundScript(callAllListeners);
 } else {
   // chrome
   chrome.runtime.onMessage.addListener(callAllListeners);

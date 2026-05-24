@@ -19,15 +19,15 @@ participant Proxy [
 end box
 
 box "Firefox Runtime Context"
-participant Devtools [
-  =Devtools
-]
 participant Background [
   =Background
 ]
+participant Devtools [
+  =Devtools
+]
 database Storage
 participant Panel [
-  =Panel
+  =JSDiff Panel
   ----
   ""DevTools View""
 ]
@@ -43,10 +43,10 @@ activate Background
 User -> Panel: Select Panel
 activate Panel
   rnote over Panel: createApp\nand mount
-  Background <- Panel: browser.runtime.connect
   Storage -> Panel: read payload
   rnote over Panel: Compare objects
   rnote over Panel: Display diff
+  Background <- Panel: browser.runtime.connect
 deactivate Panel
 
 User -> Console: execute\njsdiff.diff(...)
@@ -55,6 +55,7 @@ activate Console
   activate Proxy
     Proxy -> Background: RT_PROGRESS
   deactivate Proxy
+  Background -> Panel: RT_PROGRESS
   rnote over Console: clone arguments
   Console -> Proxy: CS_DIFF
 deactivate Console
@@ -72,7 +73,6 @@ activate Devtools
 deactivate Devtools
 
 Background --> Panel: RT_ERROR
-Background -> Panel: RT_PROGRESS
 Background -> Panel: RT_DIFF
 deactivate Background
 
