@@ -68,7 +68,6 @@ export function buildDeltaElement(
   return rv;
 }
 
-// @ts-expect-error: 2026-03-31 - `Sanitizer` new in Chrome v146
 const deltaHtmlSanitizer = new Sanitizer({
   comments: false,
   dataAttributes: false,
