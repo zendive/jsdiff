@@ -40,6 +40,6 @@
 
     // test imports
     "@std/expect": "jsr:@std/expect@1.0.19",
-    "@std/testing": "jsr:@std/testing@1.0.18"
+    "@std/testing": "jsr:@std/testing@1.0.19"
   }
 }
