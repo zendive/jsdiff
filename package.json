@@ -1,7 +1,7 @@
 {
   "type": "module",
   "devDependencies": {
-    "@awasm/noble": "0.1.2",
+    "@awasm/noble": "0.1.4",
     "@types/chrome": "0.1.42",
     "@types/deno": "2.5.0",
     "@types/firefox-webext-browser": "143.0.0",
