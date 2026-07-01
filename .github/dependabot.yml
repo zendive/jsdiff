@@ -5,7 +5,8 @@
 
 version: 2
 updates:
-  - package-ecosystem: 'npm' # See documentation for possible values
+  - package-ecosystem: 'deno' # See documentation for possible values
+    target-branch: 'wip'
     directory: '/' # Location of package manifests
     schedule:
       interval: 'monthly'
