@@ -144,7 +144,9 @@ declare global {
 
 #### Requirements
 
-- Linux: [deno](https://docs.deno.com/runtime/getting_started/installation/), `make`, `jq`, `zip`, `tree`
+- Linux: [deno v2.9.2](https://docs.deno.com/runtime/getting_started/installation/), `make`, `jq`, `zip`, `tree`
+- Chrome: v146
+- Firefox: v148
 
 #### Instructions
 
@@ -154,7 +156,6 @@ Here is a short list to help you get started; for a full set of make commands, r
 make clean install  # install dependencies
 make tune2chrome    # or tune2firefox to generate relevant manifest.json file
 make dev            # build in development mode and watch for changes
-make all            # build in production mode and make extension zip files
 ```
 
 #### Based on

@@ -35,11 +35,11 @@
   "minimumDependencyAge": "P7D",
   "imports": {
     // bundle imports
-    "esbuild": "npm:esbuild@0.28.0",
+    "esbuild": "npm:esbuild@0.28.1",
     "esbuild-plugin-vue-iii": "npm:esbuild-plugin-vue-iii@0.5.0",
 
     // test imports
-    "@std/expect": "jsr:@std/expect@1.0.19",
+    "@std/expect": "jsr:@std/expect@1.0.20",
     "@std/testing": "jsr:@std/testing@1.0.19"
   }
 }
