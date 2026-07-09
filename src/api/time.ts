@@ -5,15 +5,14 @@ export const DAY = 24 * HOUR;
 export const WEEK = 7 * DAY;
 export const MONTH = 30 * DAY;
 export const YEAR = 365 * DAY;
-const intervals = [
-  { ge: YEAR, divisor: YEAR, unit: 'year' },
-  { ge: MONTH, divisor: MONTH, unit: 'month' },
-  { ge: WEEK, divisor: WEEK, unit: 'week' },
-  { ge: DAY, divisor: DAY, unit: 'day' },
-  { ge: HOUR, divisor: HOUR, unit: 'hour' },
-  { ge: MINUTE, divisor: MINUTE, unit: 'minute' },
-  { ge: SECOND, divisor: SECOND, unit: 'seconds' },
-  { ge: 0, divisor: 1, text: 'now' },
+const PERIODS: [number, Intl.RelativeTimeFormatUnit][] = [
+  [SECOND, 'second'],
+  [MINUTE, 'minute'],
+  [HOUR, 'hour'],
+  [DAY, 'day'],
+  [WEEK, 'week'],
+  [MONTH, 'month'],
+  [YEAR, 'year'],
 ];
 const rtf = new Intl.RelativeTimeFormat(undefined, { numeric: 'auto' });
 const dtf = new Intl.DateTimeFormat(undefined, {
@@ -21,27 +20,28 @@ const dtf = new Intl.DateTimeFormat(undefined, {
   timeStyle: 'full',
 });
 
-/**
- * @param test {number}
- * @param [now] {number}
- * @return {string}
- */
 export function timeFromNow(test: number, now: number): string {
-  const delta = now - test;
+  const delta = test - now;
   const absDelta = Math.abs(delta);
-  let rv = '';
 
-  for (const interval of intervals) {
-    if (absDelta >= interval.ge) {
-      const time = Math.trunc(delta / interval.divisor);
-      rv = interval.unit
-        ? rtf.format(-time, interval.unit as Intl.RelativeTimeFormatUnit)
-        : interval.text || '';
-      break;
+  if (absDelta < SECOND) {
+    return rtf.format(0, 'second');
+  }
+
+  for (let n = 0; n < PERIODS.length; n++) {
+    const [curPeriod, curUnit] = PERIODS[n] || [];
+    const [nextPeriod] = PERIODS[n + 1] || [];
+
+    if (
+      curPeriod && curUnit &&
+      absDelta >= curPeriod &&
+      (nextPeriod ? absDelta < nextPeriod : true)
+    ) {
+      return rtf.format(Math.trunc(delta / curPeriod), curUnit);
     }
   }
 
-  return rv;
+  return '';
 }
 
 export function timeToString(time: number): string {
