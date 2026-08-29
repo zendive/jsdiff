@@ -1,6 +1,6 @@
 <template>
   <section class="-empty">
-    <code v-text="APP_CODE_EXAMPLE" />
+    <code>{{ HOST_NAME }}.diff({a:1, b:1, c:3}, {a:1, b:2, d:3});</code>
     <div class="-links">
       <div>
         Source code on GitHub
@@ -19,8 +19,10 @@
 </template>
 
 <script setup lang="ts">
-import { APP_CODE_EXAMPLE, APP_DIFFAPI } from '../api/const.ts';
+import { APP_DIFFAPI } from '../api/const.ts';
 import { APP_HOMEPAGE } from '../api/env.ts';
+
+const HOST_NAME = __firefox__ ? 'jsdiff' : 'console';
 </script>
 
 <style scoped lang="scss">

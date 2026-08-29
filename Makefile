@@ -29,6 +29,10 @@ install:
 update:
 	deno update --latest
 
+.PHONY: update-check
+update-check:
+	@deno outdated
+
 .PHONY: dev
 dev:
 	rm -rf $(BUILD_DIR)
@@ -64,7 +68,7 @@ all: test
 	rm -rf $(BUILD_DIR) $(FIREFOX_ZIP) $(CHROME_ZIP)
 	
 	$(MAKE) tune2firefox
-	$(DENO_PROD) $(BUILD_SCRIPT)
+	$(DENO_PROD) $(BUILD_SCRIPT) -- --x-is-firefox
 	zip -r $(FIREFOX_ZIP) $(OUTPUT_DIR) ./manifest.json > /dev/null
 
 	$(MAKE) tune2chrome
