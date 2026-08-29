@@ -144,7 +144,7 @@ declare global {
 
 #### Requirements
 
-- Linux: [deno v2.9.2](https://docs.deno.com/runtime/getting_started/installation/), `make`, `jq`, `zip`, `tree`
+- Linux: [deno v2.9.6](https://docs.deno.com/runtime/getting_started/installation/), `make`, `jq`, `zip`, `tree`
 - Chrome: v146
 - Firefox: v148
 
