@@ -3,6 +3,10 @@ import manifest from './manifest.json' with { type: 'json' };
 import { vue3Plugin } from 'esbuild-plugin-vue-iii';
 
 const isProd = Deno.env.get('BUILD_MODE') === 'production';
+// @note: in Firefox, loading local extension requires selecting a zip file
+// which is built by `make all` command, hense checking for `isProd`
+// to emphasise that
+const isFirefox = isProd && Deno.args.includes('--x-is-firefox');
 const buildMode = isProd ? 'production' : 'development';
 const logLevel = isProd ? 'warning' : 'debug';
 const buildOptions: BuildOptions = {
@@ -27,6 +31,7 @@ const buildOptions: BuildOptions = {
     __development__: `${!isProd}`,
     __app_version__: `"${manifest.version}"`,
     __app_homepage__: `"${manifest.homepage_url}"`,
+    __firefox__: `${isFirefox}`,
   },
   loader: {
     '.png': 'file',

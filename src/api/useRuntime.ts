@@ -39,11 +39,9 @@ function connect2backgroundScript(callbacks: TRuntimeListener) {
   port.onMessage.addListener(callbacks);
 }
 
-if (typeof browser !== 'undefined') {
-  // firefox
+if (__firefox__) {
   connect2backgroundScript(callAllListeners);
 } else {
-  // chrome
   chrome.runtime.onMessage.addListener(callAllListeners);
 }
 

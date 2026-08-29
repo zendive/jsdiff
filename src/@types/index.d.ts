@@ -7,6 +7,7 @@ declare global {
   const __development__: boolean;
   const __app_version__: string;
   const __app_homepage__: string;
+  const __firefox__: boolean;
 
   // firefox extension context
   // currently not present in '@types/firefox-webext-browser'

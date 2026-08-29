@@ -16,7 +16,7 @@ if (chrome.devtools.inspectedWindow.tabId !== null) {
     '/public/img/panel-icon28.png',
     '/public/jsdiff-panel.html',
     (/*panel*/) => {
-      if (typeof browser !== 'undefined') {
+      if (__firefox__) {
         const runtime = useRuntime();
         runtime.connect(onRuntimeMessage);
       } else {
