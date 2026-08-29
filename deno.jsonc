@@ -32,7 +32,6 @@
       "*.json"
     ]
   },
-  "minimumDependencyAge": "P7D",
   "imports": {
     // bundle imports
     "esbuild": "npm:esbuild@0.28.1",
