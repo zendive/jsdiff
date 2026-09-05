@@ -10,7 +10,7 @@ CHROME_ZIP = "extension.chrome-$(CHROME_MANIFEST_VERSION).zip"
 FIREFOX_MANIFEST = ./manifest.firefox.json
 FIREFOX_MANIFEST_VERSION != jq -j '.version' $(FIREFOX_MANIFEST)
 FIREFOX_ZIP = "extension.firefox-$(FIREFOX_MANIFEST_VERSION).zip"
-DENO_DEV = BUILD_MODE=development deno run --watch --allow-env --allow-read --allow-run
+DENO_DEV = BUILD_MODE=development deno run --watch --allow-env --allow-read --allow-write="./manifest.json" --allow-run
 DENO_PROD = BUILD_MODE=production deno run --allow-env --allow-read --allow-run
 OUTPUT_DIR = ./public/
 BUILD_DIR = ./public/build/
