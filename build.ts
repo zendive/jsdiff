@@ -1,6 +1,6 @@
 import { build, type BuildOptions, context, stop } from 'esbuild';
 import manifest from './manifest.json' with { type: 'json' };
-import { vue3Plugin } from 'esbuild-plugin-vue-iii';
+import vue3Plugin from 'esbuild-plugin-vue3';
 
 const isProd = Deno.env.get('BUILD_MODE') === 'production';
 // @note: in Firefox, loading local extension requires selecting a zip file
@@ -12,9 +12,7 @@ const logLevel = isProd ? 'warning' : 'debug';
 const buildVersion = generateBuildVersion(isProd, manifest);
 const buildOptions: BuildOptions = {
   plugins: [
-    vue3Plugin({
-      isProduction: isProd,
-    }),
+    vue3Plugin(),
   ],
   entryPoints: [
     './src/jsdiff-devtools.ts',

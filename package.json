@@ -1,14 +1,18 @@
 {
   "type": "module",
   "devDependencies": {
-    "@awasm/noble": "0.1.4",
     "@types/chrome": "0.2.7",
     "@types/deno": "2.7.0",
     "@types/firefox-webext-browser": "143.0.0",
+    "esbuild-plugin-vue3": "0.5.1",
+    "sass": "1.104.0",
+    "typescript": "7.0.2",
+    "vue-loader": "17.4.2"
+  },
+  "dependencies": {
+    "@awasm/noble": "0.1.4",
     "jsondiffpatch": "0.7.6",
     "pinia": "4.0.3",
-    "typescript": "7.0.2",
-    "vue": "3.5.41",
-    "vue-loader": "17.4.2"
+    "vue": "3.5.41"
   }
 }
