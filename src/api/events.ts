@@ -41,6 +41,7 @@ export interface IRuntimeDiffEvent {
 }
 export interface IRuntimeErrorEvent {
   type: ERT_TYPE.ERROR;
+  lastError: string;
 }
 
 export type TContentScriptEvents =

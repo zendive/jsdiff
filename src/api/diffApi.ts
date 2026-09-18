@@ -46,8 +46,8 @@ export function formatDeltaAsRFC6902(delta: Delta) {
 }
 
 export function buildDeltaElement(
-  delta: Delta,
   left: unknown,
+  delta: Delta,
   hide: boolean,
 ) {
   let rv: Element | null = null;

@@ -6,8 +6,8 @@
     />
 
     <section v-if="compareStore.initialized" class="-body">
-      <template v-if="compareStore.hasBothSides">
-        <section v-if="compareStore.deltaObj" class="-content">
+      <template v-if="compareStore.timestamp">
+        <section v-if="compareStore.hasDelta" class="-content">
           <div ref="deltaEl" class="-delta" />
         </section>
         <section v-else class="-match">match</section>
@@ -23,25 +23,17 @@ import { useCompareStore } from '../stores/compare.store.ts';
 import { useSearchStore } from '../stores/search.store.ts';
 import PanelHeader from './panel.header.vue';
 import PanelEmpty from './panel.empty.vue';
-import {
-  buildDeltaElement,
-  formatDeltaAsRFC6902,
-  hideUnchanged,
-} from '../api/diffApi.ts';
+import { hideUnchanged } from '../api/diffApi.ts';
 
 const compareStore = useCompareStore();
 const searchStore = useSearchStore();
 const deltaEl = ref<HTMLElement | null>(null);
 
 watch(
-  () => compareStore.deltaObj,
+  () => compareStore.timestamp,
   () => {
     if (deltaEl.value) {
-      const tmpEl = buildDeltaElement(
-        compareStore.deltaObj,
-        compareStore.compare.left,
-        compareStore.showOnlyChanged,
-      );
+      const tmpEl = compareStore.getDeltaElement();
       tmpEl && deltaEl.value.replaceChildren(tmpEl);
     }
   },
@@ -67,8 +59,7 @@ const onToggleUnchanged = () => {
 };
 
 const onCopyDelta = () => {
-  const delta = formatDeltaAsRFC6902(compareStore.deltaObj);
-  const sDelta = JSON.stringify(delta, null, 2);
+  const sDelta = compareStore.getDeltaCopy();
 
   document.addEventListener('copy', function onCopy(e: ClipboardEvent) {
     e.preventDefault();

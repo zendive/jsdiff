@@ -49,9 +49,9 @@ async function mergeStoreRelay(payload: IDiffPayload) {
     // wasn't a memory bomb and it's safe to sent to front-end
     postRuntime({ type: ERT_TYPE.DIFF, payload: actual });
   } catch (error) {
-    if (error instanceof Error) {
+    if (Error.isError(error)) {
       await chrome.storage.local.set({ lastError: error.message });
-      postRuntime({ type: ERT_TYPE.ERROR });
+      postRuntime({ type: ERT_TYPE.ERROR, lastError: error.message });
     }
   }
 }

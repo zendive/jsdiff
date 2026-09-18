@@ -15,18 +15,14 @@ let now = ref(0);
 let interval = 0;
 
 const elapsedTime = computed(() =>
-  compareStore.compare.timestamp
-    ? timeFromNow(compareStore.compare.timestamp, now.value)
-    : ''
+  compareStore.timestamp ? timeFromNow(compareStore.timestamp, now.value) : ''
 );
 const envokedTime = computed(() =>
-  compareStore.compare.timestamp
-    ? timeToString(compareStore.compare.timestamp)
-    : ''
+  compareStore.timestamp ? timeToString(compareStore.timestamp) : ''
 );
 
 watch(
-  () => compareStore.compare.timestamp,
+  () => compareStore.timestamp,
   () => {
     interval && clearInterval(interval);
     now.value = Date.now();

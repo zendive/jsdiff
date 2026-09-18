@@ -2,9 +2,9 @@
   <header class="header">
     <panel-loader v-if="!compareStore.initialized || compareStore.inprogress" />
 
-    <div v-if="compareStore.hasBothSides" class="-toolbox">
+    <div v-if="compareStore.timestamp" class="-toolbox">
       <button
-        v-if="compareStore.deltaObj"
+        v-if="compareStore.hasDelta"
         class="btn"
         title="Hide/Show unchanged properties"
         @click="emit('toggleUnchanged')"
@@ -18,7 +18,7 @@
       </button>
 
       <button
-        v-if="compareStore.deltaObj"
+        v-if="compareStore.hasDelta"
         class="btn"
         title="Copy delta as json object"
         @click="emit('copyDelta')"
@@ -30,7 +30,7 @@
         <span class="icon -clear" />
       </button>
 
-      <panel-search v-if="compareStore.deltaObj" />
+      <panel-search v-if="compareStore.hasDelta" />
       <panel-timer />
     </div>
 
