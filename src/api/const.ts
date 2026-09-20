@@ -1,7 +1,6 @@
 export const APP_DIFFAPI = 'https://github.com/benjamine/jsondiffpatch';
 export const TAG_EMPTY = '⟪empty⟫';
 export const TAG_UNDEFINED = '⟪undefined⟫';
-export const TAG_NULL = '⟪null⟫';
 export const TAG_EXCEPTION_FALLBACK = '⁉️ ⟪exception⟫';
 export const TAG_EXCEPTION = (str: string) => `⁉️ ⟪${str}⟫`;
 export const TAG_RECURRING_ARRAY = (id: string) => `[${id}] Array⟪♻️⟫`;
@@ -18,7 +17,7 @@ export const TAG_NATIVE_FUNCTION = (name: string) =>
 export const TAG_FUNCTION = (name: string, hash: string) =>
   `ƒ${name ? ` ${name}` : ''}⟪${hash}⟫`;
 export const TAG_NUMERIC = (value: bigint | number) =>
-  typeof value === 'bigint' ? `BigInt⟪${value}⟫` : `Number⟪${value}⟫`;
+  typeof value === 'bigint' ? `${value}n` : `Number⟪${value}⟫`;
 export const TAG_REGEXP = (value: RegExp) => `RegExp⟪${value}⟫`;
 export const TAG_URL = (value: URL) => `URL⟪${value}⟫`;
 export const ERROR_NO_CONNECTION =

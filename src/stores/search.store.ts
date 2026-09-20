@@ -52,13 +52,17 @@ export const useSearchStore = defineStore('searchStore', {
         this.searchQuery = this.userQuery;
 
         if (this.searchQuery) {
-          highlightAll(
-            this.deltaEl,
-            this.searchQuery,
-            UPPERCASE_PATTERN.test(this.searchQuery),
-            /*IN/OUT*/ this.foundEls,
-          );
-          this.currentIndex = -1;
+          try {
+            highlightAll(
+              this.deltaEl,
+              this.searchQuery,
+              UPPERCASE_PATTERN.test(this.searchQuery),
+              /*IN/OUT*/ this.foundEls,
+            );
+            this.currentIndex = -1;
+          } catch (_ignore) {
+            this.searchCancel();
+          }
         }
       }
     },

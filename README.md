@@ -100,7 +100,7 @@ declare global {
 | document.body                                                                   | {0001}<sup>[2,3]</sup> DOM⟪BODY⟫                                                                         |
 | ±Infinity                                                                       | Number⟪±Infinity⟫                                                                                        |
 | NaN                                                                             | Number⟪NaN⟫                                                                                              |
-| 98765432109876543210n                                                           | BigInt⟪98765432109876543210⟫                                                                             |
+| 98765432109876543210n                                                           | 98765432109876543210n                                                                             |
 | void 0                                                                          | ⟪undefined⟫                                                                                              |
 | /example/i                                                                      | RegExp⟪/example/i⟫                                                                                       |
 | new URL('https:\//example.com/')                                                | URL⟪https:\//example.com\/⟫                                                                              |

@@ -92,7 +92,7 @@ describe('clone', () => {
 
     for (const array of arrays) {
       if (typeof array[0] === 'bigint') {
-        expect(customClone(array)).toEqual(['BigInt⟪0⟫', 'BigInt⟪1⟫']);
+        expect(customClone(array)).toEqual(['0n', '1n']);
       } else {
         expect(customClone(array)).toEqual([0, 1]);
       }
@@ -167,7 +167,7 @@ describe('clone', () => {
       negativeInf: -Infinity,
       positiveInf: Infinity,
     })).toEqual({
-      bigint: 'BigInt⟪0⟫',
+      bigint: '0n',
       nan: 'Number⟪NaN⟫',
       negativeInf: 'Number⟪-Infinity⟫',
       positiveInf: 'Number⟪Infinity⟫',

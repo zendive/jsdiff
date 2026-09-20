@@ -1,4 +1,4 @@
-import type { IConsoleApi } from '../api/console.ts';
+import type { IConsoleApi } from '../jsdiff-console.ts';
 import { CUSTOM_DOC_EVENT, type TContentScriptEvents } from '../api/events.ts';
 
 export {};

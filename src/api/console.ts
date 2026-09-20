@@ -4,15 +4,7 @@ import {
   type IDiffPayload,
   type TContentScriptEvents,
 } from './events.ts';
-import { TAG_NULL, TAG_UNDEFINED } from './const.ts';
 import { customClone } from './clone.ts';
-
-export interface IConsoleApi {
-  diff(left: unknown, right?: unknown): void;
-  diffPush(next: unknown): void;
-  diffLeft(left: unknown): void;
-  diffRight(right: unknown): void;
-}
 
 export function post(payload: IDiffPayload) {
   try {
@@ -20,15 +12,7 @@ export function post(payload: IDiffPayload) {
 
     for (const key of ['push', 'left', 'right']) {
       if (Reflect.has(payload, key)) {
-        const value = payload[key];
-
-        if (value === undefined) {
-          payload[key] = TAG_UNDEFINED;
-        } else if (value === null) {
-          payload[key] = TAG_NULL;
-        } else {
-          payload[key] = customClone(value);
-        }
+        payload[key] = customClone(payload[key]);
       }
     }
 

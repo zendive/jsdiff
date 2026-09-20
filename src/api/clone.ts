@@ -60,7 +60,14 @@ function recursiveClone(commonCatalog: CommonLookupCatalog, value: unknown) {
     rv = TAG_REGEXP(value);
   } else if (isURL(value)) {
     rv = TAG_URL(value);
-  } else if (isArray(value)) {
+  } else if (isNumericSpecials(value)) {
+    rv = TAG_NUMERIC(value);
+  } else if (value === undefined) {
+    // JsonDiffPatch has a problem comparing with undefined value - storing a string instead
+    rv = TAG_UNDEFINED;
+  } else if (isTypedArray(value)) {
+    rv = serializeTypedArray(commonCatalog, value, TAG_RECURRING_ARRAY);
+  } else if (Array.isArray(value)) {
     rv = serializeArrayAlike(commonCatalog, value, TAG_RECURRING_ARRAY);
   } else if (isSet(value)) {
     rv = serializeArrayAlike(commonCatalog, value, TAG_RECURRING_SET);
@@ -68,14 +75,28 @@ function recursiveClone(commonCatalog: CommonLookupCatalog, value: unknown) {
     rv = serializeMap(commonCatalog, value);
   } else if (isObject(value)) {
     rv = serializeObject(commonCatalog, value);
-  } else if (isNumericSpecials(value)) {
-    rv = TAG_NUMERIC(value);
-  } else if (value === undefined) {
-    // JsonDiffPatch has a problem comparing with undefined value - storing a string instead
-    rv = TAG_UNDEFINED;
   }
 
   return rv;
+}
+
+function serializeTypedArray(
+  commonCatalog: CommonLookupCatalog,
+  array: ArrayLike<number>,
+  badge: TCommonInstanceTag,
+) {
+  const record = commonCatalog.lookup(array, badge);
+  if (record.seen) {
+    return record.name;
+  }
+
+  record.seen = true;
+
+  if (typeof array[0] === 'bigint') {
+    return Array.from(array, (v) => TAG_NUMERIC(v));
+  } else {
+    return Array.from(array);
+  }
 }
 
 function serializeArrayAlike(
@@ -90,12 +111,15 @@ function serializeArrayAlike(
 
   record.seen = true;
 
-  const arr = [];
+  const rv = new Array(Array.isArray(array) ? array.length : array.size);
+  let n = 0;
+
   for (const v of array) {
-    arr.push(recursiveClone(commonCatalog, v));
+    rv[n] = recursiveClone(commonCatalog, v); // recursion
+    n++;
   }
 
-  return arr;
+  return rv;
 }
 
 function serializeMap(
@@ -114,7 +138,7 @@ function serializeMap(
   value.forEach((v, k) => {
     const newKey = serializeMapKey(commonCatalog, k);
 
-    obj[newKey] = recursiveClone(commonCatalog, v);
+    obj[newKey] = recursiveClone(commonCatalog, v); // recursion
   });
 
   return obj;
@@ -138,7 +162,7 @@ function serializeMapKey(
     rv = TAG_REGEXP(key);
   } else if (isURL(key)) {
     rv = TAG_URL(key);
-  } else if (isArray(key)) {
+  } else if (Array.isArray(key) || isTypedArray(key)) {
     const { name } = commonCatalog.lookup(key, TAG_RECURRING_ARRAY);
     rv = name;
   } else if (isSet(key)) {
@@ -174,7 +198,7 @@ function serializeObject(
 
   if (isSelfSerializableObject(value)) {
     const toJsonValue = serializeSelfSerializable(value);
-    return recursiveClone(commonCatalog, toJsonValue);
+    return recursiveClone(commonCatalog, toJsonValue); // recursion
   }
 
   const rv: ISerializableObject = Object.create(null);
@@ -203,7 +227,7 @@ function serializeObjectKey(
 
   try {
     // accessing value by key may throw
-    newValue = recursiveClone(commonCatalog, value[key]);
+    newValue = recursiveClone(commonCatalog, value[key]); // recursion
   } catch (error) {
     newValue = stringifyError(error);
   }
@@ -245,24 +269,8 @@ function isNumericSpecials(value: unknown): value is bigint | number {
   );
 }
 
-export function isArray(that: unknown): that is unknown[] {
-  return (
-    // NOTE: firefox content script has instances to compare with
-    // in `window` (not in `globalThis`)
-    that instanceof window.Array ||
-    that instanceof window.Uint8Array ||
-    that instanceof window.Uint8ClampedArray ||
-    that instanceof window.Uint16Array ||
-    that instanceof window.Uint32Array ||
-    that instanceof window.Int8Array ||
-    that instanceof window.Int16Array ||
-    that instanceof window.Int32Array ||
-    that instanceof window.Float16Array ||
-    that instanceof window.Float32Array ||
-    that instanceof window.Float64Array ||
-    that instanceof window.BigUint64Array ||
-    that instanceof window.BigInt64Array
-  );
+function isTypedArray(that: unknown): that is ArrayLike<number> {
+  return ArrayBuffer.isView(that) && !(that instanceof DataView);
 }
 
 function isFunction(that: unknown): that is IFunction {
@@ -322,30 +330,36 @@ function isURL(that: unknown): that is URL {
 
 /**
  * @note: use when reoccurrence is not expected
- * @param unk - expects object | array | primitives, nothing else exotic
+ * @param that - expects object | array | primitives, nothing else exotic
  */
-export function stripDeepObjectPrototype<T>(unk: T): T {
-  if (Object.prototype.toString.call(unk) === '[object Array]') {
-    const rv = [];
-
-    // @ts-expect-error in 2026, typescript doesn't know yet
-    for (const value of unk) {
-      rv.push(stripDeepObjectPrototype(value)); // recursion
-    }
-
-    return <T> rv;
+export function stripDeepObjectPrototype<T>(that: T): T {
+  if (that === null || typeof that !== 'object') {
+    return that;
   }
 
-  if (Object.prototype.toString.call(unk) === '[object Object]') {
-    const rv = Object.create(null);
-    const obj = <ISerializableObject> unk;
+  const rv = Array.isArray(that) ? [] : Object.create(null);
+  const stack = [[that, rv]];
 
-    for (const key of Reflect.ownKeys(obj)) {
-      rv[key] = stripDeepObjectPrototype(obj[key]); // recursion
+  do {
+    const [from, to] = stack.pop()!;
+
+    for (const key in from) {
+      if (!Object.prototype.hasOwnProperty.call(from, key)) {
+        continue;
+      }
+
+      const value = from[key];
+
+      if (value !== null && typeof value === 'object') {
+        const subEnvelop = Array.isArray(value) ? [] : Object.create(null);
+
+        to[key] = subEnvelop;
+        stack.push([value, subEnvelop]);
+      } else {
+        to[key] = value;
+      }
     }
+  } while (stack.length > 0);
 
-    return <T> rv;
-  }
-
-  return unk;
+  return rv;
 }

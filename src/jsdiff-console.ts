@@ -1,4 +1,11 @@
-import { type IConsoleApi, post } from './api/console.ts';
+import { post } from './api/console.ts';
+
+export interface IConsoleApi {
+  diff(left: unknown, right?: unknown): void;
+  diffPush(next: unknown): void;
+  diffLeft(left: unknown): void;
+  diffRight(right: unknown): void;
+}
 
 const consoleAPI: IConsoleApi = {
   diff: (...args: unknown[]) => {
