@@ -1,4 +1,4 @@
-export type TCommonInstanceTag = (id: string) => string;
+export type TCommonInstanceTag = (id: string, value?: WeakKey) => string;
 
 type ICatalogUniqueRecord = string;
 interface ICatalogCommonRecord {
@@ -30,7 +30,7 @@ export class CommonLookupCatalog {
     return this.#records.getOrInsertComputed(key, () => {
       const id = index2Id(++this.#index);
 
-      return { name: tag(id), seen: false };
+      return { name: tag(id, key), seen: false };
     });
   }
 }

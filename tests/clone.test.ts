@@ -190,3 +190,33 @@ describe('clone', () => {
     });
   });
 });
+
+describe('clone resilience to stackoverflow', () => {
+  function generateDeepArray(root: unknown[]) {
+    let lead = root;
+
+    for (let n = 0; n < 4e3; n++) {
+      lead.push([]);
+      lead = lead[0] as unknown[];
+    }
+
+    lead[0] = Math.PI;
+
+    return root;
+  }
+
+  const arr = generateDeepArray([]);
+
+  test('currently throws', () => {
+    let exception = false;
+
+    try {
+      customClone(arr);
+    } catch (err) {
+      console.error(err);
+      exception = true;
+    }
+
+    expect(exception).toBe(true);
+  });
+});
