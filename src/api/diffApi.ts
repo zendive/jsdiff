@@ -1,4 +1,4 @@
-import { hasValue } from './toolkit.ts';
+import { callableOnce, hasValue } from './toolkit.ts';
 import { type ISerializableObject } from './clone.ts';
 import { create, type Delta } from 'jsondiffpatch/with-text-diffs';
 import { format as formatHtml } from 'jsondiffpatch/formatters/html';
@@ -68,18 +68,20 @@ export function buildDeltaElement(
   return rv;
 }
 
-const deltaHtmlSanitizer = new Sanitizer({
-  comments: false,
-  dataAttributes: false,
-  // whitelist following attributes and elements:
-  attributes: [{ name: 'class' }],
-  elements: ['div', 'span', 'pre', 'ul', 'li'],
-});
+const deltaHtmlSanitizer = callableOnce(() =>
+  new Sanitizer({
+    comments: false,
+    dataAttributes: false,
+    // whitelist following attributes and elements:
+    attributes: [{ name: 'class' }],
+    elements: ['div', 'span', 'pre', 'ul', 'li'],
+  })
+);
 
 function createElement(html: string) {
   const virtualEl = document.createElement('div');
   // @ts-expect-error: 2026-03-31 - `setHTML` new in Chrome v146
-  virtualEl.setHTML(html, { sanitizer: deltaHtmlSanitizer });
+  virtualEl.setHTML(html, { sanitizer: deltaHtmlSanitizer() });
 
   return virtualEl.firstElementChild;
 }

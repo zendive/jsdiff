@@ -1,14 +1,24 @@
 export const APP_DIFFAPI = 'https://github.com/benjamine/jsondiffpatch';
 export const TAG_EMPTY = '⟪empty⟫';
 export const TAG_UNDEFINED = '⟪undefined⟫';
-export const TAG_EXCEPTION_FALLBACK = '⁉️ ⟪exception⟫';
-export const TAG_EXCEPTION = (str: string) => `⁉️ ⟪${str}⟫`;
-export const TAG_RECURRING_ARRAY = (id: string) => `[${id}] Array⟪♻️⟫`;
+export const TAG_EXCEPTION = (str: unknown | Error) => `⁉️ ⟪exception: ${str}⟫`;
+const TYPE_NAME_PATTERN = /.*\s(.+)]/;
+export const TAG_RECURRING_ARRAY = (id: string, value: unknown) => {
+  const type = Object.prototype.toString.call(value);
+  const name = type.replace(TYPE_NAME_PATTERN, '$1');
+
+  return `[${id}] ${name}⟪♻️⟫`;
+};
 export const TAG_RECURRING_OBJECT = (id: string) => `[${id}] Object⟪♻️⟫`;
 export const TAG_RECURRING_SET = (id: string) => `[${id}] Set⟪♻️⟫`;
 export const TAG_RECURRING_MAP = (id: string) => `[${id}] Map⟪♻️⟫`;
-export const TAG_DOM_ELEMENT = (id: string, value: Document | Element) =>
-  `{${id}} DOM⟪${value.nodeName}⟫`;
+export const TAG_DOM_ELEMENT = (id: string, value: Document | Element) => {
+  try {
+    return `{${id}} DOM⟪${value.nodeName}⟫`;
+  } catch (_ignore) {
+    return `{${id}} DOM⟪⁉️⟫`;
+  }
+};
 export const TAG_UNIQUE_SYMBOL = (id: string, value: symbol) =>
   `{${id}} ${value.toString()}`;
 export const TAG_GLOBAL_SYMBOL = (smbl: symbol) => `${smbl.toString()}`;

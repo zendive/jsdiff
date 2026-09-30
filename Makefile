@@ -46,7 +46,7 @@ valid:
 
 .PHONY: test
 test: valid
-	deno test --trace-leaks --reporter=dot
+	deno test --allow-write --trace-leaks --reporter=dot
 
 .PHONY: prod
 prod: test
@@ -66,7 +66,7 @@ tune2firefox:
 all: test
 	deno audit
 	rm -rf $(BUILD_DIR) $(FIREFOX_ZIP) $(CHROME_ZIP)
-	
+
 	$(MAKE) tune2firefox
 	$(DENO_PROD) $(BUILD_SCRIPT) -- --x-is-firefox
 	zip -r $(FIREFOX_ZIP) $(OUTPUT_DIR) ./manifest.json > /dev/null

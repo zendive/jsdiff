@@ -1,19 +1,19 @@
 export type TCommonInstanceTag = (id: string, value?: WeakKey) => string;
 
-type ICatalogUniqueRecord = string;
+type TCatalogUniqueRecord = string;
 interface ICatalogCommonRecord {
   name: string;
   seen: boolean;
 }
 
 export class UniqueLookupCatalog {
-  #records: WeakMap<WeakKey, ICatalogUniqueRecord> = new WeakMap();
+  #records: WeakMap<WeakKey, TCatalogUniqueRecord> = new WeakMap();
   #index = 0;
 
   lookup<
     TMapKey extends WeakKey,
     TTagFn extends (id: string, value: TMapKey) => string,
-  >(key: TMapKey, tag: TTagFn): string {
+  >(key: TMapKey, tag: TTagFn): TCatalogUniqueRecord {
     return this.#records.getOrInsertComputed(key, () => {
       const id = index2Id(++this.#index);
 
@@ -26,7 +26,7 @@ export class CommonLookupCatalog {
   #records: WeakMap<WeakKey, ICatalogCommonRecord> = new WeakMap();
   #index = 0;
 
-  lookup(key: WeakKey, tag: TCommonInstanceTag) {
+  lookup(key: WeakKey, tag: TCommonInstanceTag): ICatalogCommonRecord {
     return this.#records.getOrInsertComputed(key, () => {
       const id = index2Id(++this.#index);
 

@@ -37,7 +37,7 @@ An extension for developers that enhances the console API by incorporating the a
 
   - `JSDiff` DevTools panel reflects current state of comparison, regardless the tab[s] it was opened from.
 
-- Fail-safe serialization of objects having security issues while accessing their properties or objects having `toJSON()` function; when instead of serialization of all object properties, - only `toJSON()` return value is serialized, like `JSON.strigify()` does.
+- Fail-safe serialization of objects having security issues while accessing their properties.
 
 - Can be used from within online code editors like: [codesandbox.io](https://codesandbox.io), [coderpad.io](https://coderpad.io), [flems.io](https://flems.io), [codepen.io](https://codepen.io), [jsfiddle.net](https://jsfiddle.net), [mdn playground](https://developer.mozilla.org/play).
 

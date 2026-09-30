@@ -29,3 +29,18 @@ function isIgnorable(error: chrome.runtime.LastError | undefined): boolean {
     error.message === ERROR_PORT_CLOSED
   );
 }
+
+export function callableOnce<
+  T extends (...args: Parameters<T>) => ReturnType<T>,
+>(
+  fn: T | null,
+): T {
+  let rv: ReturnType<T>;
+  return <T> function (...args: Parameters<T>): ReturnType<T> {
+    if (fn) {
+      rv = fn(...args);
+      fn = null;
+    }
+    return rv;
+  };
+}

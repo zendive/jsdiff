@@ -2,7 +2,6 @@ import { hashString } from './toolkit.ts';
 import {
   TAG_DOM_ELEMENT,
   TAG_EXCEPTION,
-  TAG_EXCEPTION_FALLBACK,
   TAG_FUNCTION,
   TAG_GLOBAL_SYMBOL,
   TAG_NATIVE_FUNCTION,
@@ -29,60 +28,163 @@ interface IFunction {
   name: string;
   toString: () => string;
 }
-interface IHasToJSON {
-  toJSON: () => unknown;
-}
 
 const symbolCatalog = new UniqueLookupCatalog();
 const domCatalog = new UniqueLookupCatalog();
 
-export function customClone(value: unknown) {
-  let commonCatalog: CommonLookupCatalog | null = new CommonLookupCatalog();
-  const rv = recursiveClone(commonCatalog, value);
+export function clone(that: unknown) {
+  let commonCatalog = new CommonLookupCatalog();
+
+  if (isPrimitive(that)) {
+    return serializePrimitive(that, commonCatalog);
+  }
+
+  const [rv, record] = getEnvelop(that, commonCatalog)!;
+  record.seen = true;
+  const stack = [[that, rv]];
+
+  do {
+    const [from, to] = stack.shift()!;
+
+    iterate(from, commonCatalog, (value, key) => {
+      if (isPrimitive(value)) {
+        to[key] = serializePrimitive(value, commonCatalog);
+      } else {
+        const [envelop, record] = getEnvelop(value, commonCatalog)!;
+        if (record.seen) {
+          to[key] = record.name;
+        } else {
+          record.seen = true;
+          to[key] = envelop;
+          stack.push([value, envelop]);
+        }
+      }
+    });
+  } while (stack.length > 0);
+
+  // @ts-ignore: GC hint
   commonCatalog = null;
+
   return rv;
 }
 
-function recursiveClone(commonCatalog: CommonLookupCatalog, value: unknown) {
-  let rv = value;
+function isPrimitive(that: unknown) {
+  const type = typeof that;
+  return (
+    type === 'number' ||
+    type === 'string' ||
+    type === 'boolean' ||
+    that === undefined ||
+    that === null ||
+    isFunction(that) ||
+    isSymbol(that) ||
+    isRegExp(that) ||
+    isURL(that) ||
+    isNumericSpecials(that) ||
+    isDOM(that) ||
+    isTypedArray(that)
+  );
+}
 
-  if (isDOM(value)) {
-    rv = domCatalog.lookup(value, TAG_DOM_ELEMENT);
-  } else if (isFunction(value)) {
-    rv = serializeFunction(value);
-  } else if (isSymbol(value)) {
-    if (isGlobalSymbol(value)) {
-      rv = TAG_GLOBAL_SYMBOL(value);
+function serializePrimitive(that: unknown, commonCatalog: CommonLookupCatalog) {
+  if (isDOM(that)) {
+    return domCatalog.lookup(that, TAG_DOM_ELEMENT);
+  } else if (isFunction(that)) {
+    return serializeFunction(that);
+  } else if (isSymbol(that)) {
+    if (isGlobalSymbol(that)) {
+      return TAG_GLOBAL_SYMBOL(that);
     } else {
-      rv = symbolCatalog.lookup(value, TAG_UNIQUE_SYMBOL);
+      return symbolCatalog.lookup(that, TAG_UNIQUE_SYMBOL);
     }
-  } else if (isRegExp(value)) {
-    rv = TAG_REGEXP(value);
-  } else if (isURL(value)) {
-    rv = TAG_URL(value);
-  } else if (isNumericSpecials(value)) {
-    rv = TAG_NUMERIC(value);
-  } else if (value === undefined) {
-    // JsonDiffPatch has a problem comparing with undefined value - storing a string instead
-    rv = TAG_UNDEFINED;
-  } else if (isTypedArray(value)) {
-    rv = serializeTypedArray(commonCatalog, value, TAG_RECURRING_ARRAY);
-  } else if (Array.isArray(value)) {
-    rv = serializeArrayAlike(commonCatalog, value, TAG_RECURRING_ARRAY);
-  } else if (isSet(value)) {
-    rv = serializeArrayAlike(commonCatalog, value, TAG_RECURRING_SET);
-  } else if (isMap(value)) {
-    rv = serializeMap(commonCatalog, value);
-  } else if (isObject(value)) {
-    rv = serializeObject(commonCatalog, value);
+  } else if (isRegExp(that)) {
+    return TAG_REGEXP(that);
+  } else if (isURL(that)) {
+    return TAG_URL(that);
+  } else if (isNumericSpecials(that)) {
+    return TAG_NUMERIC(that);
+  } else if (that === undefined) {
+    // JsonDiffPatch has a problem comparing with undefined value - storing as string instead
+    return TAG_UNDEFINED;
+  } else if (isTypedArray(that)) {
+    return serializeTypedArray(that, commonCatalog, TAG_RECURRING_ARRAY);
   }
 
-  return rv;
+  return that;
+}
+
+function getEnvelop(that: unknown, commonCatalog: CommonLookupCatalog) {
+  if (Array.isArray(that)) {
+    return [
+      new Array(that.length),
+      commonCatalog.lookup(that, TAG_RECURRING_ARRAY),
+    ];
+  } else if (isSet(that)) {
+    return [
+      new Array(that.size),
+      commonCatalog.lookup(that, TAG_RECURRING_SET),
+    ];
+  } else if (isMap(that)) {
+    return [Object.create(null), commonCatalog.lookup(that, TAG_RECURRING_MAP)];
+  } else if (isObject(that)) {
+    return [
+      Object.create(null),
+      commonCatalog.lookup(that, TAG_RECURRING_OBJECT),
+    ];
+  } else {
+    throw new TypeError(
+      `getEnvelop for: ${typeof that}; ${
+        Object.prototype.toString.call(that)
+      }; ${String(that)}?`,
+    );
+  }
+}
+
+function iterate<
+  TIterable,
+  TIterableKey extends keyof TIterable,
+>(
+  that: TIterable,
+  commonCatalog: CommonLookupCatalog,
+  fn: (value: unknown, key: TIterableKey) => void,
+) {
+  if (Array.isArray(that) || isSet(that)) {
+    let n = 0;
+    for (const v of that) {
+      fn(v, n++ as TIterableKey);
+    }
+  } else if (isMap(that)) {
+    that.forEach((v, k) => {
+      fn(v, serializeMapKey(k, commonCatalog) as TIterableKey);
+    });
+  } else if (isObject(that)) {
+    const keys = Reflect.ownKeys(that);
+
+    if (!keys.length) {
+      for (const k in that) keys.push(k);
+    }
+
+    for (let key of keys) {
+      // accessing object by key may throw
+      let value;
+      try {
+        value = that[key];
+      } catch (error) {
+        value = stringifyError(error);
+      }
+
+      if (isSymbol(key)) {
+        key = serializeSymbol(key);
+      }
+
+      fn(value, key as TIterableKey);
+    }
+  }
 }
 
 function serializeTypedArray(
-  commonCatalog: CommonLookupCatalog,
   array: ArrayLike<number>,
+  commonCatalog: CommonLookupCatalog,
   badge: TCommonInstanceTag,
 ) {
   const record = commonCatalog.lookup(array, badge);
@@ -93,171 +195,64 @@ function serializeTypedArray(
   record.seen = true;
 
   if (typeof array[0] === 'bigint') {
-    return Array.from(array, (v) => TAG_NUMERIC(v));
+    return Array.from(array, (v) => `${v}n`);
   } else {
     return Array.from(array);
   }
 }
 
-function serializeArrayAlike(
-  commonCatalog: CommonLookupCatalog,
-  array: unknown[] | Set<unknown>,
-  badge: TCommonInstanceTag,
-): unknown[] | string {
-  const record = commonCatalog.lookup(array, badge);
-  if (record.seen) {
-    return record.name;
-  }
-
-  record.seen = true;
-
-  const rv = new Array(Array.isArray(array) ? array.length : array.size);
-  let n = 0;
-
-  for (const v of array) {
-    rv[n] = recursiveClone(commonCatalog, v); // recursion
-    n++;
-  }
-
-  return rv;
-}
-
-function serializeMap(
-  commonCatalog: CommonLookupCatalog,
-  value: Map<unknown, unknown>,
-) {
-  const record = commonCatalog.lookup(value, TAG_RECURRING_MAP);
-
-  if (record.seen) {
-    return record.name;
-  }
-
-  record.seen = true;
-
-  const obj: ISerializableObject = Object.create(null);
-  value.forEach((v, k) => {
-    const newKey = serializeMapKey(commonCatalog, k);
-
-    obj[newKey] = recursiveClone(commonCatalog, v); // recursion
-  });
-
-  return obj;
-}
-
 function serializeMapKey(
-  commonCatalog: CommonLookupCatalog,
   key: unknown,
+  commonCatalog: CommonLookupCatalog,
 ): string {
-  let rv;
-
   if (isDOM(key)) {
-    rv = domCatalog.lookup(key, TAG_DOM_ELEMENT);
+    return domCatalog.lookup(key, TAG_DOM_ELEMENT);
   } else if (isFunction(key)) {
-    rv = serializeFunction(key);
+    return serializeFunction(key);
   } else if (isSymbol(key)) {
-    rv = isGlobalSymbol(key)
-      ? TAG_GLOBAL_SYMBOL(key)
-      : symbolCatalog.lookup(key, TAG_UNIQUE_SYMBOL);
+    return serializeSymbol(key);
   } else if (isRegExp(key)) {
-    rv = TAG_REGEXP(key);
+    return TAG_REGEXP(key);
   } else if (isURL(key)) {
-    rv = TAG_URL(key);
-  } else if (Array.isArray(key) || isTypedArray(key)) {
-    const { name } = commonCatalog.lookup(key, TAG_RECURRING_ARRAY);
-    rv = name;
-  } else if (isSet(key)) {
-    const { name } = commonCatalog.lookup(key, TAG_RECURRING_SET);
-    rv = name;
-  } else if (isMap(key)) {
-    const { name } = commonCatalog.lookup(key, TAG_RECURRING_MAP);
-    rv = name;
-  } else if (isObject(key)) {
-    const { name } = commonCatalog.lookup(key, TAG_RECURRING_OBJECT);
-    rv = name;
+    return TAG_URL(key);
   } else if (isNumericSpecials(key)) {
-    rv = TAG_NUMERIC(key);
+    return TAG_NUMERIC(key);
   } else if (key === undefined) {
-    rv = TAG_UNDEFINED;
+    return TAG_UNDEFINED;
+  } else if (Array.isArray(key) || isTypedArray(key)) {
+    return commonCatalog.lookup(key, TAG_RECURRING_ARRAY).name;
+  } else if (isSet(key)) {
+    return commonCatalog.lookup(key, TAG_RECURRING_SET).name;
+  } else if (isMap(key)) {
+    return commonCatalog.lookup(key, TAG_RECURRING_MAP).name;
+  } else if (isObject(key)) {
+    return commonCatalog.lookup(key, TAG_RECURRING_OBJECT).name;
   } else {
-    rv = String(key);
+    return String(key);
   }
-
-  return rv;
-}
-
-function serializeObject(
-  commonCatalog: CommonLookupCatalog,
-  value: ISerializableObject,
-) {
-  const record = commonCatalog.lookup(value, TAG_RECURRING_OBJECT);
-  if (record.seen) {
-    return record.name;
-  }
-
-  record.seen = true;
-
-  if (isSelfSerializableObject(value)) {
-    const toJsonValue = serializeSelfSerializable(value);
-    return recursiveClone(commonCatalog, toJsonValue); // recursion
-  }
-
-  const rv: ISerializableObject = Object.create(null);
-  for (const key of Reflect.ownKeys(value)) {
-    const { newKey, newValue } = serializeObjectKey(commonCatalog, key, value);
-    rv[newKey] = newValue;
-  }
-
-  return rv;
-}
-
-function serializeObjectKey(
-  commonCatalog: CommonLookupCatalog,
-  key: string | symbol,
-  value: ISerializableObject,
-) {
-  let newKey: string, newValue: unknown;
-
-  if (isSymbol(key)) {
-    newKey = isGlobalSymbol(key)
-      ? TAG_GLOBAL_SYMBOL(key)
-      : symbolCatalog.lookup(key, TAG_UNIQUE_SYMBOL);
-  } else {
-    newKey = key;
-  }
-
-  try {
-    // accessing value by key may throw
-    newValue = recursiveClone(commonCatalog, value[key]); // recursion
-  } catch (error) {
-    newValue = stringifyError(error);
-  }
-
-  return { newKey, newValue };
 }
 
 function serializeFunction(value: IFunction): string {
   const fnBody = value.toString();
 
-  if (fnBody.endsWith('{ [native code] }')) {
+  if (fnBody.lastIndexOf('[native code]') > 0) {
     return TAG_NATIVE_FUNCTION(value.name);
   }
 
   return TAG_FUNCTION(value.name, hashString(fnBody));
 }
 
-function serializeSelfSerializable(value: IHasToJSON) {
-  try {
-    // rogue object may throw
-    return value.toJSON();
-  } catch (error) {
-    return stringifyError(error);
-  }
+function serializeSymbol(value: symbol) {
+  return isGlobalSymbol(value)
+    ? TAG_GLOBAL_SYMBOL(value)
+    : symbolCatalog.lookup(value, TAG_UNIQUE_SYMBOL);
 }
 
 function stringifyError(error: unknown) {
-  return typeof error?.toString === 'function'
-    ? TAG_EXCEPTION(error.toString())
-    : TAG_EXCEPTION_FALLBACK;
+  if (!Error.isError(error)) {
+    error = new Error(String(error));
+  }
+  return TAG_EXCEPTION(error);
 }
 
 function isNumericSpecials(value: unknown): value is bigint | number {
@@ -269,10 +264,6 @@ function isNumericSpecials(value: unknown): value is bigint | number {
   );
 }
 
-function isTypedArray(that: unknown): that is ArrayLike<number> {
-  return ArrayBuffer.isView(that) && !(that instanceof DataView);
-}
-
 function isFunction(that: unknown): that is IFunction {
   return (
     typeof that === 'function' &&
@@ -281,27 +272,20 @@ function isFunction(that: unknown): that is IFunction {
   );
 }
 
+function isTypedArray(that: unknown): that is ArrayLike<number> {
+  return ArrayBuffer.isView(that) && !(that instanceof DataView);
+}
+
 function isSet(that: unknown): that is Set<unknown> {
-  return that instanceof window.Set;
+  return Object.prototype.toString.call(that) === '[object Set]';
 }
 
 function isMap(that: unknown): that is Map<unknown, unknown> {
-  return that instanceof window.Map;
+  return Object.prototype.toString.call(that) === '[object Map]';
 }
 
-function isSelfSerializableObject(that: unknown): that is IHasToJSON {
-  let rv;
-
-  try {
-    rv = that !== null &&
-      typeof that === 'object' &&
-      'toJSON' in that &&
-      typeof that.toJSON === 'function';
-  } catch (_ignore) {
-    rv = false;
-  }
-
-  return rv;
+function isObject(that: unknown): that is ISerializableObject {
+  return (that !== null && typeof that === 'object');
 }
 
 function isDOM(that: unknown): that is Element | Document {
@@ -314,10 +298,6 @@ function isSymbol(that: unknown): that is symbol {
 
 function isGlobalSymbol(that: symbol): boolean {
   return Symbol.keyFor(that) !== undefined;
-}
-
-function isObject(that: unknown): that is ISerializableObject {
-  return (that !== null && typeof that === 'object');
 }
 
 function isRegExp(that: unknown): that is RegExp {
@@ -341,7 +321,7 @@ export function stripDeepObjectPrototype<T>(that: T): T {
   const stack = [[that, rv]];
 
   do {
-    const [from, to] = stack.pop()!;
+    const [from, to] = stack.shift()!;
 
     for (const key in from) {
       if (!Object.prototype.hasOwnProperty.call(from, key)) {
@@ -351,7 +331,9 @@ export function stripDeepObjectPrototype<T>(that: T): T {
       const value = from[key];
 
       if (value !== null && typeof value === 'object') {
-        const subEnvelop = Array.isArray(value) ? [] : Object.create(null);
+        const subEnvelop = Array.isArray(value)
+          ? new Array(value.length)
+          : Object.create(null);
 
         to[key] = subEnvelop;
         stack.push([value, subEnvelop]);

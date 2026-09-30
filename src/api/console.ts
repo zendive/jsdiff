@@ -4,7 +4,7 @@ import {
   type IDiffPayload,
   type TContentScriptEvents,
 } from './events.ts';
-import { customClone } from './clone.ts';
+import { clone } from './clone.ts';
 
 export function post(payload: IDiffPayload) {
   try {
@@ -12,7 +12,7 @@ export function post(payload: IDiffPayload) {
 
     for (const key of ['push', 'left', 'right']) {
       if (Reflect.has(payload, key)) {
-        payload[key] = customClone(payload[key]);
+        payload[key] = clone(payload[key]);
       }
     }
 
