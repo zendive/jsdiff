@@ -18,7 +18,7 @@ BUILD_SCRIPT = ./build.ts
 
 .PHONY: clean
 clean:
-	rm -rf ./node_modules ./deno.lock $(BUILD_DIR) $(CHROME_ZIP) $(FIREFOX_ZIP)
+	rm -rf ./node_modules $(BUILD_DIR) $(CHROME_ZIP) $(FIREFOX_ZIP)
 
 .PHONY: install
 install:
