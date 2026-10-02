@@ -92,11 +92,7 @@ function serializePrimitive(that: unknown, commonCatalog: CommonLookupCatalog) {
   } else if (isFunction(that)) {
     return serializeFunction(that);
   } else if (isSymbol(that)) {
-    if (isGlobalSymbol(that)) {
-      return TAG_GLOBAL_SYMBOL(that);
-    } else {
-      return symbolCatalog.lookup(that, TAG_UNIQUE_SYMBOL);
-    }
+    return serializeSymbol(that);
   } else if (isRegExp(that)) {
     return TAG_REGEXP(that);
   } else if (isURL(that)) {
