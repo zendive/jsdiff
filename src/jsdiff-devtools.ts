@@ -33,26 +33,26 @@ function onRuntimeMessage(e: TRuntimeEvents) {
 }
 
 async function mergeStoreRelay(payload: IDiffPayload) {
-  const current = payload;
-  const {
-    lastApiReq: previous,
-  }: {
-    lastApiReq: IDiffPayload;
-  } = await chrome.storage.local.get(['lastApiReq']);
-  const actual = constructComparisonPayload(previous, current);
-
   try {
+    const current = payload;
+    const {
+      lastApiReq: previous,
+    }: {
+      lastApiReq: IDiffPayload;
+    } = await chrome.storage.local.get(['lastApiReq']);
+    const actual = constructComparisonPayload(previous, current);
+
     // may throw if out of QUOTA memory
     await chrome.storage.local.set({ lastApiReq: actual, lastError: '' });
 
     // if not thrown then its safe to assume that payload
     // wasn't a memory bomb and it's safe to sent to front-end
     postRuntime({ type: ERT_TYPE.DIFF, payload: actual });
-  } catch (error) {
-    if (Error.isError(error)) {
-      await chrome.storage.local.set({ lastError: error.message });
-      postRuntime({ type: ERT_TYPE.ERROR, lastError: error.message });
-    }
+  } catch (e) {
+    const lastError = String(e);
+
+    await chrome.storage.local.set({ lastError });
+    postRuntime({ type: ERT_TYPE.ERROR, lastError });
   }
 }
 
