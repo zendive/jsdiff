@@ -15,7 +15,8 @@ import { format as formatHtml } from 'jsondiffpatch/formatters/html';
 // chrome.storage.local was able to save an array only 98 levels deep,
 //   quietly truncating the rest of it
 const DEPTH = 5e3;
-function generateDeepArray(root: unknown[], seed: unknown) {
+function generateDeepArray(seed: unknown) {
+  const root: unknown[] = [];
   let next = root;
 
   for (let n = 0; n < DEPTH; n++) {
@@ -28,16 +29,18 @@ function generateDeepArray(root: unknown[], seed: unknown) {
   return root;
 }
 
+Deno.mkdirSync('./tmp', { recursive: true });
+
 describe('stackoverflow resilience', () => {
   const SOF_ERROR = 'RangeError: Maximum call stack size exceeded';
 
   Deno.writeTextFile(
     `./tmp/${DEPTH}.deepArray.json`,
-    JSON.stringify(generateDeepArray([], DEPTH + 1)),
+    JSON.stringify(generateDeepArray(DEPTH)),
   );
 
   test('baseline - structuredClone throws', () => {
-    const arr = generateDeepArray([], Math.PI);
+    const arr = generateDeepArray(Math.PI);
     let exception = false;
 
     try {
@@ -50,7 +53,7 @@ describe('stackoverflow resilience', () => {
   });
 
   test('customClone', () => {
-    const arr = generateDeepArray([], Math.PI);
+    const arr = generateDeepArray(Math.PI);
     let exception = false;
 
     try {
@@ -65,8 +68,8 @@ describe('stackoverflow resilience', () => {
   });
 
   test('jsondiffpatch', () => {
-    const left = generateDeepArray([], Math.PI);
-    const right = generateDeepArray([], Math.E);
+    const left = generateDeepArray(Math.PI);
+    const right = generateDeepArray(Math.E);
     let exception = false;
 
     try {
@@ -82,7 +85,7 @@ describe('stackoverflow resilience', () => {
       const deltaRFC6902 = formatDeltaAsRFC6902(delta);
       Deno.writeTextFile(
         `./tmp/${DEPTH}.deltaRFC6902.json`,
-        JSON.stringify(deltaRFC6902),
+        JSON.stringify(deltaRFC6902, null, 2),
       );
     } catch (err) {
       expect(String(err)).toBe(SOF_ERROR);
@@ -91,4 +94,29 @@ describe('stackoverflow resilience', () => {
 
     expect(exception).toBe(false);
   });
+});
+
+describe.ignore('UTIL: html deep element', () => {
+  const tmp = [];
+
+  for (let n = 0; n < DEPTH; n++) tmp.push('<div>');
+  tmp.push(Math.PI);
+  for (let n = 0; n < DEPTH; n++) tmp.push('</div>');
+  const html = `<html><body>${tmp.join('')}</body></html>`;
+
+  Deno.writeTextFile(`./tmp/${DEPTH}.elements.html`, html!);
+
+  /**
+   * Observations (2026-10) DEPTH 5e3
+   * Firefox
+   * - render OK
+   * - devtools was able to show 512 elements in inspector thumbnail bar
+   *   but ended on 507'th nested <div> in tree panel, no devtools crash
+   * Chrome
+   * - render OK
+   * - trying to inspect inner Math.PI value chrashes devtools panel
+   * - trying to inspect from <body> element - devtools crashes after
+   *   opening 255th nested <div>
+   */
+  expect(1).toBe(1);
 });
