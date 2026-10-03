@@ -98,6 +98,10 @@ onUnmounted(() => {
 
   --diff-added-background: #bbffbb;
   --diff-deleted-background: #ffbbbb;
+  --font-family-normal: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    'Noto Sans', Ubuntu, Adwaita, 'Helvetica Neue', sans-serif;
+  --font-family-monospace: 'Segoe UI Mono', 'Roboto Mono',
+    'Noto Sans Mono', 'Ubuntu Mono', 'Adwaita Mono', 'Helvetica Monospaced', monospace;
 }
 
 * {
@@ -109,6 +113,7 @@ body {
   padding: 0;
   overflow: hidden;
   height: 100%;
+  font-family: var(--font-family-normal);
 }
 
 a {
@@ -137,7 +142,7 @@ a {
       margin: 0 auto;
       text-align: center;
       font-size: 26px;
-      font-family: monospace;
+      font-family: var(--font-family-monospace);
       color: var(--colour-text);
     }
 
@@ -160,9 +165,14 @@ a {
     }
   }
 
-  .jsondiffpatch-delta pre {
-    white-space: pre-wrap;
-    word-break: break-all;
+  .jsondiffpatch-delta {
+    font-family: var(--font-family-monospace);
+
+    pre {
+      white-space: pre-wrap;
+      word-break: break-all;
+      font-family: var(--font-family-monospace);
+    }
   }
 
   .jsondiffpatch-added .jsondiffpatch-property-name,
