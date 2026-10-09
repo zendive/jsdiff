@@ -22,6 +22,7 @@
     "npm:jsondiffpatch@0.7.6": "0.7.6",
     "npm:pinia@4.0.3": "4.0.3_typescript@7.0.2_vue@3.5.43__typescript@7.0.2",
     "npm:sass@1.104.0": "1.104.0",
+    "npm:source-map-js@1.2.2": "1.2.2",
     "npm:typescript@7.0.2": "7.0.2",
     "npm:vue@3.5.43": "3.5.43_typescript@7.0.2"
   },
@@ -678,8 +679,8 @@
       ],
       "bin": true
     },
-    "source-map-js@1.2.1": {
-      "integrity": "sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA=="
+    "source-map-js@1.2.2": {
+      "integrity": "sha512-KGj/8Y43x35aZVDtt+J4mK1hoLGHULMYfSkODJNQjNDC3oW1PqPoxMwo0pLUsWM/UEGzON/NxeHywEfNXNP3Vw=="
     },
     "typescript@4.9.5": {
       "integrity": "sha512-1FXk9E2Hm+QzZQ7z+McJiHL4NW1F2EzMu9Nq9i3zAaGqibafqYwCVU6WyWAuyQRRzOlxou8xZSyXLEN8oKj24g==",
@@ -758,9 +759,13 @@
         "npm:jsondiffpatch@0.7.6",
         "npm:pinia@4.0.3",
         "npm:sass@1.104.0",
+        "npm:source-map-js@1.2.2",
         "npm:typescript@7.0.2",
         "npm:vue@3.5.43"
-      ]
+      ],
+      "overrides": {
+        "source-map-js": "1.2.2"
+      }
     }
   }
 }
